@@ -1,0 +1,16 @@
+{
+  "provider": "local",
+  "lastUpdated": "2025-01-18T01:07:56.000Z",
+  "models": {
+    "openai": {
+      "default": "gpt-4o-mini",
+      "analysis": "gpt-4o",
+      "bio": "gpt-4o"
+    },
+    "claude": {
+      "default": "claude-3-5-sonnet-latest",
+      "analysis": "claude-sonnet-4-0",
+      "bio": "claude-sonnet-4-0"
+    }
+  }
+}

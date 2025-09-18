@@ -7,3 +7,10 @@
 
 # Log files
 *.log
+
+# Environment variables
+.envrc
+.env
+
+# Dependencies
+node_modules/
