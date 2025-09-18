@@ -37,7 +37,7 @@ const DEFAULT_CONFIG: AIConfig = {
       bio: 'gpt-4o'
     },
     claude: {
-      default: CLAUDE_MODELS.SONNET_3_5,
+      default: CLAUDE_MODELS.SONNET_3_5_LATEST,
       analysis: CLAUDE_MODELS.SONNET_4, 
       bio: CLAUDE_MODELS.SONNET_4
     }

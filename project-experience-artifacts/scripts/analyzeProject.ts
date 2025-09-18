@@ -395,8 +395,14 @@ async function analyzeProject(
     const gitData = extractResult.data!;
     
     // Generate analysis prompt using original format
+    console.log('🎨 Creating analysis prompt...');
     const prompt = createAnalysisPrompt(gitData, options);
     const provider = getCurrentProvider();
+    
+    console.log(`🤖 Using AI provider: ${provider.toUpperCase()}`);
+    if (provider !== 'local') {
+      console.log('📡 Sending request to AI service... (this may take a moment)');
+    }
     
     // Try to generate with AI - if local mode, will return null
     const aiResult = await generateAIText(prompt, 'analysis');

@@ -32,7 +32,7 @@ export async function generateAIText(
       prompt,
       model: model as ClaudeModel,
       temperature: 0.3,
-      maxTokens: 3000,
+      maxTokens: 4000,
     });
     return result.text;
   }
@@ -42,7 +42,7 @@ export async function generateAIText(
       model: openai(model),
       prompt,
       temperature: 0.3,
-      maxTokens: 3000,
+      maxTokens: 4000,
     });
     return result.text;
   }

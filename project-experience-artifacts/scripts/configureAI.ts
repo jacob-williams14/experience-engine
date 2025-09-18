@@ -12,6 +12,7 @@ import {
   saveAIConfig,
   loadAIConfig 
 } from '../lib/aiConfig.js';
+import { select, confirm } from '@inquirer/prompts';
 
 /**
  * Display current configuration status
@@ -43,64 +44,73 @@ async function selectProvider(): Promise<void> {
   
   console.log('\n🔧 Configure AI Provider');
   console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-  console.log('Available options:');
-  console.log('');
   
-  // Always show local option
-  console.log('1. local   - Generate prompts for copy/paste (no API key needed)');
-  
-  // Show API-based options if keys are available
-  let optionNumber = 2;
-  const providerOptions: AIProvider[] = ['local'];
+  // Build choices array with only available providers
+  const choices = [
+    {
+      name: 'local - Generate prompts for copy/paste (no API key needed) ✅',
+      value: 'local' as AIProvider,
+      description: 'Always available - generates prompts for manual copy/paste'
+    }
+  ];
   
   if (status.availableProviders.includes('openai')) {
-    console.log(`${optionNumber}. openai  - Use OpenAI GPT models (API key detected ✅)`);
-    providerOptions.push('openai');
-    optionNumber++;
-  } else {
-    console.log('   openai  - Use OpenAI GPT models (❌ Set OPENAI_API_KEY)');
+    choices.push({
+      name: 'openai - Use OpenAI GPT models (API key detected) ✅',
+      value: 'openai' as AIProvider,
+      description: 'Automatic processing with GPT models'
+    });
   }
   
   if (status.availableProviders.includes('claude')) {
-    console.log(`${optionNumber}. claude  - Use Anthropic Claude models (API key detected ✅)`);
-    providerOptions.push('claude');
-    optionNumber++;
-  } else {
-    console.log('   claude  - Use Anthropic Claude models (❌ Set ANTHROPIC_API_KEY)');
+    choices.push({
+      name: 'claude - Use Anthropic Claude models (API key detected) ✅',
+      value: 'claude' as AIProvider,
+      description: 'Automatic processing with Claude models'
+    });
   }
   
-  console.log('');
-  console.log('Enter your choice (1-' + (optionNumber - 1) + '):');
-  
-  // Simple input handling (Bun doesn't have readline built-in)
-  const input = prompt('Selection:');
-  const choice = parseInt(input || '0', 10);
-  
-  if (choice < 1 || choice > providerOptions.length) {
-    console.log('❌ Invalid selection');
-    return;
+  // Show info about unavailable providers
+  const unavailableProviders = [];
+  if (!status.availableProviders.includes('openai')) {
+    unavailableProviders.push('OpenAI (set OPENAI_API_KEY)');
+  }
+  if (!status.availableProviders.includes('claude')) {
+    unavailableProviders.push('Claude (set ANTHROPIC_API_KEY)');
   }
   
-  const selectedProvider = providerOptions[choice - 1];
-  
-  // Ensure we have a valid provider (this should never happen due to bounds checking above)
-  if (!selectedProvider) {
-    console.log('❌ Invalid provider selection');
-    return;
+  if (unavailableProviders.length > 0) {
+    console.log(`\n📝 Note: Additional providers available with API keys: ${unavailableProviders.join(', ')}`);
   }
   
-  // Confirm the selection
-  console.log(`\n📝 Setting AI provider to: ${selectedProvider}`);
+  const selectedProvider = await select({
+    message: 'Select AI provider:',
+    choices,
+    default: status.currentProvider
+  });
+  
+  // Confirm the selection if it's different from current
+  if (selectedProvider !== status.currentProvider) {
+    const confirmed = await confirm({
+      message: `Switch to ${selectedProvider.toUpperCase()} provider?`,
+      default: true
+    });
+    
+    if (!confirmed) {
+      console.log('❌ Configuration cancelled');
+      return;
+    }
+  }
   
   try {
     setAIProvider(selectedProvider);
-    console.log('✅ Configuration saved successfully!');
+    console.log('\n✅ Configuration saved successfully!');
     
     // Show next steps
     if (selectedProvider === 'local') {
       console.log('\n🎯 Local mode selected:');
       console.log('   • Scripts will generate prompts for copy/paste');
-      console.log('   • Use --generate-prompt flag or prompts will be saved to locally-generated-prompts/');
+      console.log('   • Prompts saved to locally-generated-prompts/ directory');
     } else {
       console.log(`\n🚀 ${selectedProvider.toUpperCase()} mode selected:`);
       console.log('   • Scripts will automatically use AI for analysis');
