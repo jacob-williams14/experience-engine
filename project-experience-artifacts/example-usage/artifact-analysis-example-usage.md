@@ -9,6 +9,7 @@
 ## Example: Jacob's JIS Project Analysis
 
 ### Step 1: Define Parameters
+
 ```
 DEVELOPER_NAME: Jacob Williams
 PROJECT_NAME: Justice Information System
@@ -29,6 +30,7 @@ Data has already been pre-filtered to include only Jacob Williams' assigned work
 ```
 
 ### Step 2: Use the Template
+
 ```
 Please analyze the attached project backlog data for Jacob Williams' work on Judicial Information Services.
 Create a comprehensive summary following the artifact analysis framework, focusing on:
@@ -57,6 +59,7 @@ Output Directory: government-project-summaries
 ## For Team Members
 
 Each person can create their own parameter block:
+
 ```
 DEVELOPER_NAME: [Your Name]
 PROJECT_NAME: [Your Project]

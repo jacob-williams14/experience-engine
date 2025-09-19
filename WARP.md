@@ -9,6 +9,7 @@ This repository contains an automated TypeScript system for generating professio
 ## Common Commands
 
 ### System Setup and Configuration
+
 ```bash
 # Navigate to the system directory
 cd project-experience-artifacts/
@@ -26,6 +27,7 @@ bun run configure-ai set claude
 ```
 
 ### Project Summary Generation
+
 ```bash
 # Interactive mode (recommended for first-time users)
 bun run generateProjectSummary.ts
@@ -44,6 +46,7 @@ bun run scripts/analyzeProject.ts "original-artifacts/root_compass_git_log.txt" 
 ```
 
 ### Content Analysis and Management
+
 ```bash
 # View generated summaries
 ls -la project-experience-artifacts/project-experience-summaries/
@@ -59,6 +62,7 @@ grep -l "Jacob Williams" project-experience-summaries/*.md
 ```
 
 ### System Utilities
+
 ```bash
 # Type check the entire system
 bun run type-check
@@ -79,6 +83,7 @@ Git Logs → extractGitData() → analyzeProject() → Professional Summary
 ```
 
 **Current Workflow:**
+
 1. **Git Processing**: Parse git logs and filter commits by developer
 2. **AI Analysis**: Generate structured project summary using preserved prompt framework
 3. **Output Generation**: Create professional markdown summaries
@@ -86,17 +91,20 @@ Git Logs → extractGitData() → analyzeProject() → Professional Summary
 ### Core Components
 
 **Automated Processing Scripts** (`project-experience-artifacts/scripts/`)
+
 - `analyzeProject.ts`: Main analysis engine with streaming git processing
 - `configureAI.ts`: AI provider management and configuration
 - `generateBio.ts`: Biography generation from multiple projects (in development)
 - `validateOutput.ts`: Quality assurance and validation
 
 **Interactive Interface**
+
 - `generateProjectSummary.ts`: Interactive wrapper for easy parameter collection
 - Prompts for all required inputs (developer info, project context, etc.)
 - Calls the automated pipeline with collected parameters
 
 **Core Libraries** (`project-experience-artifacts/lib/`)
+
 - `ai.ts`: Multi-provider AI abstraction (OpenAI, Claude, Local)
 - `aiConfig.ts`: Configuration management and provider switching
 - `claude.ts`: Claude-specific SDK integration and model management
@@ -104,15 +112,18 @@ Git Logs → extractGitData() → analyzeProject() → Professional Summary
 - `types.ts`: TypeScript type definitions
 
 **Data Processing Tools** (`project-experience-artifacts/tools/`)
+
 - `extractGitData.ts`: Git log parsing and developer filtering
 - CSV backlog processing (planned)
 
 **Input Sources** (`project-experience-artifacts/original-artifacts/`)
+
 - Git log files: `root_compass_git_log.txt`, `root_leading_change_git_log.txt`
 - CSV backlogs: `JIS_backlog.csv`, `biggby_backlog.csv` (for future processing)
 - Raw project artifacts for analysis
 
 **Generated Outputs**
+
 - `project-experience-summaries/`: Comprehensive professional project summaries
 - `professional-bios/`: Professional biographies (300-500 words)
 - `locally-generated-prompts/`: AI prompts for manual copy/paste (local mode)
@@ -120,11 +131,13 @@ Git Logs → extractGitData() → analyzeProject() → Professional Summary
 ### AI Configuration System
 
 **Three Operating Modes:**
+
 1. **Local Mode** (default): Generates prompts for manual copy/paste into AI tools
 2. **OpenAI Mode**: Automatically processes using GPT models (requires `OPENAI_API_KEY`)
 3. **Claude Mode**: Automatically processes using Claude models (requires `ANTHROPIC_API_KEY`)
 
 **Configuration Management:**
+
 - Settings stored in `.ai-config.json` (created automatically)
 - Switch modes with `bun run configure-ai set <provider>`
 - Model settings: 3000 max tokens, 0.3 temperature (optimized for professional content)
@@ -132,12 +145,14 @@ Git Logs → extractGitData() → analyzeProject() → Professional Summary
 ### Key Workflows
 
 **Automated Analysis Workflow:**
+
 1. Place git log files in `original-artifacts/`
 2. Run `bun run generateProjectSummary.ts` (interactive) or direct command-line
 3. System automatically processes git data and generates professional summaries
 4. Output saved to `project-experience-summaries/`
 
 **Command-Line Workflow:**
+
 ```bash
 # One command generates complete professional summary
 bun run scripts/analyzeProject.ts "git-log.txt" "Developer Name" "Project" \
@@ -146,6 +161,7 @@ bun run scripts/analyzeProject.ts "git-log.txt" "Developer Name" "Project" \
 ```
 
 **Quality Assurance:**
+
 - Consistent structure maintained across all generated summaries
 - Original prompt framework preserved for quality standards
 - TypeScript type safety throughout the system
@@ -154,17 +170,20 @@ bun run scripts/analyzeProject.ts "git-log.txt" "Developer Name" "Project" \
 ### Development Environment
 
 **TypeScript System:**
+
 - Built with Bun runtime for fast execution
 - Full TypeScript typing throughout
 - No build step required - direct TypeScript execution
 - Type checking available via `bun run type-check`
 
 **Streaming Architecture:**
+
 - No intermediate JSON files - processes git data directly in memory
 - Git log → analysis → summary in single pipeline
 - Eliminates file I/O complexity and potential errors
 
 **Multi-Provider AI Support:**
+
 - Unified interface supporting OpenAI, Claude, and local prompt generation
 - Easy switching between providers via configuration
 - Consistent output quality regardless of AI provider
@@ -173,18 +192,21 @@ bun run scripts/analyzeProject.ts "git-log.txt" "Developer Name" "Project" \
 ### System Benefits
 
 **For Individual Users:**
+
 - Single command generates complete professional summaries
 - Interactive mode guides through parameter collection
 - No manual data preparation or formatting required
 - Consistent high-quality output suitable for career documentation
 
 **For Teams:**
+
 - Standardized professional summary format across team members
 - Reusable system for multiple projects and developers
 - Version controlled configuration and templates
 - Supports both automated and manual workflows
 
 **Quality Assurance:**
+
 - Preserves original manual prompt framework quality
 - TypeScript ensures system reliability
 - Automated processing eliminates human formatting errors
@@ -193,6 +215,7 @@ bun run scripts/analyzeProject.ts "git-log.txt" "Developer Name" "Project" \
 ### Future Development
 
 **Planned Features:**
+
 - CSV backlog processing (complementing git log analysis)
 - Enhanced biography generation from multiple project summaries
 - Additional output formats and customization options

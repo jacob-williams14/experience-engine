@@ -38,32 +38,19 @@ export interface GitContribution {
 
 // ===== Backlog-related Types =====
 
-export interface BacklogItem {
-  id: string;
-  title: string;
-  description?: string;
-  type: 'feature' | 'bug' | 'task' | 'epic' | 'story';
-  status: 'todo' | 'in-progress' | 'done' | 'blocked';
-  assignee?: string;
-  priority?: 'low' | 'medium' | 'high' | 'critical';
-  estimatedHours?: number;
-  actualHours?: number;
-  tags?: string[];
-  createdDate?: string;
-  completedDate?: string;
+// Raw CSV row - let AI interpret the columns rather than forcing structure
+export interface BacklogTask {
+  [key: string]: string; // Raw CSV data
 }
 
 export interface BacklogContribution {
   developer: Developer;
   project: Project;
-  items: BacklogItem[];
-  summary: {
-    totalItems: number;
-    completedItems: number;
-    itemsByType: Record<BacklogItem['type'], number>;
-    itemsByStatus: Record<BacklogItem['status'], number>;
-    totalHours: number;
-    technicalKeywords: string[];
+  tasks: BacklogTask[]; // Raw CSV rows assigned to developer
+  metadata: {
+    totalRows: number;
+    assigneeColumns: string[]; // Which columns were used for filtering
+    allColumns: string[]; // All available columns in the CSV
   };
 }
 

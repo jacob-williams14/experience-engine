@@ -9,6 +9,7 @@
 ## Example: Jacob's Professional Biography
 
 ### Step 1: Define Parameters
+
 ```
 DEVELOPER_NAME: Jacob Williams
 EXPERIENCE_LEVEL: Mid-level Developer transitioning to Technical Leadership roles
@@ -17,7 +18,7 @@ CAREER_ASPIRATIONS: Technical Leadership, System Architecture, Team Mentoring, C
 OPTIONAL_OUTPUT_DIRECTORY:
 professional-bios
 
-PERSONAL_DESCRIPTION: 
+PERSONAL_DESCRIPTION:
 Jacob is a passionate full-stack developer who thrives on solving complex technical challenges and building scalable solutions. He brings a collaborative approach to development work and is energized by opportunities to mentor team members and drive architectural decisions.
 
 PROJECT_SUMMARIES:
@@ -29,6 +30,7 @@ Strategic Thinking, Problem-Solving, Collaboration, Technical Innovation, Qualit
 ```
 
 ### Step 2: Use the Template
+
 ```
 Please create a professional biography for Jacob Williams' Atomic Object employee profile following the Professional Biography Generation framework.
 
@@ -57,6 +59,7 @@ Generate a compelling 300-500 word professional biography suitable for potential
 ## For Team Members
 
 Each person can create their own parameter block:
+
 ```
 DEVELOPER_NAME: [Your Name]
 EXPERIENCE_LEVEL: [Your current level]

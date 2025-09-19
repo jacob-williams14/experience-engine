@@ -17,6 +17,7 @@ bun run generateProjectSummary.ts "original-artifacts/root_compass_git_log.txt" 
 ## Two Analysis Modes
 
 ### 1. AI Analysis Mode (Default)
+
 - Processes git data and generates final summary automatically
 - Uses the configured AI model (Claude 4 Sonnet)
 - Output goes to `project-experience-summaries/`
@@ -26,6 +27,7 @@ bun run generateProjectSummary.ts "git-log.txt" "Developer Name" "Project Name"
 ```
 
 ### 2. Prompt Generation Mode (New)
+
 - Generates a comprehensive prompt for manual copy/paste
 - Perfect for using with different AI models or tools
 - Output goes to `locally-generated-prompts/`
@@ -53,10 +55,12 @@ bun run generateProjectSummary.ts "git-log.txt" "Developer Name" "Project Name" 
 ## File Naming Convention
 
 Generated prompts are saved as:
+
 ```
 locally-generated-prompts/[project-name]-analysis-prompt.md
 ```
 
 For example:
+
 - `root-compass-analysis-prompt.md`
 - `biggby-mobile-app-analysis-prompt.md`

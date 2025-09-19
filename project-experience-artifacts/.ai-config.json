@@ -1,6 +1,6 @@
 {
   "provider": "claude",
-  "lastUpdated": "2025-09-18T03:20:05.946Z",
+  "lastUpdated": "2025-09-19T17:24:32.299Z",
   "models": {
     "openai": {
       "default": "gpt-4o-mini",

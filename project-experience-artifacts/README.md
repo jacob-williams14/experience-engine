@@ -7,6 +7,7 @@ A streamlined TypeScript system that processes git logs to generate comprehensiv
 ## 🚀 Quick Start
 
 ### Prerequisites
+
 - [Bun](https://bun.sh) runtime (v1.0.0 or later)
 - Git log files from your projects
 - (Optional) OpenAI or Claude API keys for automated processing
@@ -42,19 +43,25 @@ bun run scripts/analyzeProject.ts "original-artifacts/git-log.txt" "Developer Na
 The system supports three modes:
 
 ### Local Mode (Default)
+
 Generates prompts for manual copy/paste into AI tools:
+
 ```bash
 bun run configure-ai set local
 ```
 
 ### OpenAI Mode
+
 Automatically processes with GPT models (requires `OPENAI_API_KEY`):
+
 ```bash
 bun run configure-ai set openai
 ```
 
-### Claude Mode  
+### Claude Mode
+
 Automatically processes with Claude models (requires `ANTHROPIC_API_KEY`):
+
 ```bash
 bun run configure-ai set claude
 ```
@@ -62,7 +69,9 @@ bun run configure-ai set claude
 ## 📁 Input Data
 
 ### Git Logs (Current Support)
+
 Place git log files in `original-artifacts/`:
+
 ```bash
 # Generate a git log file
 git log --oneline --author="Developer Name" > original-artifacts/project-git-log.txt
@@ -72,6 +81,7 @@ bun run scripts/analyzeProject.ts "original-artifacts/project-git-log.txt" "Deve
 ```
 
 ### CSV Backlogs (Coming Soon)
+
 Support for processing project backlogs from CSV files will be added to complement git log analysis.
 
 ## 🏧 System Architecture
@@ -81,6 +91,7 @@ Git Logs → extractGitData() → analyzeProject() → Professional Summary
 ```
 
 ### Current Workflow
+
 1. **Git Processing**: Parse git logs and filter by developer
 2. **AI Analysis**: Generate structured project summary using original prompt framework
 3. **Output Generation**: Create professional markdown summaries
@@ -96,7 +107,9 @@ Git Logs → extractGitData() → analyzeProject() → Professional Summary
 ## 📊 Output
 
 ### Project Summaries
+
 Generated in `project-experience-summaries/`:
+
 - Comprehensive technical analysis
 - Skills demonstration
 - Professional achievements
@@ -104,7 +117,9 @@ Generated in `project-experience-summaries/`:
 - Consistent formatting across projects
 
 ### Professional Biographies
+
 Generated in `professional-bios/`:
+
 - 300-500 word professional narratives
 - Synthesized from multiple project summaries
 - Client-ready professional profiles
@@ -112,14 +127,16 @@ Generated in `professional-bios/`:
 ## 🔧 Configuration
 
 ### AI Models
+
 - **OpenAI**: GPT-4o for analysis, GPT-4o-mini for general tasks
 - **Claude**: Sonnet-4 for analysis, Sonnet-3.5 for general tasks
 - **Settings**: 3000 max tokens, 0.3 temperature (optimized for professional content)
 
 ### File Structure
+
 ```
 project-experience-summaries/    # Generated project summaries
-professional-bios/              # Generated biographies  
+professional-bios/              # Generated biographies
 original-artifacts/             # Source git logs and data
 lib/                           # Core system libraries
 scripts/                       # Main processing scripts
@@ -129,6 +146,7 @@ tools/                         # Data processing utilities
 ## 🚧 Current Status
 
 ### ✅ Completed
+
 - Git log processing and analysis
 - Multi-AI provider support (OpenAI, Claude, Local)
 - Streaming architecture (no intermediate JSON files)
@@ -137,6 +155,7 @@ tools/                         # Data processing utilities
 - Configuration management system
 
 ### 🔄 In Development
+
 - CSV backlog processing support
 - Biography generation from multiple projects
 - Enhanced validation and quality assurance
@@ -144,12 +163,14 @@ tools/                         # Data processing utilities
 ## 📏 Usage Examples
 
 ### Interactive Mode
+
 ```bash
 bun run generateProjectSummary.ts
 # Follows prompts to collect all parameters interactively
 ```
 
 ### Command Line Mode
+
 ```bash
 # Basic usage
 bun run scripts/analyzeProject.ts "git-log.txt" "John Doe" "E-commerce Platform"
@@ -164,6 +185,7 @@ bun run scripts/analyzeProject.ts "compass-git-log.txt" "Jacob Williams" "Root C
 ```
 
 ### Configuration Management
+
 ```bash
 # Check current setup
 bun run configure-ai status
@@ -178,6 +200,7 @@ bun run configure-ai models
 ## 🎯 Quality Standards
 
 All generated summaries follow strict formatting and content requirements:
+
 - Consistent structure across projects
 - Technical depth with specific implementation details
 - Professional tone suitable for client presentation
@@ -187,6 +210,7 @@ All generated summaries follow strict formatting and content requirements:
 ## 🔄 Migration from Manual Process
 
 This system preserves the exact prompt framework and quality standards from the original manual process while automating:
+
 - Git log parsing and filtering
 - Data formatting for AI consumption
 - Consistent application of analysis framework

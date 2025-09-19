@@ -9,40 +9,45 @@ import type { ValidationResult } from "@/types";
 
 // ===== Main validation function (stub) =====
 async function validateOutput(filePath: string): Promise<ValidationResult> {
-  console.log(`✅ Validating output: ${filePath}`);
-  
-  // TODO: Check output format consistency
-  // TODO: Validate against templates
-  // TODO: Identify potential improvements
-  // TODO: Generate quality reports
-  
-  return {
-    isValid: false,
-    errors: [{
-      type: 'validation',
-      message: 'validateOutput.ts is not yet implemented - this is scaffolding only',
-      severity: 'critical'
-    }],
-    warnings: [],
-    score: 0
-  };
+	console.log(`✅ Validating output: ${filePath}`);
+
+	// TODO: Check output format consistency
+	// TODO: Validate against templates
+	// TODO: Identify potential improvements
+	// TODO: Generate quality reports
+
+	return {
+		isValid: false,
+		errors: [
+			{
+				type: "validation",
+				message:
+					"validateOutput.ts is not yet implemented - this is scaffolding only",
+				severity: "critical",
+			},
+		],
+		warnings: [],
+		score: 0,
+	};
 }
 
 // ===== CLI Interface =====
 async function main() {
-  const args = process.argv.slice(2);
-  
-  if (args.length < 1) {
-    console.error('Usage: bun run scripts/validateOutput.ts <output-file>');
-    process.exit(1);
-  }
+	const args = process.argv.slice(2);
 
-  console.log('🚧 This script is scaffolding only - implementation coming in Phase 3');
-  process.exit(1);
+	if (args.length < 1) {
+		console.error("Usage: bun run scripts/validateOutput.ts <output-file>");
+		process.exit(1);
+	}
+
+	console.log(
+		"🚧 This script is scaffolding only - implementation coming in Phase 3"
+	);
+	process.exit(1);
 }
 
 if (import.meta.main) {
-  main();
+	main();
 }
 
 export { validateOutput };

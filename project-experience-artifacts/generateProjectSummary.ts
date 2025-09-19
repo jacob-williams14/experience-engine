@@ -8,60 +8,44 @@
 import { input, search } from "@inquirer/prompts";
 import { existsSync } from "fs";
 import { readdir } from "fs/promises";
-import path from "path";
 import { getConfigStatus } from "./lib/aiConfig.js";
 import { analyzeProject } from "./scripts/analyzeProject.js";
 
 /**
- * Get available git log files with shortcuts
+ * Get available data files from original-artifacts directory
  */
-async function getGitLogFiles(): Promise<
+async function getDataFiles(): Promise<
 	Array<{ name: string; value: string; description?: string }>
 > {
 	const choices: Array<{ name: string; value: string; description?: string }> =
 		[];
 
-	// Add shortcuts for common locations
-	const shortcuts = [
-		{
-			name: "📁 original-artifacts/",
-			value: "original-artifacts/",
-			description: "Browse original-artifacts directory",
-		},
-		{
-			name: "📄 Root Compass",
-			value: "original-artifacts/root_compass_git_log.txt",
-			description: "Root Compass project git log",
-		},
-		{
-			name: "📄 Root Leading Change",
-			value: "original-artifacts/root_leading_change_git_log.txt",
-			description: "Root Leading Change project git log",
-		},
-	];
-
-	// Add existing shortcuts
-	for (const shortcut of shortcuts) {
-		if (existsSync(shortcut.value)) {
-			choices.push(shortcut);
-		}
-	}
-
-	// Add other git log files in original-artifacts
+	// Scan original-artifacts directory for all relevant files
 	if (existsSync("original-artifacts/")) {
 		try {
 			const files = await readdir("original-artifacts/");
+
+			// Sort files alphabetically for consistent ordering
+			files.sort();
+
 			for (const file of files) {
-				if (
-					file.endsWith(".txt") &&
-					file.includes("git") &&
-					!shortcuts.some((s) => s.value.endsWith(file))
-				) {
-					const fullPath = `original-artifacts/${file}`;
+				const fullPath = `original-artifacts/${file}`;
+
+				// Add git log files
+				if (file.endsWith(".txt")) {
 					choices.push({
 						name: `📄 ${file}`,
 						value: fullPath,
 						description: "Git log file",
+					});
+				}
+
+				// Add CSV files
+				if (file.endsWith(".csv")) {
+					choices.push({
+						name: `📊 ${file}`,
+						value: fullPath,
+						description: "CSV backlog file",
 					});
 				}
 			}
@@ -81,106 +65,6 @@ async function getGitLogFiles(): Promise<
 }
 
 /**
- * Browse directory contents recursively
- */
-async function browseDirectory(dirPath: string, question: string): Promise<string> {
-	try {
-		while (true) {
-			const choices: Array<{ name: string; value: string; description?: string }> = [];
-			
-			// List directory contents first
-			if (existsSync(dirPath)) {
-				const items = await readdir(dirPath);
-				const { stat } = await import('fs/promises');
-				
-				for (const item of items.sort()) {
-					const fullPath = path.join(dirPath, item);
-					try {
-						const stats = await stat(fullPath);
-						
-						if (stats.isDirectory()) {
-							choices.push({
-								name: `📁 ${item}/`,
-								value: `__dir_${fullPath}__`,
-								description: `Browse ${item} directory`
-							});
-						} else if (item.endsWith('.txt') && (item.includes('git') || item.includes('log'))) {
-							choices.push({
-								name: `📄 ${item}`,
-								value: fullPath,
-								description: 'Git log file'
-							});
-						}
-					} catch {
-						// Skip items we can't stat
-					}
-				}
-			}
-			
-			// Add manual entry and go back options at bottom
-			choices.push({
-				name: "✏️  Enter custom path...",
-				value: "__custom__",
-				description: "Type a custom file path"
-			});
-			
-			choices.push({
-				name: "🔙 .. (go back)",
-				value: "__back__",
-				description: "Go back to main file selection"
-			});
-			
-			if (choices.length === 0) {
-				console.log(`No files found in ${dirPath}`);
-				return "";
-			}
-			
-			// Show selection
-			const selected = await search({
-				message: `${question} (browsing: ${dirPath})`,
-				source: async (input) => {
-					if (!input) return choices;
-					return choices.filter(
-						(choice) =>
-							choice.name.toLowerCase().includes(input.toLowerCase()) ||
-							choice.value.toLowerCase().includes(input.toLowerCase())
-					);
-				},
-			});
-			
-			// Handle selection
-			if (selected === "__custom__") {
-				return input({
-					message: "Enter file path:",
-					default: ""
-				});
-			} else if (selected === "__back__") {
-				dirPath = path.dirname(dirPath);
-				if (dirPath === ".") {
-					// Go back to main file selection
-					return promptForFile(question.replace(/ \(browsing:.*\)$/, ""));
-				}
-				continue;
-			} else if (selected.startsWith("__dir_")) {
-				// Navigate into directory
-				dirPath = selected.replace("__dir_", "").replace("__", "");
-				continue;
-			} else {
-				// File selected
-				return selected;
-			}
-		}
-	} catch (error) {
-		// Handle Ctrl+C gracefully
-		if (error instanceof Error && error.name === "ExitPromptError") {
-			console.log("\n👋 Operation cancelled by user");
-			process.exit(0);
-		}
-		throw error;
-	}
-}
-
-/**
  * Prompt for file path with completion and shortcuts
  */
 async function promptForFile(
@@ -188,7 +72,7 @@ async function promptForFile(
 	defaultValue?: string
 ): Promise<string> {
 	try {
-		const choices = await getGitLogFiles();
+		const choices = await getDataFiles();
 
 		if (choices.length > 1) {
 			// Use search prompt for file selection
@@ -209,12 +93,6 @@ async function promptForFile(
 					message: "Enter file path:",
 					default: defaultValue,
 				});
-			}
-			
-			// Handle directory browsing
-			if (selected === "original-artifacts/") {
-				// Browse directory contents
-				return await browseDirectory("original-artifacts", question);
 			}
 
 			return selected;
@@ -289,10 +167,7 @@ async function runInteractive() {
 
 	// Required inputs
 	console.log("📋 Required Information:");
-	const gitLogFile = await promptForFile(
-		"Select git log file:",
-		"original-artifacts/root_compass_git_log.txt"
-	);
+	const dataFile = await promptForFile("Select data file:");
 	const developerName = await prompt("Developer full name");
 	const projectName = await prompt("Project name (descriptive)");
 
@@ -351,7 +226,7 @@ async function runInteractive() {
 	);
 
 	return {
-		gitLogFile,
+		dataFile,
 		developerName,
 		projectName,
 		analysisOptions: {
@@ -387,7 +262,7 @@ async function main() {
 		config = await runInteractive();
 	} else if (args.length >= 3) {
 		// Command line mode - arguments provided
-		const [gitLogFile, developerName, projectName] = args;
+		const [dataFile, developerName, projectName] = args;
 
 		// Parse options
 		const analysisOptions: Parameters<typeof analyzeProject>[3] = {};
@@ -425,7 +300,7 @@ async function main() {
 		}
 
 		config = {
-			gitLogFile: gitLogFile!,
+			dataFile: dataFile!,
 			developerName: developerName!,
 			projectName: projectName!,
 			analysisOptions,
@@ -461,16 +336,16 @@ async function main() {
 	console.log("");
 	console.log("🚀 Starting Project Experience Artifacts Generation");
 	console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-	console.log(`📁 Git Log: ${config.gitLogFile}`);
+	console.log(`📁 Data File: ${config.dataFile}`);
 	console.log(`👤 Developer: ${config.developerName}`);
 	console.log(`🏗️ Project: ${config.projectName}`);
 	console.log("");
 
 	try {
-		// Generate project summary (includes git extraction)
+		// Generate project summary (includes data extraction)
 		console.log("🤖 Generating professional project summary...");
 		await analyzeProject(
-			config.gitLogFile,
+			config.dataFile,
 			config.developerName,
 			config.projectName,
 			config.analysisOptions

@@ -9,54 +9,117 @@
 import { generateAIText } from "../lib/ai.js";
 import { getCurrentProvider } from "../lib/aiConfig.js";
 import { CONFIG } from "../lib/config.js";
+import type { BacklogContribution, GitContribution } from "../lib/types.js";
 import { extractGitData } from "../tools/extractGitData.js";
-import type { GitContribution } from "../lib/types.js";
+import { processBacklog } from "../tools/processBacklog.js";
 
 /**
  * Create the sophisticated project analysis prompt based on the original artifact-analysis-prompt.md framework
  */
-function createAnalysisPrompt(gitData: GitContribution, options: {
-  projectContext?: string;
-  careerContext?: string;
-  role?: string;
-  duration?: string;
-  outputDir?: string;
-  additionalInstructions?: string;
-} = {}): string {
-  const { developer, project, commits } = gitData;
-  
-  // Format commits for the prompt
-  const commitData = commits.map(commit => 
-    `${commit.hash} | ${commit.date} | ${commit.message}`
-  ).join('\n');
+function createAnalysisPrompt(
+	data: GitContribution | BacklogContribution,
+	options: {
+		projectContext?: string;
+		careerContext?: string;
+		role?: string;
+		duration?: string;
+		outputDir?: string;
+		additionalInstructions?: string;
+	} = {}
+): string {
+	const { developer, project } = data;
 
-  // Extract date range from commits
-  const dates = commits.map(c => new Date(c.date)).sort((a, b) => a.getTime() - b.getTime());
-  const startDate = dates[0];
-  const endDate = dates[dates.length - 1];
-  const dateRange = startDate && endDate ? 
-    `${startDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })} - ${endDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}` : 
-    'Date range not available';
+	// Determine data type and extract relevant information
+	const isGitData = "commits" in data;
+	const isCsvData = "tasks" in data;
 
-  const outputDir = options.outputDir || 'project-experience-summaries';
+	// Format data for the prompt based on type
+	let formattedData: string;
+	let recordCount: number;
+	let dataTypeLabel: string;
+	let dateRange: string;
 
-  return `Please analyze the attached git log file for ${developer.name}'s contributions to ${project.name}. 
+	if (isGitData) {
+		const gitData = data as GitContribution;
+		formattedData = gitData.commits
+			.map((commit) => `${commit.hash} | ${commit.date} | ${commit.message}`)
+			.join("\n");
+		recordCount = gitData.commits.length;
+		dataTypeLabel = "git log data";
+
+		// Extract date range from commits
+		const dates = gitData.commits
+			.map((c) => new Date(c.date))
+			.sort((a, b) => a.getTime() - b.getTime());
+		const startDate = dates[0];
+		const endDate = dates[dates.length - 1];
+		dateRange =
+			startDate && endDate
+				? `${startDate.toLocaleDateString("en-US", {
+						month: "long",
+						year: "numeric",
+				  })} - ${endDate.toLocaleDateString("en-US", {
+						month: "long",
+						year: "numeric",
+				  })}`
+				: "Date range not available";
+	} else {
+		const csvData = data as BacklogContribution;
+		// Format CSV data showing key task information
+		formattedData = csvData.tasks
+			.map((task, index) => {
+				// Find the most relevant columns for display
+				const title =
+					task["Title"] ||
+					task["Card Name"] ||
+					task["Summary"] ||
+					task["Card Name"] ||
+					"No title";
+				const status =
+					task["State"] ||
+					task["Status"] ||
+					task["List Name"] ||
+					"Unknown status";
+				const type =
+					task["Work Item Type"] ||
+					task["Issue Type"] ||
+					task["Labels"] ||
+					"Task";
+				return `Task ${index + 1} | ${status} | ${type} | ${title}`;
+			})
+			.join("\n");
+		recordCount = csvData.tasks.length;
+		dataTypeLabel = "project backlog data";
+		dateRange = "Date range extracted from task data";
+	}
+
+	const outputDir = options.outputDir || "project-experience-summaries";
+
+	return `Please analyze the attached project data for ${
+		developer.name
+	}'s contributions to ${project.name}. 
 Create a comprehensive summary following the artifact analysis framework, focusing on:
-- Technical implementations and architectural decisions visible in commit messages
+- Technical implementations and architectural decisions ${
+		isGitData
+			? "visible in commit messages"
+			: "evident in task descriptions and work items"
+	}
 - Feature development patterns and areas of expertise
 - Code quality and development process improvements
 - Timeline and scope of contributions
 
-${options.projectContext ? `${options.projectContext}\n\n` : ''}
-${options.careerContext ? `${options.careerContext}\n\n` : ''}
+${options.projectContext ? `${options.projectContext}\n\n` : ""}
+${options.careerContext ? `${options.careerContext}\n\n` : ""}
 
-Data Filtering: The data has been pre-filtered to include only ${developer.name}'s commits.
+Data Filtering: The data has been pre-filtered to include only ${
+		developer.name
+	}'s ${isGitData ? "commits" : "assigned tasks"}.
 Output Directory: ${outputDir}
-Data Input: git log data (${commits.length} commits)
+Data Input: ${dataTypeLabel} (${recordCount} ${isGitData ? "commits" : "tasks"})
 
-**Git Log Data:**
+**${isGitData ? "Git Log" : "Project Backlog"} Data:**
 \`\`\`
-${commitData}
+${formattedData}
 \`\`\`
 
 ## Analysis Instructions
@@ -68,7 +131,11 @@ ${commitData}
 
 ### 2. Technical Analysis Framework
 
-**CRITICAL: For each framework category (A-D) below, extract specific technical evidence from the commit messages above that demonstrates ${developer.name}'s work in that area. Use the commit messages as your primary source of technical detail.**
+**CRITICAL: For each framework category (A-D) below, extract specific technical evidence from the ${
+		isGitData ? "commit messages" : "task descriptions and work items"
+	} above that demonstrates ${developer.name}'s work in that area. Use the ${
+		isGitData ? "commit messages" : "task titles, descriptions, and context"
+	} as your primary source of technical detail.**
 
 #### A. Technical Architecture & Infrastructure
 - Development environment setup and configuration
@@ -159,18 +226,24 @@ ${commitData}
 
 **Developer:** ${developer.name}  
 **Project Duration:** ${options.duration ? options.duration : dateRange}  
-**Role:** ${options.role ? options.role : '[Infer detailed role from commit patterns and technical contributions]'}  
+**Role:** ${
+		options.role
+			? options.role
+			: "[Infer detailed role from commit patterns and technical contributions]"
+	}  
 **Technology Stack:** [Extract ALL specific technologies, frameworks, databases, and tools mentioned in commit messages based on actual commit evidence]
 
 ## Project Overview
 
 [Write 2-3 comprehensive paragraphs that include:
-- Brief project description emphasizing ${developer.name}'s central contributions
+- Brief project description emphasizing ${
+		developer.name
+	}'s central contributions
 - Technology stack and architectural approach
 - ${developer.name}'s specific role and areas of ownership
 - Project scope, complexity, and business impact
 - Key technical challenges addressed
-${options.projectContext ? `- Context: ${options.projectContext}` : ''}]
+${options.projectContext ? `- Context: ${options.projectContext}` : ""}]
 
 ## Technical Architecture & Infrastructure
 
@@ -300,13 +373,23 @@ ${options.projectContext ? `- Context: ${options.projectContext}` : ''}]
 - **[Technical Leadership Contribution]** [detailed description of technical leadership impact]
 - **[Quality Contribution]** [detailed description of quality and reliability improvements]
 
-[Write a comprehensive final paragraph (3-4 sentences) summarizing ${developer.name}'s overall impact, technical growth, and professional contributions demonstrated throughout the ${project.name} project. Highlight their technical competence, leadership capabilities, and the value they brought to the project and team.]
+[Write a comprehensive final paragraph (3-4 sentences) summarizing ${
+		developer.name
+	}'s overall impact, technical growth, and professional contributions demonstrated throughout the ${
+		project.name
+	} project. Highlight their technical competence, leadership capabilities, and the value they brought to the project and team.]
 \`\`\`
 
-${options.additionalInstructions ? `\n## Additional Instructions\n${options.additionalInstructions}\n` : ''}
+${
+	options.additionalInstructions
+		? `\n## Additional Instructions\n${options.additionalInstructions}\n`
+		: ""
+}
 
 ## Quality Checklist
-- [ ] Summary is comprehensive enough to understand ${developer.name}'s full contribution
+- [ ] Summary is comprehensive enough to understand ${
+		developer.name
+	}'s full contribution
 - [ ] Technical details are accurate and specific
 - [ ] Professional achievements are clearly highlighted
 - [ ] Content is structured for biography construction
@@ -320,7 +403,9 @@ ${options.additionalInstructions ? `\n## Additional Instructions\n${options.addi
 ## Critical Quality Requirements
 
 ### Content Requirements
-- Summary must be comprehensive enough to understand ${developer.name}'s full technical contribution
+- Summary must be comprehensive enough to understand ${
+		developer.name
+	}'s full technical contribution
 - Technical details must be accurate, specific, and extracted from commit evidence
 - Professional achievements must be clearly highlighted with supporting evidence
 - Content must be structured specifically for professional biography construction
@@ -344,7 +429,11 @@ ${options.additionalInstructions ? `\n## Additional Instructions\n${options.addi
 - Show evidence of technical leadership and collaboration
 - Quantify impact and contributions where possible from commit evidence
 
-This analysis must produce a professional-grade summary that demonstrates ${developer.name}'s technical expertise, problem-solving abilities, and professional growth through concrete evidence extracted from their ${commits.length} commits on the ${project.name} project.
+This analysis must produce a professional-grade summary that demonstrates ${
+		developer.name
+	}'s technical expertise, problem-solving abilities, and professional growth through concrete evidence extracted from their ${recordCount} ${
+		isGitData ? "commits" : "tasks"
+	} on the ${project.name} project.
 
 ## CRITICAL CONSISTENCY REQUIREMENTS
 
@@ -361,155 +450,217 @@ Any deviation from the established template format is considered a critical erro
 
 // ===== Main analysis function =====
 async function analyzeProject(
-  gitLogPath: string,
-  developerName: string,
-  projectName: string,
-  options: {
-    projectContext?: string;
-    careerContext?: string;
-    role?: string;
-    duration?: string;
-    outputDir?: string;
-    additionalInstructions?: string;
-    developerEmail?: string;
-    developerUsername?: string;
-    developerAliases?: string[];
-  } = {}
+	dataFilePath: string,
+	developerName: string,
+	projectName: string,
+	options: {
+		projectContext?: string;
+		careerContext?: string;
+		role?: string;
+		duration?: string;
+		outputDir?: string;
+		additionalInstructions?: string;
+		developerEmail?: string;
+		developerUsername?: string;
+		developerAliases?: string[];
+	} = {}
 ): Promise<void> {
-  try {
-    // Extract git data directly from log file
-    console.log(`📊 Extracting git data from: ${gitLogPath}`);
-    const extractResult = await extractGitData(gitLogPath, developerName, projectName, {
-      developerEmail: options.developerEmail,
-      developerUsername: options.developerUsername, 
-      developerAliases: options.developerAliases,
-      saveToFile: false // Stream processing - no intermediate files
-    });
-    
-    if (!extractResult.success) {
-      console.error('❌ Git data extraction failed:');
-      extractResult.errors.forEach(error => console.error(`   ${error.message}`));
-      throw new Error('Git data extraction failed');
-    }
-    
-    const gitData = extractResult.data!;
-    
-    // Generate analysis prompt using original format
-    console.log('🎨 Creating analysis prompt...');
-    const prompt = createAnalysisPrompt(gitData, options);
-    const provider = getCurrentProvider();
-    
-    console.log(`🤖 Using AI provider: ${provider.toUpperCase()}`);
-    if (provider !== 'local') {
-      console.log('📡 Sending request to AI service... (this may take a moment)');
-    }
-    
-    // Try to generate with AI - if local mode, will return null
-    const aiResult = await generateAIText(prompt, 'analysis');
-    
-    if (aiResult === null) {
-      // === LOCAL MODE - PROMPT GENERATION ===
-      console.log('\n🎯 Local mode: Generated Analysis Prompt');
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      console.log(prompt);
-      console.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      console.log('\n📋 Copy the above prompt and paste it into your AI tool!');
-      
-      // Save prompt to locally-generated-prompts directory
-      const promptFileName = `${projectName.toLowerCase().replace(/\s+/g, '-')}-analysis-prompt.md`;
-      const promptFilePath = `locally-generated-prompts/${promptFileName}`;
-      await Bun.write(promptFilePath, prompt);
-      
-      console.log(`✅ Prompt saved to: ${promptFilePath}`);
-      
-    } else {
-      // === AI MODE ===
-      console.log(`🤖 Analysis completed with ${provider}!`);
-      
-      const outputFileName = `${projectName.toLowerCase().replace(/\s+/g, '-')}-project-summary.md`;
-      const outputBaseDir = options.outputDir || CONFIG.PROJECT_SUMMARIES_DIR;
-      const outputFilePath = `${outputBaseDir}/${outputFileName}`;
-      await Bun.write(outputFilePath, aiResult);
-      
-      console.log(`📄 Project summary saved to: ${outputFilePath}`);
-    }
-    
-  } catch (error) {
-    console.error('💥 Analysis failed:', error);
-    throw error;
-  }
+	try {
+		// Determine file type and process accordingly
+		const isCSV = dataFilePath.toLowerCase().endsWith(".csv");
+		let projectData: GitContribution | BacklogContribution;
+
+		if (isCSV) {
+			console.log(`📊 Processing CSV backlog from: ${dataFilePath}`);
+			const csvResult = await processBacklog(
+				dataFilePath,
+				developerName,
+				projectName,
+				{
+					developerEmail: options.developerEmail,
+					developerUsername: options.developerUsername,
+					saveToFile: false,
+				}
+			);
+
+			if (!csvResult.success) {
+				console.error("❌ CSV backlog processing failed:");
+				csvResult.errors.forEach((error) =>
+					console.error(`   ${error.message}`)
+				);
+				throw new Error("CSV backlog processing failed");
+			}
+
+			projectData = csvResult.data!;
+		} else {
+			console.log(`📊 Extracting git data from: ${dataFilePath}`);
+			const gitResult = await extractGitData(
+				dataFilePath,
+				developerName,
+				projectName,
+				{
+					developerEmail: options.developerEmail,
+					developerUsername: options.developerUsername,
+					developerAliases: options.developerAliases,
+					saveToFile: false, // Stream processing - no intermediate files
+				}
+			);
+
+			if (!gitResult.success) {
+				console.error("❌ Git data extraction failed:");
+				gitResult.errors.forEach((error) =>
+					console.error(`   ${error.message}`)
+				);
+				throw new Error("Git data extraction failed");
+			}
+
+			projectData = gitResult.data!;
+		}
+
+		// Generate analysis prompt using original format
+		console.log("🎨 Creating analysis prompt...");
+		const prompt = createAnalysisPrompt(projectData, options);
+		const provider = getCurrentProvider();
+
+		console.log(`🤖 Using AI provider: ${provider.toUpperCase()}`);
+		if (provider !== "local") {
+			console.log(
+				"📡 Sending request to AI service... (this may take a moment)"
+			);
+		}
+
+		// Try to generate with AI - if local mode, will return null
+		const aiResult = await generateAIText(prompt, "analysis");
+
+		if (aiResult === null) {
+			// === LOCAL MODE - PROMPT GENERATION ===
+			console.log("\n🎯 Local mode: Generated Analysis Prompt");
+			console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+			console.log(prompt);
+			console.log("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
+			console.log("\n📋 Copy the above prompt and paste it into your AI tool!");
+
+			// Save prompt to locally-generated-prompts directory
+			const promptFileName = `${projectName
+				.toLowerCase()
+				.replace(/\s+/g, "-")}-analysis-prompt.md`;
+			const promptFilePath = `locally-generated-prompts/${promptFileName}`;
+			await Bun.write(promptFilePath, prompt);
+
+			console.log(`✅ Prompt saved to: ${promptFilePath}`);
+		} else {
+			// === AI MODE ===
+			console.log(`🤖 Analysis completed with ${provider}!`);
+
+			const outputFileName = `${projectName
+				.toLowerCase()
+				.replace(/\s+/g, "-")}-project-summary.md`;
+			const outputBaseDir = options.outputDir || CONFIG.PROJECT_SUMMARIES_DIR;
+			const outputFilePath = `${outputBaseDir}/${outputFileName}`;
+			await Bun.write(outputFilePath, aiResult);
+
+			console.log(`📄 Project summary saved to: ${outputFilePath}`);
+		}
+	} catch (error) {
+		console.error("💥 Analysis failed:", error);
+		throw error;
+	}
 }
 
 // ===== CLI Interface =====
 async function main() {
-  const args = process.argv.slice(2);
-  
-  if (args.length < 3) {
-    console.error('Usage: bun run scripts/analyzeProject.ts <git-log-file> <developer-name> <project-name> [options]');
-    console.error('');
-    console.error('Options:');
-    console.error('  --career-context <text>       Rich career context paragraph');
-    console.error('  --project-context <context>   Additional project context');
-    console.error('  --role <text>                 Override inferred role in header');
-    console.error('  --duration <text>             Override inferred duration in header');
-    console.error('  --output-dir <path>           Output directory override');
-    console.error('  --instructions <text>         Additional analysis instructions');
-    console.error('  --email <email>               Developer email address');
-    console.error('  --username <username>         Developer username/handle');
-    console.error('  --alias <alias>               Additional name alias (can be used multiple times)');
-    console.error('');
-    console.error('Examples:');
-    console.error('  bun run scripts/analyzeProject.ts "original-artifacts/root_compass_git_log.txt" "Jacob Williams" "Root Compass"');
-    console.error('  bun run scripts/analyzeProject.ts "git-log.txt" "Jacob Williams" "Project" --email jacob@example.com --career-context "Senior developer"');
-    console.error('');
-    console.error('Note: Use "bun run configure-ai" to set AI provider (openai/claude/local)');
-    process.exit(1);
-  }
+	const args = process.argv.slice(2);
 
-  const [gitLogPath, developerName, projectName] = args;
-  
-  // Parse options
-  const options: Parameters<typeof analyzeProject>[3] = {};
-  for (let i = 3; i < args.length; i++) {
-    const flag = args[i];
-    
-    switch (flag) {
-      case '--career-context':
-        options.careerContext = args[++i];
-        break;
-      case '--project-context':
-        options.projectContext = args[++i];
-        break;
-      case '--role':
-        options.role = args[++i];
-        break;
-      case '--duration':
-        options.duration = args[++i];
-        break;
-      case '--output-dir':
-        options.outputDir = args[++i];
-        break;
-      case '--instructions':
-        options.additionalInstructions = args[++i];
-        break;
-      case '--email':
-        options.developerEmail = args[++i];
-        break;
-      case '--username':
-        options.developerUsername = args[++i];
-        break;
-      case '--alias':
-        options.developerAliases = options.developerAliases || [];
-        options.developerAliases.push(args[++i]!);
-        break;
-    }
-  }
+	if (args.length < 3) {
+		console.error(
+			"Usage: bun run scripts/analyzeProject.ts <data-file> <developer-name> <project-name> [options]"
+		);
+		console.error("");
+		console.error("Options:");
+		console.error(
+			"  --career-context <text>       Rich career context paragraph"
+		);
+		console.error("  --project-context <context>   Additional project context");
+		console.error(
+			"  --role <text>                 Override inferred role in header"
+		);
+		console.error(
+			"  --duration <text>             Override inferred duration in header"
+		);
+		console.error("  --output-dir <path>           Output directory override");
+		console.error(
+			"  --instructions <text>         Additional analysis instructions"
+		);
+		console.error("  --email <email>               Developer email address");
+		console.error("  --username <username>         Developer username/handle");
+		console.error(
+			"  --alias <alias>               Additional name alias (can be used multiple times)"
+		);
+		console.error("");
+		console.error("Examples:");
+		console.error("  # Git log analysis:");
+		console.error(
+			'  bun run scripts/analyzeProject.ts "original-artifacts/root_compass_git_log.txt" "Jacob Williams" "Root Compass"'
+		);
+		console.error("  # CSV backlog analysis:");
+		console.error(
+			'  bun run scripts/analyzeProject.ts "original-artifacts/biggby_backlog.csv" "Jacob Williams" "Biggby"'
+		);
+		console.error("  # With additional context:");
+		console.error(
+			'  bun run scripts/analyzeProject.ts "data-file.csv" "Developer" "Project" --email dev@example.com --career-context "Senior developer"'
+		);
+		console.error("");
+		console.error(
+			'Note: Use "bun run configure-ai" to set AI provider (openai/claude/local)'
+		);
+		process.exit(1);
+	}
 
-  await analyzeProject(gitLogPath!, developerName!, projectName!, options);
+	const [dataFilePath, developerName, projectName] = args;
+
+	// Parse options
+	const options: Parameters<typeof analyzeProject>[3] = {};
+	for (let i = 3; i < args.length; i++) {
+		const flag = args[i];
+
+		switch (flag) {
+			case "--career-context":
+				options.careerContext = args[++i];
+				break;
+			case "--project-context":
+				options.projectContext = args[++i];
+				break;
+			case "--role":
+				options.role = args[++i];
+				break;
+			case "--duration":
+				options.duration = args[++i];
+				break;
+			case "--output-dir":
+				options.outputDir = args[++i];
+				break;
+			case "--instructions":
+				options.additionalInstructions = args[++i];
+				break;
+			case "--email":
+				options.developerEmail = args[++i];
+				break;
+			case "--username":
+				options.developerUsername = args[++i];
+				break;
+			case "--alias":
+				options.developerAliases = options.developerAliases || [];
+				options.developerAliases.push(args[++i]!);
+				break;
+		}
+	}
+
+	await analyzeProject(dataFilePath!, developerName!, projectName!, options);
 }
 
 if (import.meta.main) {
-  main();
+	main();
 }
 
 export { analyzeProject };
