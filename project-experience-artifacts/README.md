@@ -1,8 +1,8 @@
 # Project Experience Artifacts
 
-**Version 3.0.0** - Automated generation of professional project summaries
+**Version 4.0.0** - Complete professional biography generation system
 
-A streamlined TypeScript system that processes git logs to generate comprehensive, professional project summaries for career documentation and biography construction. CSV backlog processing support coming soon.
+A comprehensive TypeScript system that processes project artifacts (git logs, CSV backlogs) to generate professional project summaries and complete biographies. Features auto-discovery of StrengthsFinder themes and comprehensive CLI interfaces.
 
 ## 🚀 Quick Start
 
@@ -28,14 +28,21 @@ bun run configure-ai status
 ### Basic Usage
 
 ```bash
-# Interactive mode (recommended for first-time users)
+# Generate professional biography (interactive mode - recommended)
+bun run generateBio.ts
+
+# Generate project summary (interactive mode)
 bun run generateProjectSummary.ts
 
-# Direct command-line usage
-bun run scripts/analyzeProject.ts "original-artifacts/git-log.txt" "Developer Name" "Project Name" \
+# Direct command-line usage for project analysis
+bun run scripts/analyzeProject.ts "datasources/git-log.txt" "Developer Name" "Project Name" \
   --email "dev@example.com" \
   --career-context "Context about developer's experience level" \
   --project-context "Brief project description"
+
+# Direct command-line usage for biography generation
+bun run generateBio.ts "Jacob Williams" --experience-level "Senior Developer" \
+  --aspirations "Technical Leadership" --voice-style "authentic"
 ```
 
 ## 🎖️ AI Configuration
@@ -47,7 +54,7 @@ The system supports three modes:
 Generates prompts for manual copy/paste into AI tools:
 
 ```bash
-bun run configure-ai set local
+bun run scripts/configureAI.ts set local
 ```
 
 ### OpenAI Mode
@@ -55,7 +62,7 @@ bun run configure-ai set local
 Automatically processes with GPT models (requires `OPENAI_API_KEY`):
 
 ```bash
-bun run configure-ai set openai
+bun run scripts/configureAI.ts set openai
 ```
 
 ### Claude Mode
@@ -63,44 +70,80 @@ bun run configure-ai set openai
 Automatically processes with Claude models (requires `ANTHROPIC_API_KEY`):
 
 ```bash
-bun run configure-ai set claude
+bun run scripts/configureAI.ts set claude
 ```
 
 ## 📁 Input Data
 
 ### Git Logs (Current Support)
 
-Place git log files in `original-artifacts/`:
+Place git log files in `datasources/`:
 
 ```bash
 # Generate a git log file
-git log --oneline --author="Developer Name" > original-artifacts/project-git-log.txt
+git log --oneline --author="Developer Name" > datasources/project-git-log.txt
 
 # Process with the system
-bun run scripts/analyzeProject.ts "original-artifacts/project-git-log.txt" "Developer Name" "Project Name"
+bun run scripts/analyzeProject.ts "datasources/project-git-log.txt" "Developer Name" "Project Name"
 ```
 
-### CSV Backlogs (Coming Soon)
+### CSV Backlogs (Supported)
 
-Support for processing project backlogs from CSV files will be added to complement git log analysis.
+Process project backlogs from CSV files:
+
+```bash
+bun run tools/processBacklog.ts "datasources/project_backlog.csv" "Developer Name" "Project Name" \
+  --email "dev@example.com"
+```
+
+### StrengthsFinder Themes (Auto-Discovery)
+
+Place StrengthsFinder theme files in `resources/strengths/`:
+
+```
+resources/strengths/
+├── strategic.txt
+├── command.txt
+├── belief.txt
+└── ...
+```
+
+Themes are automatically discovered and integrated into biography generation.
 
 ## 🏧 System Architecture
 
 ```
-Git Logs → extractGitData() → analyzeProject() → Professional Summary
+Project Artifacts → Analysis → Project Summaries → Biography Generation
+     ↓                ↓              ↓                    ↓
+Git Logs/CSV    → AI Analysis → Markdown Files → Professional Bio
+StrengthsFinder → Auto-Discovery → Voice Integration → Authentic Voice
 ```
 
-### Current Workflow
+### Complete Workflow
 
-1. **Git Processing**: Parse git logs and filter by developer
-2. **AI Analysis**: Generate structured project summary using original prompt framework
-3. **Output Generation**: Create professional markdown summaries
+1. **Data Processing**: Parse git logs, CSV backlogs, and discover StrengthsFinder themes
+2. **Project Analysis**: Generate structured project summaries using AI analysis
+3. **Biography Generation**: Synthesize multiple project summaries into professional biographies
+4. **Voice Integration**: Apply authentic voice characteristics from StrengthsFinder themes
 
 ### Key Components
 
-- **`scripts/analyzeProject.ts`** - Main analysis engine with streaming git processing
-- **`generateProjectSummary.ts`** - Interactive wrapper for easy use
+**Core Scripts:**
+
+- **`generateBio.ts`** - Main biography generation with interactive interface
+- **`generateProjectSummary.ts`** - Project summary generation wrapper
+- **`scripts/analyzeProject.ts`** - Project analysis engine with streaming processing
+- **`scripts/generateBio.ts`** - Core biography generation logic
 - **`scripts/configureAI.ts`** - AI provider management
+
+**Tools:**
+
+- **`tools/extractGitData.ts`** - Git log processing and analysis
+- **`tools/processBacklog.ts`** - CSV backlog processing
+- **`tools/validateArtifacts.ts`** - Artifact validation
+
+**Libraries:**
+
 - **`lib/aiConfig.ts`** - Configuration system
 - **`lib/ai.ts`** - AI abstraction layer (OpenAI, Claude, or local prompt generation)
 
@@ -137,7 +180,12 @@ Generated in `professional-bios/`:
 ```
 project-experience-summaries/    # Generated project summaries
 professional-bios/              # Generated biographies
-original-artifacts/             # Source git logs and data
+datasources/                    # Source git logs and CSV data
+resources/                      # Auto-discovered resources
+├── strengths/                  # StrengthsFinder theme files
+└── atomic-values/             # Company values (auto-discovered)
+locally-generated-prompts/      # Manual copy/paste prompts
+future-ideas/                   # Architecture evolution plans
 lib/                           # Core system libraries
 scripts/                       # Main processing scripts
 tools/                         # Data processing utilities
@@ -148,53 +196,71 @@ tools/                         # Data processing utilities
 ### ✅ Completed
 
 - Git log processing and analysis
+- CSV backlog processing support
 - Multi-AI provider support (OpenAI, Claude, Local)
 - Streaming architecture (no intermediate JSON files)
 - Professional summary generation
-- Interactive and command-line interfaces
+- Complete biography generation from multiple projects
+- StrengthsFinder theme auto-discovery and integration
+- Interactive and command-line interfaces with help support
 - Configuration management system
+- Comprehensive CLI interfaces with graceful exit handling
 
-### 🔄 In Development
+### 🔄 Future Enhancements
 
-- CSV backlog processing support
-- Biography generation from multiple projects
+- Voice analysis integration (leveraging spinbot functionality)
 - Enhanced validation and quality assurance
+- Multi-agent architecture for specialized analysis
 
 ## 📏 Usage Examples
 
-### Interactive Mode
+### Biography Generation
 
 ```bash
-bun run generateProjectSummary.ts
-# Follows prompts to collect all parameters interactively
+# Interactive mode (recommended)
+bun run generateBio.ts
+
+# Command line mode
+bun run generateBio.ts "Jacob Williams" \
+  --experience-level "Senior Developer" \
+  --aspirations "Technical Leadership" \
+  --voice-style "authentic" \
+  --summaries-dir "project-experience-summaries"
+
+# Get help for any script
+bun run generateBio.ts --help
 ```
 
-### Command Line Mode
+### Project Analysis
 
 ```bash
-# Basic usage
-bun run scripts/analyzeProject.ts "git-log.txt" "John Doe" "E-commerce Platform"
+# Interactive mode
+bun run generateProjectSummary.ts
 
-# With context (recommended)
+# Command line mode with context
 bun run scripts/analyzeProject.ts "compass-git-log.txt" "Jacob Williams" "Root Compass" \
   --email "jacob@example.com" \
   --username "jacob-williams14" \
   --career-context "Junior developer showing leadership potential" \
   --project-context "Educational platform with international localization requirements" \
   --role "Software Developer & Consultant"
+
+# CSV backlog processing
+bun run tools/processBacklog.ts "datasources/project_backlog.csv" "Developer Name" "Project" \
+  --email "dev@example.com"
 ```
 
 ### Configuration Management
 
 ```bash
 # Check current setup
-bun run configure-ai status
+bun run scripts/configureAI.ts status
 
 # Switch to OpenAI mode
-bun run configure-ai set openai
+bun run scripts/configureAI.ts set openai
 
-# View available models
-bun run configure-ai models
+# Get help
+bun run scripts/configureAI.ts --help
 ```
 
 ## 🎯 Quality Standards

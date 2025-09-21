@@ -12,7 +12,7 @@ import { getConfigStatus } from "./lib/aiConfig.js";
 import { analyzeProject } from "./scripts/analyzeProject.js";
 
 /**
- * Get available data files from original-artifacts directory
+ * Get available data files from datasources directory
  */
 async function getDataFiles(): Promise<
 	Array<{ name: string; value: string; description?: string }>
@@ -20,16 +20,16 @@ async function getDataFiles(): Promise<
 	const choices: Array<{ name: string; value: string; description?: string }> =
 		[];
 
-	// Scan original-artifacts directory for all relevant files
-	if (existsSync("original-artifacts/")) {
+	// Scan datasources directory for all relevant files
+	if (existsSync("datasources/")) {
 		try {
-			const files = await readdir("original-artifacts/");
+			const files = await readdir("datasources/");
 
 			// Sort files alphabetically for consistent ordering
 			files.sort();
 
 			for (const file of files) {
-				const fullPath = `original-artifacts/${file}`;
+				const fullPath = `datasources/${file}`;
 
 				// Add git log files
 				if (file.endsWith(".txt")) {
@@ -320,7 +320,7 @@ async function main() {
 		console.log("");
 		console.log("  # Command line mode:");
 		console.log(
-			'  bun run generateProjectSummary.ts original-artifacts/compass.txt "Jacob Williams" "Compass Platform"'
+			'  bun run generateProjectSummary.ts datasources/compass.txt "Jacob Williams" "Compass Platform"'
 		);
 		console.log("");
 		console.log("  # With additional context:");

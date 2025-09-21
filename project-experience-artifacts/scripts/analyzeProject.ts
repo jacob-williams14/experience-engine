@@ -643,11 +643,11 @@ async function main() {
 		console.error("Examples:");
 		console.error("  # Git log analysis:");
 		console.error(
-			'  bun run scripts/analyzeProject.ts "original-artifacts/root_compass_git_log.txt" "Jacob Williams" "Root Compass"'
+			'  bun run scripts/analyzeProject.ts "datasources/root_compass_git_log.txt" "Jacob Williams" "Root Compass"'
 		);
 		console.error("  # CSV backlog analysis:");
 		console.error(
-			'  bun run scripts/analyzeProject.ts "original-artifacts/biggby_backlog.csv" "Jacob Williams" "Biggby"'
+			'  bun run scripts/analyzeProject.ts "datasources/biggby_backlog.csv" "Jacob Williams" "Biggby"'
 		);
 		console.error("  # With additional context:");
 		console.error(

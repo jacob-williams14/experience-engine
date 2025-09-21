@@ -13,7 +13,7 @@
 ```
 DEVELOPER_NAME: Jacob Williams
 PROJECT_NAME: Justice Information System
-FILENAME: original-artifacts/JIS_backlog.csv
+FILENAME: datasources/JIS_backlog.csv
 ARTIFACT_TYPE: CSV backlog
 
 OPTIONAL_OUTPUT_DIRECTORY:
@@ -44,7 +44,7 @@ Project Context: This was a large-scale government modernization project involvi
 Career Context: Jacob Williams is a mid-level developer with strong technical expertise who is transitioning into technical leadership roles. Please emphasize emerging leadership capabilities, architectural contributions, and mentoring activities while highlighting his technical competence and growth trajectory.
 
 Data Filtering: The data has been pre-filtered to include only Jacob Williams' assigned work items.
-Data Input: original-artifacts/JIS_backlog.csv
+Data Input: datasources/JIS_backlog.csv
 Output Directory: government-project-summaries
 ```
 

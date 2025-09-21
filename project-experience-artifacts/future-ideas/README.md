@@ -15,6 +15,17 @@ Comprehensive analysis of when and how to evolve from single-prompt generation t
 - Cost-benefit analysis and decision framework
 - Concrete use cases and implementation roadmap
 
+### [Voice Analysis Integration Plan](./voice-analysis-integration-plan.md)
+
+Complete execution plan for integrating spinbot-inspired voice analysis into biography generation to create more authentic, personalized professional biographies.
+
+**Key Concepts:**
+
+- Leveraging existing spinbot functionality for author voice analysis
+- Sequential two-call approach with smart caching
+- Simple integration strategy with 3-month cache invalidation
+- Enhanced personal frame development through authentic voice characteristics
+
 ## Purpose
 
 These documents serve as:

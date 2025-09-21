@@ -48,7 +48,7 @@ async function main() {
 		console.log("");
 		console.log("Examples:");
 		console.log(
-			"  bun run tools/validateArtifacts.ts original-artifacts/biggby_backlog.csv"
+			"  bun run tools/validateArtifacts.ts datasources/biggby_backlog.csv"
 		);
 		process.exit(0);
 	}
