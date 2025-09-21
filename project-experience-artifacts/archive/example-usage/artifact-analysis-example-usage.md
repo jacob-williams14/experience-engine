@@ -9,10 +9,11 @@
 ## Example: Jacob's JIS Project Analysis
 
 ### Step 1: Define Parameters
+
 ```
 DEVELOPER_NAME: Jacob Williams
 PROJECT_NAME: Justice Information System
-FILENAME: original-artifacts/JIS_backlog.csv
+FILENAME: datasources/JIS_backlog.csv
 ARTIFACT_TYPE: CSV backlog
 
 OPTIONAL_OUTPUT_DIRECTORY:
@@ -29,6 +30,7 @@ Data has already been pre-filtered to include only Jacob Williams' assigned work
 ```
 
 ### Step 2: Use the Template
+
 ```
 Please analyze the attached project backlog data for Jacob Williams' work on Judicial Information Services.
 Create a comprehensive summary following the artifact analysis framework, focusing on:
@@ -42,7 +44,7 @@ Project Context: This was a large-scale government modernization project involvi
 Career Context: Jacob Williams is a mid-level developer with strong technical expertise who is transitioning into technical leadership roles. Please emphasize emerging leadership capabilities, architectural contributions, and mentoring activities while highlighting his technical competence and growth trajectory.
 
 Data Filtering: The data has been pre-filtered to include only Jacob Williams' assigned work items.
-Data Input: original-artifacts/JIS_backlog.csv
+Data Input: datasources/JIS_backlog.csv
 Output Directory: government-project-summaries
 ```
 
@@ -57,6 +59,7 @@ Output Directory: government-project-summaries
 ## For Team Members
 
 Each person can create their own parameter block:
+
 ```
 DEVELOPER_NAME: [Your Name]
 PROJECT_NAME: [Your Project]

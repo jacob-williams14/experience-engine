@@ -4,158 +4,221 @@ This file provides guidance to WARP (warp.dev) when working with code in this re
 
 ## Repository Overview
 
-This repository contains professional development artifacts and prompt engineering tools for generating high-quality project summaries and professional biographies. It serves as a knowledge management system for technical professionals to document their project experiences and create compelling career narratives.
+This repository contains an automated TypeScript system for generating professional project summaries from git logs. The `project-experience-artifacts/` directory houses a complete pipeline that processes git commit history and generates comprehensive, professional project summaries suitable for career documentation and biography construction.
 
 ## Common Commands
 
-### Repository Navigation
+### System Setup and Configuration
+
 ```bash
-# View repository structure
-find . -type f -name "*.md" | head -20
+# Navigate to the system directory
+cd project-experience-artifacts/
 
-# List original data artifacts
-ls -la project-experience-artifacts/original-artifacts/
+# Install dependencies
+bun install
 
+# Check AI configuration status
+bun run configure-ai status
+
+# Switch AI modes (local/openai/claude)
+bun run configure-ai set local
+bun run configure-ai set openai
+bun run configure-ai set claude
+```
+
+### Project Summary Generation
+
+```bash
+# Interactive mode (recommended for first-time users)
+bun run generateProjectSummary.ts
+
+# Direct command-line mode
+bun run scripts/analyzeProject.ts "original-artifacts/git-log.txt" "Developer Name" "Project Name" \
+  --email "developer@example.com" \
+  --career-context "Developer experience and context" \
+  --project-context "Project description and background"
+
+# Example with real data
+bun run scripts/analyzeProject.ts "original-artifacts/root_compass_git_log.txt" "Jacob Williams" "Root Compass" \
+  --email "jacob@example.com" \
+  --career-context "Junior developer with leadership potential" \
+  --project-context "Educational platform requiring Contentful CMS integration"
+```
+
+### Content Analysis and Management
+
+```bash
 # View generated summaries
 ls -la project-experience-artifacts/project-experience-summaries/
 
-# Check professional bios
-ls -la project-experience-artifacts/professional-bios/
+# Check word counts of summaries
+wc -w project-experience-summaries/*.md
+
+# Search for specific technologies across summaries
+grep -r "React Native\|TypeScript\|GraphQL" project-experience-summaries/
+
+# Find summaries by developer
+grep -l "Jacob Williams" project-experience-summaries/*.md
 ```
 
-### Content Analysis
+### System Utilities
+
 ```bash
-# Search for specific technologies or skills across summaries
-grep -r "React Native\|TypeScript\|GraphQL" project-experience-artifacts/project-experience-summaries/
+# Type check the entire system
+bun run type-check
 
-# Find project summaries by developer name
-grep -l "Jacob Williams" project-experience-artifacts/project-experience-summaries/*.md
+# View available npm scripts
+bun run
 
-# Search for specific project types
-grep -r "mobile app\|microservices\|API" project-experience-artifacts/project-experience-summaries/
-```
-
-### File Management
-```bash
-# Create new project summary (template)
-cp project-experience-artifacts/project-experience-summaries/biggby-mobile-app-project-summary.md project-experience-artifacts/project-experience-summaries/new-project-summary.md
-
-# Archive old versions
-mv project-experience-artifacts/professional-bios/v*.md project-experience-artifacts/archive/
+# Check git data extraction (standalone)
+bun run tools/extractGitData.ts --help
 ```
 
 ## Architecture and Structure
 
-### Core Components
+### System Architecture
 
-**Original Artifacts Directory** (`project-experience-artifacts/original-artifacts/`)
-- Contains raw data sources: CSV backlogs, git logs, and other project artifacts
-- Files include: `JIS_backlog.csv`, `biggby_backlog.csv`, `root_compass_git_log.txt`, `root_leading_change_git_log.txt`
-- These are source materials for analysis and summary generation
-
-**Prompt Engineering System** (`project-experience-artifacts/prompts/`)
-- `artifact-analysis-prompt.md`: Comprehensive framework for analyzing project artifacts and generating technical summaries
-- `professional_bio_generation_prompt.md`: Template for creating professional biographies from project summaries
-- `quick-start-guide.md`: User guide for prompt usage and parameterization
-
-**Generated Outputs**
-- `project-experience-summaries/`: Detailed technical project summaries with consistent formatting
-- `professional-bios/`: Professional biographies derived from project summaries
-- `example-usage/`: Usage examples and parameter templates
-
-**Supporting Materials**
-- `strengths-finder/`: StrengthsFinder assessment results for personality/skill context
-- `archive/`: Historical versions of documents
-
-### Document Structure Standards
-
-**Project Summaries Follow Strict Format:**
-```markdown
-# [Project Name] Project Summary
-
-**Developer:** [Name]
-**Project Duration:** [Dates]
-**Role:** [Position]
-**Technology Stack:** [Technologies]
-
-## Project Overview
-## Technical Architecture & Infrastructure
-## Feature Development & Engineering
-## Technical Leadership & Problem-Solving
-## Quality Assurance & Process Improvements
-## Skills Demonstrated
-## Project Impact
+```
+Git Logs → extractGitData() → analyzeProject() → Professional Summary
 ```
 
-**Professional Biographies Structure:**
-- 300-500 word professional narratives
-- Third-person perspective
-- Emphasis on technical leadership and collaboration
-- Suitable for client-facing contexts
+**Current Workflow:**
+
+1. **Git Processing**: Parse git logs and filter commits by developer
+2. **AI Analysis**: Generate structured project summary using preserved prompt framework
+3. **Output Generation**: Create professional markdown summaries
+
+### Core Components
+
+**Automated Processing Scripts** (`project-experience-artifacts/scripts/`)
+
+- `analyzeProject.ts`: Main analysis engine with streaming git processing
+- `configureAI.ts`: AI provider management and configuration
+- `generateBio.ts`: Biography generation from multiple projects (in development)
+- `validateOutput.ts`: Quality assurance and validation
+
+**Interactive Interface**
+
+- `generateProjectSummary.ts`: Interactive wrapper for easy parameter collection
+- Prompts for all required inputs (developer info, project context, etc.)
+- Calls the automated pipeline with collected parameters
+
+**Core Libraries** (`project-experience-artifacts/lib/`)
+
+- `ai.ts`: Multi-provider AI abstraction (OpenAI, Claude, Local)
+- `aiConfig.ts`: Configuration management and provider switching
+- `claude.ts`: Claude-specific SDK integration and model management
+- `config.ts`: System constants and configuration
+- `types.ts`: TypeScript type definitions
+
+**Data Processing Tools** (`project-experience-artifacts/tools/`)
+
+- `extractGitData.ts`: Git log parsing and developer filtering
+- CSV backlog processing (planned)
+
+**Input Sources** (`project-experience-artifacts/original-artifacts/`)
+
+- Git log files: `root_compass_git_log.txt`, `root_leading_change_git_log.txt`
+- CSV backlogs: `JIS_backlog.csv`, `biggby_backlog.csv` (for future processing)
+- Raw project artifacts for analysis
+
+**Generated Outputs**
+
+- `project-experience-summaries/`: Comprehensive professional project summaries
+- `professional-bios/`: Professional biographies (300-500 words)
+- `locally-generated-prompts/`: AI prompts for manual copy/paste (local mode)
+
+### AI Configuration System
+
+**Three Operating Modes:**
+
+1. **Local Mode** (default): Generates prompts for manual copy/paste into AI tools
+2. **OpenAI Mode**: Automatically processes using GPT models (requires `OPENAI_API_KEY`)
+3. **Claude Mode**: Automatically processes using Claude models (requires `ANTHROPIC_API_KEY`)
+
+**Configuration Management:**
+
+- Settings stored in `.ai-config.json` (created automatically)
+- Switch modes with `bun run configure-ai set <provider>`
+- Model settings: 3000 max tokens, 0.3 temperature (optimized for professional content)
 
 ### Key Workflows
 
-**Artifact Analysis Workflow:**
-1. Place raw project data in `original-artifacts/`
-2. Use parameterized prompts from `prompts/artifact-analysis-prompt.md`
-3. Generate structured summaries in `project-experience-summaries/`
-4. Maintain consistent formatting across all outputs
+**Automated Analysis Workflow:**
 
-**Biography Generation Workflow:**
-1. Compile multiple project summaries
-2. Apply `professional_bio_generation_prompt.md` template
-3. Output professional biographies to `professional-bios/`
-4. Version control multiple iterations
+1. Place git log files in `original-artifacts/`
+2. Run `bun run generateProjectSummary.ts` (interactive) or direct command-line
+3. System automatically processes git data and generates professional summaries
+4. Output saved to `project-experience-summaries/`
 
-**Parameterization System:**
-- Define parameters once at prompt beginning
-- Reuse across multiple analyses
-- Support team member customization
-- Reduce errors and inconsistencies
+**Command-Line Workflow:**
 
-### Content Quality Standards
+```bash
+# One command generates complete professional summary
+bun run scripts/analyzeProject.ts "git-log.txt" "Developer Name" "Project" \
+  --career-context "Developer experience level and context" \
+  --project-context "Project description and technical background"
+```
 
-**Technical Depth Requirements:**
-- Include specific technology names and frameworks
-- Document architectural decisions with rationale
-- Use industry-standard terminology
-- Balance technical detail with accessibility
+**Quality Assurance:**
 
-**Professional Tone Guidelines:**
-- Action-oriented language emphasizing competence
-- Evidence-based accomplishments
-- Structured for easy scanning
-- Focus on outcomes and measurable impact
+- Consistent structure maintained across all generated summaries
+- Original prompt framework preserved for quality standards
+- TypeScript type safety throughout the system
+- Automated git parsing eliminates manual data preparation errors
 
-**Consistency Requirements:**
-- Exact formatting across all summaries
-- Hierarchical structure with standardized headers
-- Bold key technologies and concepts
-- Consistent bullet point formatting
+### Development Environment
 
-## Development Notes
+**TypeScript System:**
 
-**No Build System Required:**
-- Repository consists entirely of markdown documentation and text artifacts
-- No compilation, testing, or deployment processes
-- Version control through git only
+- Built with Bun runtime for fast execution
+- Full TypeScript typing throughout
+- No build step required - direct TypeScript execution
+- Type checking available via `bun run type-check`
 
-**Collaborative Usage:**
-- Templates support multiple team members
-- Parameterized prompts enable personalization
-- Consistent structure facilitates team adoption
-- Example usage guides reduce onboarding friction
+**Streaming Architecture:**
 
-**Content Management:**
-- Archive old versions rather than overwriting
-- Maintain original artifacts as source of truth
-- Version professional biographies for different contexts
-- Use descriptive file naming conventions
+- No intermediate JSON files - processes git data directly in memory
+- Git log → analysis → summary in single pipeline
+- Eliminates file I/O complexity and potential errors
 
-**AI Integration Context:**
-- Prompts designed for Claude/GPT analysis
-- Structured for consistent LLM output formatting
-- Parameterization reduces prompt engineering overhead
-- Templates optimized for professional content generation
+**Multi-Provider AI Support:**
 
-This repository represents a systematic approach to technical career documentation, providing reusable frameworks for extracting value from project artifacts and creating compelling professional narratives.
+- Unified interface supporting OpenAI, Claude, and local prompt generation
+- Easy switching between providers via configuration
+- Consistent output quality regardless of AI provider
+- Local mode supports teams without API access
+
+### System Benefits
+
+**For Individual Users:**
+
+- Single command generates complete professional summaries
+- Interactive mode guides through parameter collection
+- No manual data preparation or formatting required
+- Consistent high-quality output suitable for career documentation
+
+**For Teams:**
+
+- Standardized professional summary format across team members
+- Reusable system for multiple projects and developers
+- Version controlled configuration and templates
+- Supports both automated and manual workflows
+
+**Quality Assurance:**
+
+- Preserves original manual prompt framework quality
+- TypeScript ensures system reliability
+- Automated processing eliminates human formatting errors
+- Evidence-based summaries extracted directly from commit history
+
+### Future Development
+
+**Planned Features:**
+
+- CSV backlog processing (complementing git log analysis)
+- Enhanced biography generation from multiple project summaries
+- Additional output formats and customization options
+- Performance optimizations for large git repositories
+
+This system represents the evolution from manual prompt engineering to automated professional documentation generation, maintaining the same high quality standards while dramatically reducing time investment and potential errors.

@@ -2,8 +2,8 @@
 
 ## How to Use the Prompt
 
-1. **Choose your artifact** from `original-artifacts/` directory
-2. **Copy the appropriate usage template** from `artifact-analysis-prompt.md`  
+1. **Choose your artifact** from `datasources/` directory
+2. **Copy the appropriate usage template** from `artifact-analysis-prompt.md`
 3. **Fill in the placeholders**:
    - `[DEVELOPER_NAME]` → e.g., "Jacob Williams"
    - `[PROJECT_NAME]` → e.g., "Compass Platform"
@@ -13,7 +13,7 @@
 ## Available Artifacts (as of now)
 
 - `root_compass_git_log.txt` - Compass project git history
-- `root_leading_change_git_log.txt` - Leading Change project git history  
+- `root_leading_change_git_log.txt` - Leading Change project git history
 - `JIS_backlog.csv` - Justice Information System backlog
 - `rore_backlog.csv` - RORE project backlog
 - `biggby_backlog.csv` - Biggby mobile app backlog ✅ (already processed)
@@ -21,8 +21,9 @@
 ## Example Usage
 
 ### For Jacob's Git Log Analysis (Compass Project)
+
 ```
-Please analyze the attached git log file for Jacob Williams' contributions to the Compass Platform. 
+Please analyze the attached git log file for Jacob Williams' contributions to the Compass Platform.
 Create a comprehensive summary following the artifact analysis framework, focusing on:
 - Technical implementations and architectural decisions visible in commit messages
 - Feature development patterns and areas of expertise
@@ -33,6 +34,7 @@ File: root_compass_git_log.txt
 ```
 
 ### For Jacob's Backlog Analysis (JIS Project)
+
 ```
 Please analyze the attached project backlog data for Jacob Williams' work on the Justice Information System.
 Create a comprehensive summary following the artifact analysis framework, focusing on:
@@ -48,11 +50,13 @@ File: JIS_backlog.csv
 ## For Team Members
 
 To use this for other developers:
+
 1. Replace "Jacob Williams" with the target developer's name
 2. Filter artifacts to include only that developer's work
 3. Update the file naming to match: `{developer-lastname}-{project-name}-project-summary.md`
 
 ## Output Location
+
 All summaries are saved to: `project-experience-summaries/`
 
 ## Benefits of This Approach
