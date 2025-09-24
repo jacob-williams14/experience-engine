@@ -12,6 +12,7 @@ import {
 	setAIProvider,
 	type AIProvider,
 } from "../lib/aiConfig.js";
+import { setupGracefulExit } from "../lib/cliUtils.js";
 
 /**
  * Display current configuration status
@@ -174,11 +175,8 @@ async function main() {
 	const args = process.argv.slice(2);
 	const command = args[0];
 
-	// Handle process signals gracefully
-	process.on("SIGINT", () => {
-		console.log("\n👋 Operation cancelled by user");
-		process.exit(0);
-	});
+	// Setup graceful exit handling
+	setupGracefulExit();
 
 	if (args.includes("--help") || args.includes("-h") || args[0] === "help") {
 		console.log("🤖 AI Configuration Tool");

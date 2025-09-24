@@ -8,6 +8,15 @@
 		"generateProjectSummary": "bun run generateProjectSummary.ts",
 		"generateBio": "bun run generateBio.ts",
 		"configure-ai": "bun run scripts/configureAI.ts",
+		"getPosts": "bun run getPosts.ts",
+		"htmlToMarkdown": "bun run htmlToMarkdown.ts",
+		"analyzeProject": "bun run scripts/analyzeProject.ts",
+		"analyzeAuthorStyle": "bun run scripts/analyzeAuthorStyle.ts",
+		"analyzeStyleOverTime": "bun run scripts/analyzeStyleOverTime.ts",
+		"validateOutput": "bun run scripts/validateOutput.ts",
+		"extractGitData": "bun run tools/extractGitData.ts",
+		"processBacklog": "bun run tools/processBacklog.ts",
+		"validateArtifacts": "bun run tools/validateArtifacts.ts",
 		"type-check": "tsc --noEmit"
 	},
 	"devDependencies": {
@@ -24,7 +33,8 @@
 		"@inquirer/search": "^3.1.3",
 		"ai": "^4.3.16",
 		"csv-parser": "^3.0.0",
-		"zod": "^3.22.4"
+		"zod": "^3.22.4",
+		"cheerio": "^1.1.0"
 	},
 	"engines": {
 		"bun": ">=1.0.0"

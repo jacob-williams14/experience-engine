@@ -6,6 +6,7 @@
  */
 
 import type { ValidationResult } from "@/types";
+import { setupGracefulExit } from "../lib/cliUtils.js";
 
 // ===== Main validation function (stub) =====
 async function validateOutput(filePath: string): Promise<ValidationResult> {
@@ -35,11 +36,8 @@ async function validateOutput(filePath: string): Promise<ValidationResult> {
 async function main() {
 	const args = process.argv.slice(2);
 
-	// Handle process signals gracefully
-	process.on("SIGINT", () => {
-		console.log("\n👋 Operation cancelled by user");
-		process.exit(0);
-	});
+	// Setup graceful exit handling
+	setupGracefulExit();
 
 	if (args.includes("--help") || args.includes("-h") || args[0] === "help") {
 		console.log("📋 Output Validation Tool");

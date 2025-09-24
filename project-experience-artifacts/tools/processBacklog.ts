@@ -7,6 +7,7 @@
 
 import csv from "csv-parser";
 import { createReadStream } from "fs";
+import { setupGracefulExit } from "../lib/cliUtils.js";
 import type {
 	BacklogContribution,
 	BacklogTask,
@@ -233,11 +234,8 @@ async function processBacklog(
 async function main() {
 	const args = process.argv.slice(2);
 
-	// Handle process signals gracefully
-	process.on("SIGINT", () => {
-		console.log("\n👋 Operation cancelled by user");
-		process.exit(0);
-	});
+	// Setup graceful exit handling
+	setupGracefulExit();
 
 	if (args.includes("--help") || args.includes("-h") || args[0] === "help") {
 		console.log("📊 Backlog Processing Tool");

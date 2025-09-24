@@ -6,7 +6,8 @@
  * Based on SpinBot's data processing patterns
  */
 
-import { CONFIG } from "@/config";
+import { setupGracefulExit } from "../lib/cliUtils.js";
+import { CONFIG } from "../lib/config.js";
 import type {
 	Developer,
 	GitCommit,
@@ -14,7 +15,7 @@ import type {
 	ProcessingErrorData,
 	ProcessingResult,
 	Project,
-} from "@/types";
+} from "../lib/types.js";
 
 // ===== Configuration =====
 const TOOL_CONFIG = {
@@ -282,11 +283,8 @@ async function extractGitData(
 async function main() {
 	const args = process.argv.slice(2);
 
-	// Handle process signals gracefully
-	process.on("SIGINT", () => {
-		console.log("\n👋 Operation cancelled by user");
-		process.exit(0);
-	});
+	// Setup graceful exit handling
+	setupGracefulExit();
 
 	if (args.includes("--help") || args.includes("-h") || args[0] === "help") {
 		console.log("📈 Git Data Extraction Tool");

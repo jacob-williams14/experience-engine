@@ -10,6 +10,7 @@ import { existsSync } from "fs";
 import { readdir, stat } from "fs/promises";
 import { generateAIText } from "../lib/ai.js";
 import { getCurrentProvider } from "../lib/aiConfig.js";
+import { setupGracefulExit } from "../lib/cliUtils.js";
 
 /**
  * Discover project summary files from a directory
@@ -326,6 +327,7 @@ function createBiographyPrompt(
 		personalDescription?: string;
 		strengthsData?: string;
 		voiceStyle?: "professional" | "personable" | "authentic";
+		voiceSignature?: string;
 		outputDir?: string;
 		additionalInstructions?: string;
 	} = {}
@@ -341,6 +343,8 @@ function createBiographyPrompt(
 		.join("\n\n");
 
 	return `Please create a professional biography for ${developerName}'s Atomic Object employee profile following the Professional Biography Generation framework.
+
+**CRITICAL: Write this biography in FIRST PERSON** - as if ${developerName} is speaking directly about their own experience and approach. Use "I" throughout, not "he/she" or third person.
 
 ## Parameters
 - **Developer Name**: ${developerName}
@@ -385,7 +389,11 @@ Analyze the provided project experience summaries and create a concise, compelli
 - **Length**: 200-400 words maximum (reduced for conciseness)
 - **Voice Style**: ${
 		options.voiceStyle || "authentic"
-	} (professional/personable/authentic)
+	} (professional/personable/authentic)${
+		options.voiceSignature
+			? `\n- **Voice Signature**: Based on analysis of ${developerName}'s writing style:\n${options.voiceSignature}`
+			: ""
+	}
 
 ## Project Experience Summaries
 ${formattedSummaries}
@@ -429,19 +437,35 @@ ${formattedSummaries}
 - **Synthesize, Don't List**: Identify patterns across projects rather than describing each individually
 - **Show Progression**: Demonstrate career growth and increasing technical responsibility
 - **Balance Technical & Leadership**: Equal emphasis on technical competence and collaborative abilities
-- **Broad Technical Terms**: Use "full-stack development," "system architecture," "mobile applications" rather than specific frameworks
-- **Business Value Focus**: Emphasize project success, client satisfaction, and problem-solving for business challenges
+- **Plain Language Over Jargon**: Use accessible terms like "mobile apps," "web platforms," "software solutions" instead of specific framework names
+- **Human Impact Focus**: Emphasize how work helps real people solve real problems, not just technical achievements
+- **Conversational Professionalism**: Sound like a competent person talking to a colleague, not a corporate marketing document
 
 #### Writing Style & Voice
-${getVoiceGuidelines(options.voiceStyle || "authentic")}
+${getVoiceGuidelines(options.voiceStyle || "authentic")}${
+		options.voiceSignature
+			? `
+
+**CRITICAL - Voice Signature Integration:**
+The Voice Signature analysis captures ${developerName}'s authentic writing style from their blog posts. You MUST incorporate these specific voice characteristics while keeping the tone approachable and human:
+
+1. **Conversational and Direct**: Use their natural communication patterns and conversational tone
+2. **Avoid Technical Jargon**: Use plain language instead of framework names or buzzwords (e.g., "mobile apps" not "React Native applications", "web platforms" not "Angular enterprise systems")
+3. **Human-Centered Language**: Replace corporate speak with direct, personal language (e.g., "I work with people to understand what they need" not "cross-functional stakeholder management")
+4. **Their Natural Voice Patterns**: Incorporate their authentic writing devices (rhetorical questions, conversational asides, etc.) as identified in the voice analysis
+5. **Professional but Approachable**: Balance competence with accessibility - sound like a real person, not a corporate brochure
+
+Write as if ${developerName} is personally sharing their professional story in their own authentic voice - conversational, direct, and genuinely human while maintaining professional credibility.`
+			: ""
+	}
 
 ## Output Requirements
 
-### Biography Structure
-1. **Opening Paragraph**: Professional identity, core expertise, and distinctive value proposition
-2. **Technical Leadership**: Project impact, problem-solving approach, and leadership emergence evidence
-3. **Collaboration & Impact**: Cross-functional work, stakeholder management, and team development
-4. **Future Focus**: Professional growth trajectory, aspirations, and value to Atomic Object clients
+### Biography Structure (FIRST PERSON)
+1. **Opening Paragraph**: "I am..." - Personal professional identity, core expertise, and distinctive value proposition
+2. **Technical Leadership**: "I've led..." - Personal project impact, problem-solving approach, and leadership emergence
+3. **Collaboration & Impact**: "I work..." - Personal approach to cross-functional work, stakeholder management, and team development  
+4. **Future Focus**: "I'm focused on..." - Personal growth trajectory, aspirations, and value to Atomic Object clients
 
 ### Format Specifications
 - **Length**: 200-400 words maximum (concise and impactful)
@@ -511,6 +535,10 @@ async function generateBio(
 		outputDir?: string;
 		additionalInstructions?: string;
 		maxSummaries?: number;
+		useVoiceAnalysis?: boolean;
+		refreshVoiceCache?: boolean;
+		fallbackVoiceStyle?: "professional" | "personable" | "authentic";
+		voiceSignature?: string;
 	} = {}
 ): Promise<void> {
 	try {
@@ -553,10 +581,50 @@ async function generateBio(
 		// Auto-discover Strengths data
 		const strengthsData = await loadStrengthsData();
 
+		// Handle voice analysis if requested
+		let voiceSignature: string | undefined = options.voiceSignature;
+		let finalVoiceStyle =
+			options.voiceStyle || options.fallbackVoiceStyle || "authentic";
+
+		if (options.useVoiceAnalysis && !voiceSignature) {
+			const { getVoiceAnalysis } = await import("../lib/voiceHelper.js");
+			try {
+				const voiceResult = await getVoiceAnalysis(
+					developerName,
+					options.refreshVoiceCache
+				);
+				if (voiceResult.success) {
+					voiceSignature = voiceResult.voiceSignature;
+					console.log(
+						`✅ Voice analysis ${
+							voiceResult.fromCache ? "loaded from cache" : "completed"
+						}`
+					);
+				} else {
+					console.warn(
+						"⚠️ Voice analysis failed - using manual voice style selection"
+					);
+					finalVoiceStyle =
+						options.fallbackVoiceStyle || options.voiceStyle || "authentic";
+				}
+			} catch (err) {
+				console.warn(
+					`⚠️ Voice analysis error: ${
+						err instanceof Error ? err.message : String(err)
+					}`
+				);
+				console.warn("   Using manual voice style selection");
+				finalVoiceStyle =
+					options.fallbackVoiceStyle || options.voiceStyle || "authentic";
+			}
+		}
+
 		// Generate biography prompt using original format
 		console.log("🎨 Creating biography generation prompt...");
 		const prompt = createBiographyPrompt(developerName, projectSummaries, {
 			...options,
+			voiceStyle: finalVoiceStyle,
+			voiceSignature: voiceSignature,
 			strengthsData: strengthsData || undefined,
 		});
 		const provider = getCurrentProvider();
@@ -622,11 +690,8 @@ async function generateBio(
 async function main() {
 	const args = process.argv.slice(2);
 
-	// Handle process signals gracefully
-	process.on("SIGINT", () => {
-		console.log("\n👋 Operation cancelled by user");
-		process.exit(0);
-	});
+	// Setup graceful exit handling
+	setupGracefulExit();
 
 	if (args.length < 2) {
 		console.error(

@@ -9,6 +9,7 @@ import { input, search } from "@inquirer/prompts";
 import { existsSync } from "fs";
 import { readdir } from "fs/promises";
 import { getConfigStatus } from "./lib/aiConfig.js";
+import { setupCLI } from "./lib/cliUtils.js";
 import { analyzeProject } from "./scripts/analyzeProject.js";
 
 /**
@@ -245,15 +246,8 @@ async function runInteractive() {
 async function main() {
 	const args = process.argv.slice(2);
 
-	// Handle process signals gracefully
-	process.on("SIGINT", () => {
-		console.log("\n👋 Operation cancelled by user");
-		process.exit(0);
-	});
-
-	// Enable stdin for interactive input
-	process.stdin.resume();
-	process.stdin.setEncoding("utf8");
+	// Setup CLI with graceful exit handling and interactive input
+	setupCLI();
 
 	let config;
 
