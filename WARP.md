@@ -33,16 +33,38 @@ bun run configure-ai set claude
 bun run generateProjectSummary.ts
 
 # Direct command-line mode
-bun run scripts/analyzeProject.ts "original-artifacts/git-log.txt" "Developer Name" "Project Name" \
+bun run scripts/analyzeProject.ts "datasources/git-log.txt" "Developer Name" "Project Name" \
   --email "developer@example.com" \
   --career-context "Developer experience and context" \
   --project-context "Project description and background"
 
 # Example with real data
-bun run scripts/analyzeProject.ts "original-artifacts/root_compass_git_log.txt" "Jacob Williams" "Root Compass" \
+bun run scripts/analyzeProject.ts "datasources/root_compass_git_log.txt" "Jacob Williams" "Root Compass" \
   --email "jacob@example.com" \
   --career-context "Junior developer with leadership potential" \
   --project-context "Educational platform requiring Contentful CMS integration"
+```
+
+### Biography Generation
+
+```bash
+# Interactive biography generation (recommended)
+bun run generateBio.ts
+
+# Command-line biography generation
+bun run generateBio.ts "Jacob Williams" \
+  --experience-level "Senior Developer" \
+  --aspirations "Technical Leadership" \
+  --voice-style "authentic"
+
+# With voice analysis (requires blog posts setup)
+bun run generateBio.ts "Jacob Williams" \
+  --analyze-voice \
+  --refresh-voice
+
+# Voice analysis setup (optional)
+bun run getPosts.ts
+bun run htmlToMarkdown.ts
 ```
 
 ### Content Analysis and Management
@@ -94,7 +116,9 @@ Git Logs → extractGitData() → analyzeProject() → Professional Summary
 
 - `analyzeProject.ts`: Main analysis engine with streaming git processing
 - `configureAI.ts`: AI provider management and configuration
-- `generateBio.ts`: Biography generation from multiple projects (in development)
+- `generateBio.ts`: Complete biography generation with voice analysis
+- `analyzeAuthorStyle.ts`: Voice and writing style analysis
+- `analyzeStyleOverTime.ts`: Style evolution tracking
 - `validateOutput.ts`: Quality assurance and validation
 
 **Interactive Interface**
@@ -110,16 +134,19 @@ Git Logs → extractGitData() → analyzeProject() → Professional Summary
 - `claude.ts`: Claude-specific SDK integration and model management
 - `config.ts`: System constants and configuration
 - `types.ts`: TypeScript type definitions
+- `voiceHelper.ts`: Voice analysis and style detection
+- `voiceCache.ts`: Intelligent caching for voice analysis results
+- `cliUtils.ts`: CLI utilities with graceful SIGINT handling
 
 **Data Processing Tools** (`project-experience-artifacts/tools/`)
 
 - `extractGitData.ts`: Git log parsing and developer filtering
 - CSV backlog processing (planned)
 
-**Input Sources** (`project-experience-artifacts/original-artifacts/`)
+**Input Sources** (`project-experience-artifacts/datasources/`)
 
 - Git log files: `root_compass_git_log.txt`, `root_leading_change_git_log.txt`
-- CSV backlogs: `JIS_backlog.csv`, `biggby_backlog.csv` (for future processing)
+- CSV backlogs: `JIS_backlog.csv`, `biggby_backlog.csv`, `rore_backlog.csv`
 - Raw project artifacts for analysis
 
 **Generated Outputs**
@@ -127,6 +154,7 @@ Git Logs → extractGitData() → analyzeProject() → Professional Summary
 - `project-experience-summaries/`: Comprehensive professional project summaries
 - `professional-bios/`: Professional biographies (300-500 words)
 - `locally-generated-prompts/`: AI prompts for manual copy/paste (local mode)
+- `voice-cache/`: Cached voice analysis results for authentic bio generation
 
 ### AI Configuration System
 
@@ -146,10 +174,17 @@ Git Logs → extractGitData() → analyzeProject() → Professional Summary
 
 **Automated Analysis Workflow:**
 
-1. Place git log files in `original-artifacts/`
+1. Place git log files in `datasources/`
 2. Run `bun run generateProjectSummary.ts` (interactive) or direct command-line
 3. System automatically processes git data and generates professional summaries
 4. Output saved to `project-experience-summaries/`
+
+**Biography Generation Workflow:**
+
+1. Ensure project summaries exist in `project-experience-summaries/`
+2. Run `bun run generateBio.ts` (interactive mode recommended)
+3. Choose voice analysis options or manual voice styles
+4. Generated biography saved to `professional-bios/`
 
 **Command-Line Workflow:**
 

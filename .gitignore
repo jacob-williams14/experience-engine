@@ -36,3 +36,14 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 
 data
 enriched-style-summaries-*.json
+
+# AI configuration (may contain sensitive API keys)
+.ai-config.json
+
+# Generated artifacts and cached data
+voice-cache/
+locally-generated-prompts/
+
+# Temporary processing files
+*.tmp
+*.temp
