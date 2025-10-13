@@ -5,7 +5,8 @@
  * Validates input artifacts meet processing requirements
  */
 
-import type { ValidationResult } from "@/types";
+import { setupGracefulExit } from "../lib/cliUtils.js";
+import type { ValidationResult } from "../lib/types.js";
 
 async function validateArtifacts(filePath: string): Promise<ValidationResult> {
 	console.log(`🔍 Validating artifact: ${filePath}`);
@@ -32,11 +33,8 @@ async function validateArtifacts(filePath: string): Promise<ValidationResult> {
 async function main() {
 	const args = process.argv.slice(2);
 
-	// Handle process signals gracefully
-	process.on("SIGINT", () => {
-		console.log("\n👋 Operation cancelled by user");
-		process.exit(0);
-	});
+	// Setup graceful exit handling
+	setupGracefulExit();
 
 	if (args.includes("--help") || args.includes("-h") || args[0] === "help") {
 		console.log("🔍 Artifact Validation Tool");

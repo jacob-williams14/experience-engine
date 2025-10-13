@@ -1,16 +1,50 @@
-# macOS
+# dependencies (bun install)
+node_modules
+
+# output
+out
+dist
+*.tgz
+
+# code coverage
+coverage
+*.lcov
+
+# logs
+logs
+_.log
+report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
+
+# dotenv environment variable files
+.env
+.env.development.local
+.env.test.local
+.env.production.local
+.env.local
+.envrc
+
+# caches
+.eslintcache
+.cache
+*.tsbuildinfo
+
+# IntelliJ based IDEs
+.idea
+
+# Finder (MacOS) folder config
 .DS_Store
 
-# Editor files
-.vscode/
-.idea/
+data
+enriched-style-summaries-*.json
 
-# Log files
-*.log
+# Generated artifacts and cached data
+voice-cache/
+locally-generated-prompts/
 
-# Environment variables
-.envrc
-.env
+# Temporary processing files
+*.tmp
+*.temp
 
-# Dependencies
-node_modules/
+# Temporary processing files
+*.tmp
+*.temp

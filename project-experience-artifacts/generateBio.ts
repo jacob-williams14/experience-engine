@@ -5,11 +5,12 @@
  * Interactive pipeline: project summaries → professional biography
  */
 
-import { checkbox, confirm, input, select } from "@inquirer/prompts";
+import { checkbox, confirm, input } from "@inquirer/prompts";
 import { existsSync } from "fs";
 import { readdir } from "fs/promises";
 import { getConfigStatus } from "./lib/aiConfig.js";
 import { generateBio } from "./scripts/generateBio.js";
+import { setupCLI, promptInput, promptConfirm, promptSelect } from "./lib/cliUtils.js";
 
 /**
  * Get available project summary files from project-experience-summaries directory
@@ -83,17 +84,15 @@ async function promptForProjectSummaries(): Promise<string[]> {
 			console.log(
 				"⚠️  No project summaries found in project-experience-summaries/"
 			);
-			const customPath = await input({
-				message: "Enter path to a project summary file:",
-			});
+			const customPath = await promptInput("Enter path to a project summary file:");
 			return [customPath];
 		}
 
 		// Ask if user wants random selection or manual selection
-		const useRandom = await confirm({
-			message: `Found ${summaryChoices.length} project summaries. Use random selection (up to 3 files) for efficiency?`,
-			default: true,
-		});
+		const useRandom = await promptConfirm(
+			`Found ${summaryChoices.length} project summaries. Use random selection (up to 3 files) for efficiency?`,
+			true
+		);
 
 		if (useRandom) {
 			const randomSelection = selectRandomSummaries(
@@ -119,9 +118,7 @@ async function promptForProjectSummaries(): Promise<string[]> {
 			const finalSelection: string[] = [];
 			for (const selection of selected) {
 				if (selection === "__custom__") {
-					const customPath = await input({
-						message: "Enter custom file path:",
-					});
+				const customPath = await promptInput("Enter custom file path:");
 					finalSelection.push(customPath);
 				} else {
 					finalSelection.push(selection);
@@ -140,27 +137,6 @@ async function promptForProjectSummaries(): Promise<string[]> {
 	}
 }
 
-/**
- * Prompt user for input with better shell integration and error handling
- */
-async function prompt(
-	question: string,
-	defaultValue?: string
-): Promise<string> {
-	try {
-		return await input({
-			message: question,
-			default: defaultValue,
-		});
-	} catch (error) {
-		// Handle Ctrl+C gracefully
-		if (error instanceof Error && error.name === "ExitPromptError") {
-			console.log("\n👋 Operation cancelled by user");
-			process.exit(0);
-		}
-		throw error;
-	}
-}
 
 /**
  * Interactive mode - prompt user for all inputs
@@ -194,36 +170,41 @@ async function runInteractive() {
 
 	// Required inputs
 	console.log("📋 Required Information:");
-	const developerName = await prompt("Developer full name");
+	const developerName = await promptInput("Developer full name");
 	const projectSummaries = await promptForProjectSummaries();
 
 	console.log("");
 	console.log("🎯 Career Context (significantly improves quality):");
-	const experienceLevel = await prompt(
+	const experienceLevel = await promptInput(
 		"Current experience level",
 		'e.g., "Mid-level Developer transitioning to Technical Leadership roles"'
 	);
-	const careerAspirations = await prompt(
+	const careerAspirations = await promptInput(
 		"Career aspirations (optional)",
 		'e.g., "Technical Leadership, System Architecture, Team Mentoring"'
 	);
 
 	console.log("");
 	console.log("📖 Optional - Personal Context:");
-	const personalDescription = await prompt(
+	const personalDescription = await promptInput(
 		"Personal description (optional - 2-3 sentences)",
 		'e.g., "Jacob is a passionate full-stack developer who thrives on solving complex technical challenges and building scalable solutions. He brings a collaborative approach to development work and is energized by opportunities to mentor team members and drive architectural decisions."'
 	);
-	const strengths = await prompt(
-		"Strengths or themes (optional)",
-		'e.g., "Strategic Thinking, Problem-Solving, Collaboration, Technical Innovation"'
-	);
-
 	console.log("");
 	console.log("🎨 Voice & Style:");
-	const voiceStyle = await select({
-		message: "Choose biography voice style:",
-		choices: [
+
+	// First ask about voice analysis
+	const useVoiceAnalysis = await promptConfirm(
+		"Use voice analysis from your Atomic Spin blog posts? (Analyzes your writing style for authentic tone)",
+		false
+	);
+
+	// Always collect a voice style for fallback purposes
+	const voiceStyle = await promptSelect(
+		useVoiceAnalysis
+			? "Choose fallback voice style (used if voice analysis fails):"
+			: "Choose biography voice style:",
+		[
 			{
 				name: "Authentic (Recommended)",
 				value: "authentic",
@@ -240,10 +221,10 @@ async function runInteractive() {
 				description: "Warm, approachable, personality-driven",
 			},
 		],
-		default: "authentic",
-	});
+		"authentic"
+	);
 
-	const outputDir = await prompt(
+	const outputDir = await promptInput(
 		"Output directory (optional)",
 		"professional-bios"
 	);
@@ -265,7 +246,7 @@ async function runInteractive() {
 	console.log(
 		"   - Target client-facing roles; emphasize communication and business value delivery."
 	);
-	const additionalInstructions = await prompt(
+	const additionalInstructions = await promptInput(
 		"Additional biography instructions (optional)"
 	);
 
@@ -276,10 +257,15 @@ async function runInteractive() {
 			experienceLevel: experienceLevel || undefined,
 			careerAspirations: careerAspirations || undefined,
 			personalDescription: personalDescription || undefined,
-			strengths: strengths || undefined,
 			voiceStyle: voiceStyle as "professional" | "personable" | "authentic",
 			outputDir: outputDir || undefined,
 			additionalInstructions: additionalInstructions || undefined,
+			useVoiceAnalysis: useVoiceAnalysis,
+			// Store the manual voice style for fallback
+			fallbackVoiceStyle: voiceStyle as
+				| "professional"
+				| "personable"
+				| "authentic",
 		},
 	};
 }
@@ -287,15 +273,8 @@ async function runInteractive() {
 async function main() {
 	const args = process.argv.slice(2);
 
-	// Handle process signals gracefully
-	process.on("SIGINT", () => {
-		console.log("\n👋 Operation cancelled by user");
-		process.exit(0);
-	});
-
-	// Enable stdin for interactive input
-	process.stdin.resume();
-	process.stdin.setEncoding("utf8");
+	// Setup CLI with graceful exit handling and interactive input
+	setupCLI();
 
 	let config;
 
@@ -332,6 +311,12 @@ async function main() {
 			"  --project-summaries <files>   Comma-separated list of files"
 		);
 		console.log("  --max-summaries <number>      Maximum summaries to include");
+		console.log(
+			"  --analyze-voice               Enable voice analysis for authentic tone (Atomic Spin posts only)"
+		);
+		console.log(
+			"  --refresh-voice               Force refresh of cached voice analysis"
+		);
 		console.log("");
 		console.log(
 			"Note: StrengthsFinder themes are auto-discovered from resources/strengths/ directory"
@@ -363,19 +348,38 @@ async function main() {
 		const bioOptions: Parameters<typeof generateBio>[2] = {};
 		let projectSummariesInput: string | string[] = [];
 
-		for (let i = 1; i < args.length; i += 2) {
+		for (let i = 1; i < args.length; i++) {
 			const flag = args[i];
+
+			// Handle boolean flags (no value)
+			if (flag === "--analyze-voice") {
+				bioOptions.useVoiceAnalysis = true;
+				continue;
+			}
+			if (flag === "--refresh-voice") {
+				bioOptions.useVoiceAnalysis = true;
+				bioOptions.refreshVoiceCache = true;
+				continue;
+			}
+
+			// Handle flags with values
 			const value = args[i + 1];
+			if (!value || value.startsWith("--")) {
+				continue; // Skip if no value or next flag
+			}
 
 			switch (flag) {
 				case "--experience-level":
 					bioOptions.experienceLevel = value;
+					i++; // Skip next arg (the value)
 					break;
 				case "--aspirations":
 					bioOptions.careerAspirations = value;
+					i++; // Skip next arg (the value)
 					break;
 				case "--description":
 					bioOptions.personalDescription = value;
+					i++; // Skip next arg (the value)
 					break;
 				case "--voice-style":
 					if (
@@ -387,29 +391,35 @@ async function main() {
 							| "personable"
 							| "authentic";
 					}
+					i++; // Skip next arg (the value)
 					break;
 				case "--output-dir":
 					bioOptions.outputDir = value;
+					i++; // Skip next arg (the value)
 					break;
 				case "--instructions":
 					bioOptions.additionalInstructions = value;
+					i++; // Skip next arg (the value)
 					break;
 				case "--summaries-dir":
 					// Directory path
 					if (value) {
 						projectSummariesInput = value;
 					}
+					i++; // Skip next arg (the value)
 					break;
 				case "--project-summaries":
 					// Individual files (comma-separated)
 					if (value) {
 						projectSummariesInput = value.split(",");
 					}
+					i++; // Skip next arg (the value)
 					break;
 				case "--max-summaries":
 					if (value) {
 						bioOptions.maxSummaries = parseInt(value, 10);
 					}
+					i++; // Skip next arg (the value)
 					break;
 			}
 		}

@@ -8,6 +8,7 @@
 
 import { generateAIText } from "../lib/ai.js";
 import { getCurrentProvider } from "../lib/aiConfig.js";
+import { setupGracefulExit } from "../lib/cliUtils.js";
 import { CONFIG } from "../lib/config.js";
 import type { BacklogContribution, GitContribution } from "../lib/types.js";
 import { extractGitData } from "../tools/extractGitData.js";
@@ -571,11 +572,8 @@ async function analyzeProject(
 async function main() {
 	const args = process.argv.slice(2);
 
-	// Handle process signals gracefully
-	process.on("SIGINT", () => {
-		console.log("\n👋 Operation cancelled by user");
-		process.exit(0);
-	});
+	// Setup graceful exit handling
+	setupGracefulExit();
 
 	if (args.includes("--help") || args.includes("-h") || args[0] === "help") {
 		console.log("🔍 Project Analysis Tool");

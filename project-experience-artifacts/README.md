@@ -110,6 +110,24 @@ resources/strengths/
 
 Themes are automatically discovered and integrated into biography generation.
 
+### Voice Analysis (Optional)
+
+For authentic voice analysis based on Atomic Spin blog posts:
+
+```bash
+# 1. Download Atomic Spin blog posts
+bun run getPosts.ts
+
+# 2. Convert HTML posts to markdown format
+bun run htmlToMarkdown.ts
+
+# 3. Now voice analysis will be available in biography generation
+bun run generateBio.ts
+# → Choose "Yes" when prompted for voice analysis
+```
+
+**Note**: Voice analysis requires the blog post data to be downloaded first. If you skip these steps, choose "No" for voice analysis and use manual voice style selection instead.
+
 ## 🏧 System Architecture
 
 ```
@@ -205,12 +223,15 @@ tools/                         # Data processing utilities
 - Interactive and command-line interfaces with help support
 - Configuration management system
 - Comprehensive CLI interfaces with graceful exit handling
+- Voice analysis integration with Atomic Spin blog posts
+- Intelligent caching system for voice analysis results
+- Graceful fallback from voice analysis to manual voice styles
 
 ### 🔄 Future Enhancements
 
-- Voice analysis integration (leveraging spinbot functionality)
 - Enhanced validation and quality assurance
 - Multi-agent architecture for specialized analysis
+- Voice analysis from custom writing samples (beyond Atomic Spin posts)
 
 ## 📏 Usage Examples
 
@@ -226,6 +247,15 @@ bun run generateBio.ts "Jacob Williams" \
   --aspirations "Technical Leadership" \
   --voice-style "authentic" \
   --summaries-dir "project-experience-summaries"
+
+# With voice analysis (requires blog posts setup)
+bun run generateBio.ts "Jacob Williams" \
+  --analyze-voice \
+  --experience-level "Senior Developer"
+
+# Force refresh cached voice analysis
+bun run generateBio.ts "Jacob Williams" \
+  --refresh-voice
 
 # Get help for any script
 bun run generateBio.ts --help

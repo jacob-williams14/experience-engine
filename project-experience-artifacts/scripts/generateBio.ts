@@ -10,6 +10,7 @@ import { existsSync } from "fs";
 import { readdir, stat } from "fs/promises";
 import { generateAIText } from "../lib/ai.js";
 import { getCurrentProvider } from "../lib/aiConfig.js";
+import { setupGracefulExit } from "../lib/cliUtils.js";
 
 /**
  * Discover project summary files from a directory
@@ -326,6 +327,7 @@ function createBiographyPrompt(
 		personalDescription?: string;
 		strengthsData?: string;
 		voiceStyle?: "professional" | "personable" | "authentic";
+		voiceSignature?: string;
 		outputDir?: string;
 		additionalInstructions?: string;
 	} = {}
@@ -341,6 +343,8 @@ function createBiographyPrompt(
 		.join("\n\n");
 
 	return `Please create a professional biography for ${developerName}'s Atomic Object employee profile following the Professional Biography Generation framework.
+
+**CRITICAL: Write this biography in FIRST PERSON** - as if ${developerName} is speaking directly about their own experience and approach. Use "I" throughout, not "he/she" or third person.
 
 ## Parameters
 - **Developer Name**: ${developerName}
@@ -385,7 +389,11 @@ Analyze the provided project experience summaries and create a concise, compelli
 - **Length**: 200-400 words maximum (reduced for conciseness)
 - **Voice Style**: ${
 		options.voiceStyle || "authentic"
-	} (professional/personable/authentic)
+	} (professional/personable/authentic)${
+		options.voiceSignature
+			? `\n- **Voice Signature**: Based on analysis of ${developerName}'s writing style:\n${options.voiceSignature}`
+			: ""
+	}
 
 ## Project Experience Summaries
 ${formattedSummaries}
@@ -426,22 +434,34 @@ ${formattedSummaries}
 ### 3. Writing Guidelines
 
 #### Content Approach
-- **Synthesize, Don't List**: Identify patterns across projects rather than describing each individually
-- **Show Progression**: Demonstrate career growth and increasing technical responsibility
-- **Balance Technical & Leadership**: Equal emphasis on technical competence and collaborative abilities
-- **Broad Technical Terms**: Use "full-stack development," "system architecture," "mobile applications" rather than specific frameworks
-- **Business Value Focus**: Emphasize project success, client satisfaction, and problem-solving for business challenges
+- **Focus on Who They Are**: Write about their personality, values, and way of thinking - avoid project details entirely
+- **Show Character Through Perspective**: Reveal personality through their approach to problems and people, not work examples
+- **Be Genuinely Human**: Every sentence should sound like a real person talking - avoid AI writing patterns
+- **Avoid Technical References**: No project names, technologies, or specific work details
+- **Personal Philosophy**: Focus on their beliefs about work, growth, and collaboration
+- **Natural Speech Patterns**: Sound like actual human conversation, not polished marketing copy
 
-#### Writing Style & Voice
-${getVoiceGuidelines(options.voiceStyle || "authentic")}
 
 ## Output Requirements
 
-### Biography Structure
-1. **Opening Paragraph**: Professional identity, core expertise, and distinctive value proposition
-2. **Technical Leadership**: Project impact, problem-solving approach, and leadership emergence evidence
-3. **Collaboration & Impact**: Cross-functional work, stakeholder management, and team development
-4. **Future Focus**: Professional growth trajectory, aspirations, and value to Atomic Object clients
+### Biography Structure (FIRST PERSON)
+Write in natural, shorter paragraphs that flow like genuine personal reflection:
+
+- **Personal Philosophy**: What drives you and how you see your work - your authentic perspective
+- **How You Think**: Your natural approach to problems, people, and growth - your actual personality 
+- **What Excites You**: Where you're headed and what energizes you - genuine enthusiasm
+
+**STRUCTURE GUIDELINES:**
+- Use 4-5 shorter paragraphs instead of 3 dense ones for better readability
+- Keep paragraphs focused on one main idea each
+- Let the writing breathe - don't pack too much into each paragraph
+
+**AVOID THESE AI PATTERNS:**
+- Em-dashes and excessive punctuation
+- "Whether I'm [doing X] or [doing Y]" constructions
+- Listing multiple examples in one sentence
+- Corporate buzzwords and polished language
+- Technical project references
 
 ### Format Specifications
 - **Length**: 200-400 words maximum (concise and impactful)
@@ -496,7 +516,29 @@ The resulting biography should enable readers to:
 
 Any deviation from the established biography format and standards is considered a critical error. When generating biographies, ensure complete consistency in structure, length, tone, and formatting. The goal is to create a collection of professional biographies that maintain uniform quality and presentation standards.
 
-This framework ensures consistent, compelling biographies that effectively showcase technical expertise while remaining accessible to diverse audiences in a custom software consultancy environment.`;
+This framework ensures consistent, compelling biographies that effectively showcase technical expertise while remaining accessible to diverse audiences in a custom software consultancy environment.${
+		options.voiceSignature
+			? `
+
+## FINAL OVERRIDE - AUTHENTIC VOICE (MOST IMPORTANT)
+
+#### Writing Style & Voice Guidelines
+${getVoiceGuidelines(options.voiceStyle || "authentic")}
+
+**CRITICAL: Before writing, read this voice signature and write in ${developerName}'s authentic style:**
+
+${options.voiceSignature}
+
+**FINAL INSTRUCTIONS - OVERRIDE ALL PREVIOUS GUIDELINES:**
+- Write as if ${developerName} personally wrote this bio in their own voice
+- Use their natural conversational style and personality markers from above
+- Ignore corporate language - this should sound human and authentic
+- Channel their characteristic way of thinking and expressing ideas
+- Make it feel like they're talking to a colleague, not writing a corporate bio
+
+Write the biography now in ${developerName}'s authentic voice.`
+			: ""
+	}`;
 }
 
 // ===== Main generation function =====
@@ -511,6 +553,10 @@ async function generateBio(
 		outputDir?: string;
 		additionalInstructions?: string;
 		maxSummaries?: number;
+		useVoiceAnalysis?: boolean;
+		refreshVoiceCache?: boolean;
+		fallbackVoiceStyle?: "professional" | "personable" | "authentic";
+		voiceSignature?: string;
 	} = {}
 ): Promise<void> {
 	try {
@@ -553,10 +599,50 @@ async function generateBio(
 		// Auto-discover Strengths data
 		const strengthsData = await loadStrengthsData();
 
+		// Handle voice analysis if requested
+		let voiceSignature: string | undefined = options.voiceSignature;
+		let finalVoiceStyle =
+			options.voiceStyle || options.fallbackVoiceStyle || "authentic";
+
+		if (options.useVoiceAnalysis && !voiceSignature) {
+			const { getVoiceAnalysis } = await import("../lib/voiceHelper.js");
+			try {
+				const voiceResult = await getVoiceAnalysis(
+					developerName,
+					options.refreshVoiceCache
+				);
+				if (voiceResult.success) {
+					voiceSignature = voiceResult.voiceSignature;
+					console.log(
+						`✅ Voice analysis ${
+							voiceResult.fromCache ? "loaded from cache" : "completed"
+						}`
+					);
+				} else {
+					console.warn(
+						"⚠️ Voice analysis failed - using manual voice style selection"
+					);
+					finalVoiceStyle =
+						options.fallbackVoiceStyle || options.voiceStyle || "authentic";
+				}
+			} catch (err) {
+				console.warn(
+					`⚠️ Voice analysis error: ${
+						err instanceof Error ? err.message : String(err)
+					}`
+				);
+				console.warn("   Using manual voice style selection");
+				finalVoiceStyle =
+					options.fallbackVoiceStyle || options.voiceStyle || "authentic";
+			}
+		}
+
 		// Generate biography prompt using original format
 		console.log("🎨 Creating biography generation prompt...");
 		const prompt = createBiographyPrompt(developerName, projectSummaries, {
 			...options,
+			voiceStyle: finalVoiceStyle,
+			voiceSignature: voiceSignature,
 			strengthsData: strengthsData || undefined,
 		});
 		const provider = getCurrentProvider();
@@ -622,11 +708,8 @@ async function generateBio(
 async function main() {
 	const args = process.argv.slice(2);
 
-	// Handle process signals gracefully
-	process.on("SIGINT", () => {
-		console.log("\n👋 Operation cancelled by user");
-		process.exit(0);
-	});
+	// Setup graceful exit handling
+	setupGracefulExit();
 
 	if (args.length < 2) {
 		console.error(
