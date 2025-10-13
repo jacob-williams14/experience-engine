@@ -485,7 +485,7 @@ if (import.meta.main) {
 	const args = process.argv.slice(2);
 	const authorName = args[0];
 
-	if (args.includes("--help") || args.includes("-h")) {
+	if (args.includes("--help") || args.includes("-h") || args[0] === "help") {
 		console.log("📊 Blog Style Analysis Over Time");
 		console.log("");
 		console.log("Usage: bun run scripts/analyzeStyleOverTime.ts [author-name]");

@@ -94,27 +94,69 @@ export async function saveVoiceContext(
 ): Promise<void> {
 	const cacheFile = getCacheFilePath(authorName);
 
-	// Ensure cache directory exists
-	if (!existsSync(CACHE_DIR)) {
-		await mkdir(CACHE_DIR, { recursive: true });
-	}
-
-	const cacheData: VoiceAnalysisCache = {
-		authorName,
-		voiceSignature,
-		lastUpdated: new Date().toISOString(),
-		sourcesAnalyzed,
-	};
+	console.log(`🔧 Attempting to save voice cache to: ${cacheFile}`);
 
 	try {
-		await writeFile(cacheFile, JSON.stringify(cacheData, null, 2), "utf-8");
-		console.log(`💾 Voice signature cached for ${authorName}`);
+		// Ensure cache directory exists with better error handling
+		if (!existsSync(CACHE_DIR)) {
+			console.log(`📁 Creating cache directory: ${CACHE_DIR}`);
+			await mkdir(CACHE_DIR, { recursive: true });
+			console.log(`✅ Cache directory created successfully`);
+		} else {
+			console.log(`📁 Cache directory already exists: ${CACHE_DIR}`);
+		}
+
+		// Validate input data
+		if (!authorName || !voiceSignature) {
+			throw new Error(`Invalid input: authorName='${authorName}', voiceSignature length=${voiceSignature?.length || 0}`);
+		}
+
+		const cacheData: VoiceAnalysisCache = {
+			authorName,
+			voiceSignature,
+			lastUpdated: new Date().toISOString(),
+			sourcesAnalyzed,
+		};
+
+		// Convert to JSON with error handling
+		let jsonData: string;
+		try {
+			jsonData = JSON.stringify(cacheData, null, 2);
+			console.log(`📄 JSON data prepared (${jsonData.length} characters)`);
+		} catch (jsonErr) {
+			throw new Error(`Failed to serialize cache data: ${jsonErr instanceof Error ? jsonErr.message : String(jsonErr)}`);
+		}
+
+		// Write file with detailed error handling
+		await writeFile(cacheFile, jsonData, "utf-8");
+		console.log(`💾 Voice signature cached successfully for ${authorName}`);
+		console.log(`📍 Cache file location: ${cacheFile}`);
+
+		// Verify the file was written correctly
+		if (existsSync(cacheFile)) {
+			const stats = require("fs").statSync(cacheFile);
+			console.log(`✅ Cache file verified (${stats.size} bytes)`);
+		} else {
+			console.warn(`⚠️ Cache file was not created despite successful write operation`);
+		}
+
 	} catch (err) {
-		console.error(
-			`❌ Error saving voice cache for ${authorName}:`,
-			err instanceof Error ? err.message : String(err)
-		);
-		throw err;
+		const errorMessage = err instanceof Error ? err.message : String(err);
+		console.error(`❌ Error saving voice cache for ${authorName}:`);
+		console.error(`   File path: ${cacheFile}`);
+		console.error(`   Error details: ${errorMessage}`);
+		console.error(`   Working directory: ${process.cwd()}`);
+		console.error(`   Cache directory exists: ${existsSync(CACHE_DIR)}`);
+		
+		// Log additional debugging info
+		if (err instanceof Error && 'code' in err) {
+			console.error(`   Error code: ${(err as any).code}`);
+		}
+		if (err instanceof Error && 'path' in err) {
+			console.error(`   Error path: ${(err as any).path}`);
+		}
+		
+		throw new Error(`Failed to save voice cache: ${errorMessage}`);
 	}
 }
 

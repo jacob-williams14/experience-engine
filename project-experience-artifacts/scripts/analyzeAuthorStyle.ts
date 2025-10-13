@@ -5,7 +5,7 @@ import { setupGracefulExit } from "../lib/cliUtils.js";
 const CONFIG = {
 	MIN_POSTS_REQUIRED: 10,
 	MAX_POSTS_TO_ANALYZE: 30,
-	CONTENT_PREVIEW_LENGTH: 1500,
+	CONTENT_PREVIEW_LENGTH: 3000, // Increased for more context to reduce hallucination
 	POSTS_DIRECTORY: "data/posts-md/",
 	RATE_LIMIT_DELAY: 100, // ms between API calls
 	MODEL_MINI: "gpt-4o-mini",
@@ -316,16 +316,23 @@ function authorStyleReflectionPrompt(
 		.join("\n\n");
 
 	return `
-You are an expert in writing analysis. Your task is to synthesize a comprehensive, nuanced summary of ${author}'s writing style and evolution, based on the following blog post style summaries.
+You are an expert voice coach helping to capture someone's authentic writing voice for content generation. Your task is to create a voice signature that captures what makes ${author}'s communication style distinctly human, conversational, and personally authentic.
+
+Your goal: Create a voice signature that would help someone else write content that sounds genuinely like ${author} - not just professional, but with their personality, conversational patterns, and human warmth intact.
 
 Instructions:
-- Carefully review the provided post summaries.
-- Identify and describe recurring patterns in tone, perspective, communication style, rhetorical strategies, and audience targeting.
-- Note any evolution or shifts in style, tone, or focus over time.
-- Highlight the author's writing strengths, preferred rhetorical devices, and any implicit values or motivations that emerge.
-- Be specific: reference concrete patterns, themes, or strategies rather than generic statements.
-- If relevant, discuss how the author adapts their style for different audiences or purposes.
-- Write a concise, insightful synthesis in 1–2 well-developed paragraphs. Avoid bullet points or lists.
+- **CRITICAL: Only include patterns and phrases that are actually present in the provided post summaries**
+- Do NOT invent or assume specific phrases - if you can't find clear examples, describe the pattern instead
+- Focus on what makes ${author}'s voice feel personal and conversational rather than corporate
+- Identify actual language patterns and conversational habits from the content, not generic examples
+- Capture their personality markers: humor, vulnerability, enthusiasm, specific ways they connect with readers
+- Note how they balance professional expertise with human relatability
+- Highlight what makes their writing feel like having a conversation with a trusted colleague
+- When describing rhetorical patterns, reference actual examples from the posts or describe the pattern without inventing quotes
+- Describe their "voice personality" based on evidence from their actual writing
+- Focus on actionable characteristics grounded in their actual communication style
+
+Create a voice signature that captures both their professional credibility AND their personal, conversational warmth. The result should help generate content that sounds like ${author} talking to a friend over coffee about their work, not like a corporate communication.
 
 Post Summaries:
 ${examples}

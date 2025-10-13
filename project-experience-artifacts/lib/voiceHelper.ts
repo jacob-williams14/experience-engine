@@ -57,19 +57,21 @@ async function tryEvolutionAnalysis(
 			.join("\n\n");
 
 		// Create a voice signature from the complete evolution data
-		const prompt = `Based on this year-by-year writing style evolution analysis, create a comprehensive voice signature for ${authorName} that captures their authentic writing style for biography generation:
+		const prompt = `Based on this year-by-year writing style evolution analysis, create a comprehensive voice signature for ${authorName} that captures what makes their writing feel distinctly human and authentic:
 
 ${evolutionSummary}
 
 Analyze this evolution and create a voice signature that:
 1. Identifies the core consistent elements across all years
 2. Incorporates the mature/sophisticated elements from recent years
-3. Captures their authentic communication patterns and tone
-4. Reflects their natural approach to sharing professional insights
+3. Focuses on their natural sentence rhythms and flow patterns
+4. Captures how they connect and develop ideas
+5. Identifies their characteristic word choices and phrasing
+6. Highlights what makes their voice distinctive and recognizable
 
-The voice signature should help write a professional biography in ${authorName}'s authentic voice - drawing from their full evolution but emphasizing their most developed characteristics. Focus on what makes their communication style distinctive and engaging.
+The voice signature should help capture ${authorName}'s authentic communication style - whatever that naturally is - rather than generic or templated language. Focus on what makes their communication style distinctive and genuinely theirs.
 
-Format as a clear, actionable description of their voice characteristics that can guide biography writing.`;
+Format as a clear, actionable description of their voice characteristics that can guide writing in their authentic style and voice.`;
 
 		const voiceSignature = await generateAIText(prompt, "analysis");
 		return voiceSignature;

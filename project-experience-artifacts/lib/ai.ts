@@ -31,8 +31,8 @@ export async function generateAIText(
 		const result = await generateTextWithClaude({
 			prompt,
 			model: model as ClaudeModel,
-			temperature: 0.3,
-			maxTokens: 4000,
+			temperature: task === "bio" ? 0.7 : 0.3,
+			maxTokens: task === "bio" ? 6000 : 4000,
 		});
 		return result.text;
 	}
@@ -41,8 +41,8 @@ export async function generateAIText(
 		const result = await generateText({
 			model: openai(model),
 			prompt,
-			temperature: 0.3,
-			maxTokens: 4000,
+			temperature: task === "bio" ? 0.7 : 0.3,
+			maxTokens: task === "bio" ? 6000 : 4000,
 		});
 		return result.text;
 	}

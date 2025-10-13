@@ -434,38 +434,34 @@ ${formattedSummaries}
 ### 3. Writing Guidelines
 
 #### Content Approach
-- **Synthesize, Don't List**: Identify patterns across projects rather than describing each individually
-- **Show Progression**: Demonstrate career growth and increasing technical responsibility
-- **Balance Technical & Leadership**: Equal emphasis on technical competence and collaborative abilities
-- **Plain Language Over Jargon**: Use accessible terms like "mobile apps," "web platforms," "software solutions" instead of specific framework names
-- **Human Impact Focus**: Emphasize how work helps real people solve real problems, not just technical achievements
-- **Conversational Professionalism**: Sound like a competent person talking to a colleague, not a corporate marketing document
+- **Focus on Who They Are**: Write about their personality, values, and way of thinking - avoid project details entirely
+- **Show Character Through Perspective**: Reveal personality through their approach to problems and people, not work examples
+- **Be Genuinely Human**: Every sentence should sound like a real person talking - avoid AI writing patterns
+- **Avoid Technical References**: No project names, technologies, or specific work details
+- **Personal Philosophy**: Focus on their beliefs about work, growth, and collaboration
+- **Natural Speech Patterns**: Sound like actual human conversation, not polished marketing copy
 
-#### Writing Style & Voice
-${getVoiceGuidelines(options.voiceStyle || "authentic")}${
-		options.voiceSignature
-			? `
-
-**CRITICAL - Voice Signature Integration:**
-The Voice Signature analysis captures ${developerName}'s authentic writing style from their blog posts. You MUST incorporate these specific voice characteristics while keeping the tone approachable and human:
-
-1. **Conversational and Direct**: Use their natural communication patterns and conversational tone
-2. **Avoid Technical Jargon**: Use plain language instead of framework names or buzzwords (e.g., "mobile apps" not "React Native applications", "web platforms" not "Angular enterprise systems")
-3. **Human-Centered Language**: Replace corporate speak with direct, personal language (e.g., "I work with people to understand what they need" not "cross-functional stakeholder management")
-4. **Their Natural Voice Patterns**: Incorporate their authentic writing devices (rhetorical questions, conversational asides, etc.) as identified in the voice analysis
-5. **Professional but Approachable**: Balance competence with accessibility - sound like a real person, not a corporate brochure
-
-Write as if ${developerName} is personally sharing their professional story in their own authentic voice - conversational, direct, and genuinely human while maintaining professional credibility.`
-			: ""
-	}
 
 ## Output Requirements
 
 ### Biography Structure (FIRST PERSON)
-1. **Opening Paragraph**: "I am..." - Personal professional identity, core expertise, and distinctive value proposition
-2. **Technical Leadership**: "I've led..." - Personal project impact, problem-solving approach, and leadership emergence
-3. **Collaboration & Impact**: "I work..." - Personal approach to cross-functional work, stakeholder management, and team development  
-4. **Future Focus**: "I'm focused on..." - Personal growth trajectory, aspirations, and value to Atomic Object clients
+Write in natural, shorter paragraphs that flow like genuine personal reflection:
+
+- **Personal Philosophy**: What drives you and how you see your work - your authentic perspective
+- **How You Think**: Your natural approach to problems, people, and growth - your actual personality 
+- **What Excites You**: Where you're headed and what energizes you - genuine enthusiasm
+
+**STRUCTURE GUIDELINES:**
+- Use 4-5 shorter paragraphs instead of 3 dense ones for better readability
+- Keep paragraphs focused on one main idea each
+- Let the writing breathe - don't pack too much into each paragraph
+
+**AVOID THESE AI PATTERNS:**
+- Em-dashes and excessive punctuation
+- "Whether I'm [doing X] or [doing Y]" constructions
+- Listing multiple examples in one sentence
+- Corporate buzzwords and polished language
+- Technical project references
 
 ### Format Specifications
 - **Length**: 200-400 words maximum (concise and impactful)
@@ -520,7 +516,29 @@ The resulting biography should enable readers to:
 
 Any deviation from the established biography format and standards is considered a critical error. When generating biographies, ensure complete consistency in structure, length, tone, and formatting. The goal is to create a collection of professional biographies that maintain uniform quality and presentation standards.
 
-This framework ensures consistent, compelling biographies that effectively showcase technical expertise while remaining accessible to diverse audiences in a custom software consultancy environment.`;
+This framework ensures consistent, compelling biographies that effectively showcase technical expertise while remaining accessible to diverse audiences in a custom software consultancy environment.${
+		options.voiceSignature
+			? `
+
+## FINAL OVERRIDE - AUTHENTIC VOICE (MOST IMPORTANT)
+
+#### Writing Style & Voice Guidelines
+${getVoiceGuidelines(options.voiceStyle || "authentic")}
+
+**CRITICAL: Before writing, read this voice signature and write in ${developerName}'s authentic style:**
+
+${options.voiceSignature}
+
+**FINAL INSTRUCTIONS - OVERRIDE ALL PREVIOUS GUIDELINES:**
+- Write as if ${developerName} personally wrote this bio in their own voice
+- Use their natural conversational style and personality markers from above
+- Ignore corporate language - this should sound human and authentic
+- Channel their characteristic way of thinking and expressing ideas
+- Make it feel like they're talking to a colleague, not writing a corporate bio
+
+Write the biography now in ${developerName}'s authentic voice.`
+			: ""
+	}`;
 }
 
 // ===== Main generation function =====
