@@ -11,9 +11,16 @@ import { generateTextWithClaude, type ClaudeModel } from "./claude.js";
  * Generate text using the configured AI provider
  * Returns null for local mode (prompt generation)
  */
+// Task configuration presets
+const TASK_CONFIGS = {
+	detailed: { temperature: 0.3, maxTokens: 4000 },
+	creative: { temperature: 0.7, maxTokens: 6000 },
+	concise: { temperature: 0.2, maxTokens: 3000 },
+} as const;
+
 export async function generateAIText(
 	prompt: string,
-	task: "analysis" | "bio" = "analysis"
+	task: "detailed" | "creative" | "concise" = "detailed"
 ): Promise<string | null> {
 	const provider = getCurrentProvider();
 
@@ -27,12 +34,14 @@ export async function generateAIText(
 		throw new Error(`No model configured for ${provider} ${task}`);
 	}
 
+	const taskConfig = TASK_CONFIGS[task];
+
 	if (provider === "claude") {
 		const result = await generateTextWithClaude({
 			prompt,
 			model: model as ClaudeModel,
-			temperature: task === "bio" ? 0.7 : 0.3,
-			maxTokens: task === "bio" ? 6000 : 4000,
+			temperature: taskConfig.temperature,
+			maxTokens: taskConfig.maxTokens,
 		});
 		return result.text;
 	}
@@ -41,8 +50,8 @@ export async function generateAIText(
 		const result = await generateText({
 			model: openai(model),
 			prompt,
-			temperature: task === "bio" ? 0.7 : 0.3,
-			maxTokens: task === "bio" ? 6000 : 4000,
+			temperature: taskConfig.temperature,
+			maxTokens: taskConfig.maxTokens,
 		});
 		return result.text;
 	}

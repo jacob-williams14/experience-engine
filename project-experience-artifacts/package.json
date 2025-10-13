@@ -7,6 +7,7 @@
 	"scripts": {
 		"generateProjectSummary": "bun run generateProjectSummary.ts",
 		"generateBio": "bun run generateBio.ts",
+		"generateLinkedInExperience": "bun run generateLinkedInExperience.ts",
 		"configure-ai": "bun run scripts/configureAI.ts",
 		"getPosts": "bun run getPosts.ts",
 		"htmlToMarkdown": "bun run htmlToMarkdown.ts",

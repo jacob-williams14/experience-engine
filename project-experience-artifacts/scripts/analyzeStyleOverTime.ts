@@ -272,7 +272,7 @@ async function analyzeYearWithRetry(
 		try {
 			console.log(`🔍 Analyzing ${year}... (attempt ${attempt})`);
 
-			const response = await generateAIText(prompt, "analysis");
+			const response = await generateAIText(prompt, "detailed");
 
 			if (response === null) {
 				throw new Error(
@@ -456,7 +456,7 @@ Instructions:
 - Identify any recurring patterns or notable one-off changes.
 - Conclude with a concise summary of the overall evolution and its implications for the blog's direction or audience.`;
 
-		const result = await generateAIText(evolutionPrompt, "analysis");
+		const result = await generateAIText(evolutionPrompt, "detailed");
 
 		if (result === null) {
 			console.warn(

@@ -531,7 +531,7 @@ async function analyzeProject(
 		}
 
 		// Try to generate with AI - if local mode, will return null
-		const aiResult = await generateAIText(prompt, "analysis");
+		const aiResult = await generateAIText(prompt, "detailed");
 
 		if (aiResult === null) {
 			// === LOCAL MODE - PROMPT GENERATION ===

@@ -148,8 +148,9 @@ function showModels() {
 		if (models) {
 			console.log(`\n${provider.toUpperCase()}:`);
 			console.log(`  • Default:  ${models.default}`);
-			console.log(`  • Analysis: ${models.analysis}`);
-			console.log(`  • Bio:      ${models.bio}`);
+			console.log(`  • Detailed: ${models.detailed}`);
+			console.log(`  • Creative: ${models.creative}`);
+			console.log(`  • Concise:  ${models.concise}`);
 		}
 	});
 }

@@ -483,7 +483,7 @@ async function analyzeAuthorStyle(author: string): Promise<string> {
 
 			const prompt = miniStylePrompt(post);
 			try {
-				const result = await generateAIText(prompt, "analysis");
+				const result = await generateAIText(prompt, "detailed");
 
 				if (result === null) {
 					console.error(
@@ -518,7 +518,7 @@ async function analyzeAuthorStyle(author: string): Promise<string> {
 		console.log(`🤔 Reflecting on ${styleChunks.length} style summaries...`);
 		const reflectionPrompt = authorStyleReflectionPrompt(author, styleChunks);
 
-		const finalResult = await generateAIText(reflectionPrompt, "analysis");
+		const finalResult = await generateAIText(reflectionPrompt, "detailed");
 
 		if (finalResult === null) {
 			throw new Error(
