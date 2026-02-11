@@ -7,29 +7,23 @@ import Anthropic from "@anthropic-ai/sdk";
 
 // Claude model configurations
 export const CLAUDE_MODELS = {
-	// Claude 4 - Latest and most capable
-	OPUS_4_1: "claude-opus-4-1-20250805",
-	OPUS_4_1_ALIAS: "claude-opus-4-1",
-	OPUS_4: "claude-opus-4-20250514",
-	OPUS_4_ALIAS: "claude-opus-4-0",
-	SONNET_4: "claude-sonnet-4-20250514",
-	SONNET_4_ALIAS: "claude-sonnet-4-0",
+	// Claude 4.5/4.6 - Latest generation
+	SONNET_4_5: "claude-sonnet-4-5-20250929",
+	HAIKU_4_5: "claude-haiku-4-5-20251001",
 
-	// Claude 3.7 - Strong performance
+	// Claude 4 - Highly capable
+	OPUS_4_1: "claude-opus-4-1-20250805",
+	OPUS_4: "claude-opus-4-20250514",
+	SONNET_4: "claude-sonnet-4-20250514",
+
+	// Claude 3.7
 	SONNET_3_7: "claude-3-7-sonnet-20250219",
 	SONNET_3_7_LATEST: "claude-3-7-sonnet-latest",
 
-	// Claude 3.5 - Balanced performance and capability
+	// Claude 3.5
 	HAIKU_3_5: "claude-3-5-haiku-20241022",
-	HAIKU_3_5_LATEST: "claude-3-5-haiku-latest",
 	SONNET_3_5: "claude-3-5-sonnet-20241022",
 	SONNET_3_5_LATEST: "claude-3-5-sonnet-latest",
-	SONNET_3_5_OLD: "claude-3-5-sonnet-20240620",
-
-	// Claude 3 - Legacy but reliable
-	OPUS_3: "claude-3-opus-20240229",
-	OPUS_3_LATEST: "claude-3-opus-latest",
-	HAIKU_3: "claude-3-haiku-20240307",
 } as const;
 
 export type ClaudeModel = (typeof CLAUDE_MODELS)[keyof typeof CLAUDE_MODELS];
@@ -153,12 +147,12 @@ export function recommendClaudeModel(
 ): ClaudeModel {
 	switch (taskComplexity) {
 		case "simple":
-			return CLAUDE_MODELS.HAIKU_3_5;
+			return CLAUDE_MODELS.HAIKU_4_5;
 		case "moderate":
-			return CLAUDE_MODELS.SONNET_3_5;
+			return CLAUDE_MODELS.SONNET_4_5;
 		case "complex":
-			return CLAUDE_MODELS.OPUS_3;
+			return CLAUDE_MODELS.OPUS_4_1;
 		default:
-			return CLAUDE_MODELS.SONNET_3_5;
+			return CLAUDE_MODELS.SONNET_4_5;
 	}
 }

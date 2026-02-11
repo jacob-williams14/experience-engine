@@ -172,7 +172,7 @@ function parseArgs() {
 	
 	// Basic parsing for direct execution
 	const options: any = {
-		interactive: false,
+		interactive: args.length === 0, // Interactive if no args provided
 	};
 	
 	for (let i = 0; i < args.length; i++) {
@@ -264,7 +264,7 @@ async function main() {
 
 	const options = parseArgs();
 	
-	if (options.interactive !== false) {
+	if (options.interactive) {
 		// Run interactive mode
 		await runInteractive();
 	} else {

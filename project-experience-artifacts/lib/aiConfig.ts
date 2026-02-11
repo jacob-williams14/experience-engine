@@ -40,10 +40,10 @@ const DEFAULT_CONFIG: AIConfig = {
 			concise: "gpt-4o-mini",
 		},
 		claude: {
-			default: CLAUDE_MODELS.SONNET_3_5_LATEST,
-			detailed: CLAUDE_MODELS.SONNET_4,
-			creative: CLAUDE_MODELS.SONNET_4,
-			concise: CLAUDE_MODELS.SONNET_3_5_LATEST,
+			default: CLAUDE_MODELS.SONNET_4_5,
+			detailed: CLAUDE_MODELS.SONNET_4_5,
+			creative: CLAUDE_MODELS.SONNET_4_5,
+			concise: CLAUDE_MODELS.SONNET_4_5,
 		},
 	},
 };

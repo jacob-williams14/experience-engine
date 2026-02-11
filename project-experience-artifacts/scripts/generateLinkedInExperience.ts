@@ -48,17 +48,14 @@ function extractProjectHeader(content: string) {
 }
 
 /**
- * Extract key content sections for LinkedIn optimization
- * Focus on achievements, impact, and technical highlights
+ * Extract rich context from project summary for LinkedIn generation.
+ * Captures the full narrative — overview, leadership, impact, and architecture —
+ * so the prompt has enough material to identify what's distinct about this project.
  */
 function extractLinkedInHighlights(content: string): string {
 	const lines = content.split('\n');
 	const highlights: string[] = [];
-	let currentSection = '';
-	let captureMode: 'overview' | 'impact' | 'skills' | 'architecture' | 'none' = 'none';
-	let sectionContent: string[] = [];
-	let bulletCount = 0;
-	
+
 	// Add project header
 	const header = extractProjectHeader(content);
 	if (header.projectName) {
@@ -73,108 +70,80 @@ function extractLinkedInHighlights(content: string): string {
 	if (header.technologies) {
 		highlights.push(`**Key Technologies:** ${header.technologies}`);
 	}
-	highlights.push(''); // Add spacing
-	
+	highlights.push('');
+
+	// Capture sections that matter for LinkedIn — overview, leadership, impact, architecture
+	// Skip granular feature lists and skills inventories
+	const captureSections = new Set([
+		'Project Overview',
+		'Technical Architecture',
+		'Architecture',
+		'Technical Leadership',
+		'Project Impact',
+		'Business Impact',
+	]);
+	const skipSections = new Set([
+		'Feature Development',
+		'Quality Assurance',
+		'Skills Demonstrated',
+		'Testing',
+	]);
+
+	let capturing = false;
+	let sectionContent: string[] = [];
+
 	for (const line of lines) {
-		const trimmedLine = line.trim();
-		
-		// Project Overview - capture full section
-		if (line.startsWith('## Project Overview')) {
-			if (captureMode !== 'none' && sectionContent.length > 0) {
+		// Detect ## section headers
+		if (line.startsWith('## ')) {
+			// Flush previous section
+			if (capturing && sectionContent.length > 0) {
 				highlights.push(sectionContent.join('\n'));
 			}
-			sectionContent = [line];
-			captureMode = 'overview';
-			continue;
-		}
-		
-		// Project Impact - key for LinkedIn
-		if (line.startsWith('## Project Impact') || line.startsWith('## Business Impact')) {
-			if (captureMode !== 'none' && sectionContent.length > 0) {
-				highlights.push(sectionContent.join('\n'));
+
+			// Decide whether to capture this section
+			const sectionName = line.replace('## ', '').replace(/[*&]/g, '').trim();
+			const shouldCapture = [...captureSections].some(s => sectionName.includes(s));
+			const shouldSkip = [...skipSections].some(s => sectionName.includes(s));
+
+			if (shouldCapture && !shouldSkip) {
+				sectionContent = [line];
+				capturing = true;
+			} else {
+				capturing = false;
+				sectionContent = [];
 			}
-			sectionContent = [line];
-			captureMode = 'impact';
-			bulletCount = 0;
 			continue;
 		}
-		
-		// Technical Architecture - show technical depth
-		if (line.startsWith('## Technical Architecture') || line.startsWith('## Architecture')) {
-			if (captureMode !== 'none' && sectionContent.length > 0) {
-				highlights.push(sectionContent.join('\n'));
-			}
-			sectionContent = [line];
-			captureMode = 'architecture';
-			bulletCount = 0;
-			continue;
-		}
-		
-		// Skills - condensed version
-		if (line.startsWith('## Skills Demonstrated')) {
-			if (captureMode !== 'none' && sectionContent.length > 0) {
-				highlights.push(sectionContent.join('\n'));
-			}
-			sectionContent = [line];
-			captureMode = 'skills';
-			continue;
-		}
-		
-		// Stop capturing detailed sections we don't need
-		if (line.startsWith('##') && 
-			!line.includes('Project Overview') && 
-			!line.includes('Project Impact') && 
-			!line.includes('Business Impact') && 
-			!line.includes('Technical Architecture') &&
-			!line.includes('Architecture') &&
-			!line.includes('Skills Demonstrated')) {
-			if (captureMode !== 'none' && sectionContent.length > 0) {
-				highlights.push(sectionContent.join('\n'));
-			}
-			captureMode = 'none';
-			sectionContent = [];
-			continue;
-		}
-		
-		// Capture content based on current mode
-		if (captureMode === 'overview') {
+
+		if (capturing) {
 			sectionContent.push(line);
-		} else if (captureMode === 'impact') {
-			// Limit bullets in impact section
-			if (line.startsWith('- ') || line.startsWith('* ')) {
-				if (bulletCount < 4) {
-					sectionContent.push(line);
-					bulletCount++;
-				}
-			} else {
-				sectionContent.push(line);
-			}
-		} else if (captureMode === 'architecture') {
-			// Limit architecture details
-			if (line.startsWith('- ') || line.startsWith('* ')) {
-				if (bulletCount < 3) {
-					sectionContent.push(line);
-					bulletCount++;
-				}
-			} else {
-				sectionContent.push(line);
-			}
-		} else if (captureMode === 'skills') {
-			// Only capture the summary sections, not detailed lists
-			if (line.startsWith('### ') && line.includes('Skills')) {
-				sectionContent.push(line);
-			} else if (line.startsWith('- ') && sectionContent[sectionContent.length - 1]?.startsWith('### ')) {
-				// Only capture first few items after each skills header
-				sectionContent.push(line);
-			}
 		}
 	}
-	
-	// Don't forget the last section
-	if (captureMode !== 'none' && sectionContent.length > 0) {
+
+	// Flush last section
+	if (capturing && sectionContent.length > 0) {
 		highlights.push(sectionContent.join('\n'));
 	}
-	
+
+	// Capture the closing narrative paragraph if present (often contains growth arc)
+	const lastParagraphLines: string[] = [];
+	for (let i = lines.length - 1; i >= 0; i--) {
+		const line = lines[i]!.trim();
+		if (line === '') continue;
+		if (line.startsWith('#') || line.startsWith('- ') || line.startsWith('* ')) break;
+		lastParagraphLines.unshift(lines[i]!);
+		// Only grab the final paragraph, not multiple
+		if (lastParagraphLines.length >= 5) break;
+	}
+	if (lastParagraphLines.length > 0) {
+		const lastParagraph = lastParagraphLines.join('\n').trim();
+		// Avoid duplicating if already captured
+		const existingContent = highlights.join('\n');
+		if (lastParagraph.length > 80 && !existingContent.includes(lastParagraph.slice(0, 60))) {
+			highlights.push(`\n## Growth & Trajectory\n${lastParagraph}`);
+		}
+	}
+
 	return highlights.join('\n\n');
 }
 
@@ -182,72 +151,64 @@ function extractLinkedInHighlights(content: string): string {
  * Create LinkedIn-optimized prompt based on role and company context
  */
 function createLinkedInPrompt(
-	projectHighlights: string, 
+	projectHighlights: string,
 	options: LinkedInExperienceOptions
 ): string {
-	const roleContext = {
-		'senior-engineer': 'Senior Software Engineer roles at top tech companies',
-		'staff-engineer': 'Staff Engineer roles requiring technical leadership and architectural thinking',
-		'principal-engineer': 'Principal Engineer roles focused on technical strategy and system design',
-		'eng-manager': 'Engineering Manager roles requiring people leadership and technical oversight',
-		'tech-lead': 'Technical Lead roles with both IC contributions and team guidance',
-		'full-stack': 'Full-Stack Developer roles requiring end-to-end development capabilities',
-	}[options.roleContext] || 'Senior Software Engineer roles';
+	const roleLens: Record<string, string> = {
+		'senior-engineer': 'Emphasize depth of technical contribution, system design, and independent ownership of complex features.',
+		'staff-engineer': 'Emphasize architectural decisions, cross-team influence, and technical strategy beyond individual features.',
+		'principal-engineer': 'Emphasize technical vision, system-wide impact, and shaping engineering direction.',
+		'eng-manager': 'Emphasize people leadership, team growth, process improvements, and delivery outcomes.',
+		'tech-lead': 'Emphasize both hands-on technical work and leadership — mentoring, decision-making, stakeholder communication.',
+		'full-stack': 'Emphasize breadth across the stack and ability to deliver end-to-end.',
+	};
 
-	const companyContext = {
-		'big-tech': 'big tech companies (Google, Meta, Apple, Amazon, etc.) - emphasize scale, performance, and system design',
-		'startup': 'high-growth startups - emphasize speed, impact, and ownership',
-		'enterprise': 'enterprise companies - emphasize reliability, integration, and business value',
-		'mid-startup': 'mid-stage startups - emphasize growth scaling and technical maturity',
-		'general': 'various tech companies - balance technical depth with business impact',
-	}[options.companyContext] || 'various tech companies';
+	const companyLens: Record<string, string> = {
+		'big-tech': 'Lean toward scale, system design, and technical rigor.',
+		'startup': 'Lean toward speed, ownership, wearing multiple hats, and shipping.',
+		'enterprise': 'Lean toward reliability, integration complexity, and business value.',
+		'mid-startup': 'Lean toward scaling systems and growing engineering maturity.',
+		'general': 'Balance technical depth with business impact.',
+	};
 
-	const metricsEmphasis = options.emphasizeMetrics 
-		? 'ONLY include metrics, numbers, or performance data that are explicitly mentioned in the project summary. DO NOT invent or estimate any numbers, percentages, user counts, or performance metrics.' 
-		: 'Focus on qualitative achievements and technical accomplishments without any numbers or metrics.';
+	const metricsGuidance = options.emphasizeMetrics
+		? 'Include metrics ONLY if they appear verbatim in the source material. Never invent numbers.'
+		: 'Omit metrics entirely. Focus on qualitative achievements.';
 
-	const techEmphasis = options.includeTechnologies 
-		? 'Naturally integrate specific technologies, frameworks, and tools into the descriptions.' 
-		: 'Focus more on achievements and impact rather than specific technologies.';
+	const techGuidance = options.includeTechnologies
+		? 'Name specific technologies where they add credibility (e.g., "React Native/Expo" not just "mobile framework").'
+		: 'Minimize technology name-dropping. Focus on what was achieved, not what tools were used.';
 
-	return `You are a senior technical recruiter at a top-tier tech company specializing in identifying exceptional engineering talent for ${roleContext}. You need to convert this comprehensive project summary into LinkedIn Experience section content that will immediately catch the attention of recruiters at ${companyContext}.
+	return `Convert this project summary into 3-5 LinkedIn Experience bullet points for ${options.developerName}.
 
-CRITICAL REQUIREMENTS FOR LINKEDIN EXPERIENCE:
-- Create exactly 2-4 concise bullet points (total 150-300 words)
-- Each bullet point should be 1-2 lines maximum
-- Use strong action verbs (Architected, Led, Delivered, Optimized, Built, Scaled)
-- Focus on technical achievements and business impact
-- Show progression: Challenge → Technical Solution → Business Impact
-- Make it scannable for time-pressed recruiters
+These bullets are intermediate artifacts — they will later be synthesized into a single LinkedIn Experience entry for their consultancy role. So each bullet should capture what was DISTINCT about this specific project.
 
-CRITICAL: NEVER INVENT METRICS OR NUMBERS
-- DO NOT include any percentages, user counts, performance metrics, or statistics unless they are explicitly stated in the source material
-- DO NOT estimate or guess at any quantitative measures
-- Focus on qualitative achievements and technical depth instead
-- If no specific metrics are provided, emphasize the scope, complexity, and technical sophistication of the work
+WHAT MAKES A GOOD BULLET:
+- Leads with what made this project unique — the domain challenge, the role growth, or the specific technical problem
+- Is specific enough that it could only describe THIS project, not any generic software project
+- Surfaces role progression if present (e.g., stepping up from IC to tech lead mid-project)
+- Names the domain concretely (e.g., "HIPAA-compliant clinical assessment tool for movement science practitioners" not "health evaluation platform")
 
-TONE AND STYLE:
-- Professional and confident, not boastful
-- Achievement-focused with concrete results
-- Technical depth without overwhelming detail
-- Demonstrate ownership and initiative
+WHAT TO AVOID:
+- Generic openers like "Architected and implemented comprehensive X using Y" — every project can say this
+- Listing multiple achievements in a single run-on bullet
+- Vague domain descriptions ("enterprise platform", "complex system", "comprehensive application")
+- Starting every bullet with the same verb pattern
+- Any commentary, notes, or disclaimers after the bullets
 
-CONTENT FOCUS:
-- Technical challenges solved and how
-- Business impact and value delivered
-- Leadership and collaboration aspects
-- Innovation and technical excellence
-${metricsEmphasis}
-${techEmphasis}
+ROLE LENS (${options.roleContext}):
+${roleLens[options.roleContext] || roleLens['senior-engineer']}
 
-TARGET AUDIENCE: ${companyContext.charAt(0).toUpperCase() + companyContext.slice(1)} recruiters, hiring managers, and technical leaders looking for ${roleContext.toLowerCase()}.
+COMPANY LENS (${options.companyContext}):
+${companyLens[options.companyContext] || companyLens['general']}
 
-PROJECT SUMMARY TO CONVERT:
+METRICS: ${metricsGuidance}
+TECHNOLOGIES: ${techGuidance}
+
+PROJECT SUMMARY:
 ${projectHighlights}
 
-Generate LinkedIn Experience bullet points that make ${options.developerName} stand out for ${roleContext} positions. Focus on the most impressive and relevant achievements for this role level and company type.
-
-IMPORTANT: Return only the bullet points, formatted with • symbols, ready to copy/paste into LinkedIn.`;
+Return ONLY the bullet points using • symbols. No headers, no notes, no commentary.`;
 }
 
 /**
@@ -313,57 +274,48 @@ export async function generateLinkedInExperience(options: LinkedInExperienceOpti
 		}
 
 		// === AI MODE ===
-		const linkedInContent = linkedInResult;
-		
+		// Strip any AI commentary/notes that appear after the bullets
+		const linkedInContent = linkedInResult
+			.replace(/\n\s*Note:.*$/s, '')
+			.replace(/\n\s*\*Note:.*$/s, '')
+			.trim();
+
 		// Create output file
 		const outputPath = `linkedin-experience/${projectName}-linkedin-experience.md`;
-		
+
 		const formattedOutput = `# ${projectName.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())} - LinkedIn Experience
 
-**Developer:** ${options.developerName}  
-**Target Role:** ${options.roleContext}  
-**Target Company Type:** ${options.companyContext}  
-**Generated:** ${new Date().toISOString().split('T')[0]}
+> Intermediate artifact for synthesis into a single LinkedIn Experience entry.
+> Use \`generateAtomicExperience.ts\` to combine all per-project files.
 
-## LinkedIn Experience Section Content
+**Developer:** ${options.developerName}
+**Source:** ${options.projectSummaryPath}
+**Generated:** ${new Date().toISOString().split('T')[0]}
+**Role Lens:** ${options.roleContext} | **Company Lens:** ${options.companyContext}
+
+---
 
 ${linkedInContent}
 
 ---
 
-**Usage Instructions:**
-1. Copy the bullet points above
-2. Paste into your LinkedIn Experience section for this project/role
-3. Adjust company name and dates as needed
-
-**Optimization Focus:**
-- Role: ${options.roleContext}
-- Companies: ${options.companyContext}
-- Metrics: ${options.emphasizeMetrics ? 'Emphasized' : 'De-emphasized'}
-- Technologies: ${options.includeTechnologies ? 'Included' : 'Minimized'}
-
-*Generated from: ${options.projectSummaryPath}*  
 *AI Provider: ${getCurrentProvider()}*`;
 
 		// Write the file
 		await Bun.write(outputPath, formattedOutput);
 
-		console.log('\n✅ LinkedIn Experience content generated successfully!');
+		console.log('\n✅ Per-project LinkedIn content generated!');
 		console.log(`📁 Saved to: ${outputPath}`);
-		
+
 		console.log('\n📋 Generated Content:');
 		console.log('─'.repeat(60));
 		console.log(linkedInContent);
 		console.log('─'.repeat(60));
-		
-		console.log(`\n💡 This content is optimized for ${options.roleContext} roles at ${options.companyContext} companies.`);
-		console.log('📋 Ready to copy/paste into your LinkedIn Experience section!');
 
 		if (options.interactive) {
 			console.log('\n🔗 Next Steps:');
-			console.log('   • Review and customize the content for your specific situation');
-			console.log('   • Add company name and employment dates');
-			console.log('   • Consider generating content for other projects');
+			console.log('   • Generate per-project content for your other projects');
+			console.log('   • Then run generateAtomicExperience.ts to synthesize into a single LinkedIn entry');
 		}
 
 	} catch (error) {
