@@ -40,7 +40,6 @@ enriched-style-summaries-*.json
 # Generated artifacts and cached data
 voice-cache/
 locally-generated-prompts/
-linkedin-experience/
 
 # Temporary processing files
 *.tmp
