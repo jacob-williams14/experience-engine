@@ -3,7 +3,7 @@
 - **Status:** next (queued for a future branch)
 - **Branch:** future
 - **Owner:** Jacob Williams
-- **Last updated:** 2026-06-16
+- **Last updated:** 2026-06-23
 
 ## Summary
 
@@ -20,20 +20,33 @@ Claude Code with no API budget, Claude Code *is* the model — so `lib/ai.ts`, `
 optional dead weight. Skills make each generator a one-step capability in any future session and
 remove the maintenance burden the audit flagged.
 
+**Evidence (2026-06-23): drift is real, not hypothetical.** With no API, the no-API workflow is
+"read `createSynthesisPrompt` and follow it freehand." When we actually compared that freehand output
+against the *canonical* prompt the tool emits in local mode, the freehand version had **fabricated a
+metric** ("hundreds of thousands of cases") that the canonical prompt explicitly forbids (its "do not
+invent metrics" rule). Same author, same intent, divergent output — because the rules lived in a file
+that wasn't being executed, only paraphrased. A skill collapses the two prompts into one executed
+artifact, so the model (me, you, or the API) always runs the identical, rule-enforced prompt. This is
+the core argument for the migration: the prompt *is* the IP, and a skill is how it actually governs
+every run instead of being approximated from memory.
+
 ## Design
 
-Tool → Skill mapping:
+> **2026-06-23 — reframed by [experience-bank.md](./experience-bank.md).** The migration is NOT a
+> 1:1 port of today's generators. The new product is a tagged claim **bank** with cheap **renders**
+> on top, so the skills are organized around bank vs. render, and the old per-document generators
+> collapse into the `tailored-render` skill (each becomes a render target, not its own skill).
 
-| Tool today | Becomes | Notes |
+Tool → Skill mapping (bank + render model):
+
+| Tool(s) today | Becomes | Notes |
 | --- | --- | --- |
-| `generateAtomicExperience` + `generateLinkedInExperience` | `experience-synthesizer` skill | Port `createSynthesisPrompt` rules verbatim into the SKILL.md |
-| `generateBio` | `professional-bio` skill | |
-| `analyzeProject` (+ `extractGitData`, `processBacklog`) | `project-summary` skill | Skill calls the parsers; parsing stays deterministic |
-| `analyzeAuthorStyle` / `voiceHelper` / `voiceCache` | `voice-signature` skill | Reconcile with the global `de-ai-text` skill to avoid overlap |
-| resume (deferred) | resume skill | See `resume-generator.md` |
+| `analyzeProject` (+ `extractGitData`, `processBacklog`) feeding into per-project bullets | `experience-bank` skill | Extract + normalize + tag claims into the structured bank; parsing stays deterministic scripts the skill calls |
+| `generateAtomicExperience` + `generateLinkedInExperience` + `generateBio` (+ resume) | `tailored-render` skill | One render skill, many targets (LinkedIn entry/About/Headline, resume, JD-tailored set). Carries the `createSynthesisPrompt` rules — confidentiality, brevity, voice, lenses, no-invented-metrics, the reproducible tech-stack tag |
+| `analyzeAuthorStyle` / `voiceHelper` / `voiceCache` | `voice-signature` skill | Feeds tone into `tailored-render`; reconcile with the global `de-ai-text` skill to avoid overlap |
 
 Stays as plain scripts (deterministic, no model needed): `extractGitData`, `processBacklog`,
-`getPosts`, `htmlToMarkdown`, voice-cache read/write.
+`getPosts`, `htmlToMarkdown`, voice-cache read/write, and the **bank → markdown index renderer**.
 
 Safe to delete once the skills land and are validated: `lib/ai.ts`, `lib/claude.ts`,
 `lib/aiConfig.ts`, `.ai-config.json`, and the empty `validateOutput.ts` / `validateArtifacts.ts`

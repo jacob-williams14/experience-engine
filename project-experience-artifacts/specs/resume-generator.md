@@ -1,16 +1,23 @@
-# Spec: Resume / CV Generator
+# Spec: Resume / CV Render
 
-- **Status:** deferred (design captured; build later)
+- **Status:** deferred (design captured; build later, as a render target)
 - **Branch:** future
 - **Owner:** Jacob Williams
-- **Last updated:** 2026-06-16
+- **Last updated:** 2026-06-23
+
+> **2026-06-23 — reframed by [experience-bank.md](./experience-bank.md).** The resume is a **render
+> target** of the `tailored-render` skill over the experience bank, not a separate generator. The
+> bank supplies the claims (already confidentiality-safe, tagged, dual-register); this spec now only
+> covers the resume-specific concerns: the hard-facts file, ATS formatting, page constraints, and
+> export. The "mirror `generateAtomicExperience`" shape below is obsolete — it's a render, not a new
+> pipeline.
 
 ## Summary
 
-A generator that synthesizes an ATS-friendly resume from the existing project summaries, strengths,
-and voice signature, plus a new facts file. Deferred for now — this spec exists so it can be picked
-up later without re-deriving the design. Build it as a Skill (see `skills-migration.md`), not an API
-tool.
+The ATS-friendly resume render: select claims from the experience bank, phrase them in the terse
+resume register, and combine with hard facts (contact, titles/dates, education) the bank doesn't
+hold. Deferred until the bank + `tailored-render` exist; this spec captures the resume-only design so
+it's a fill-in-the-blanks job later.
 
 ## Motivation
 
@@ -30,8 +37,8 @@ build a fill-in-the-blanks job.
 - **Output:** `resumes/jacob-williams-resume.md` — ATS-friendly sections (summary, skills,
   experience synthesized per-project with the same client-confidential phrasing the Atomic prompt
   uses, education), tailored to a stated target role.
-- **Shape:** mirror `generateAtomicExperience` / `generateBio` — options interface → loader →
-  prompt builder → generate → output. As a Skill, the "generate" step is Claude Code itself.
+- **Shape:** a render target of `tailored-render`, not a new pipeline — select bank claims → resume
+  register → merge with `resume-facts.md` → output. The "generate" step is Claude Code itself.
 
 ## Open questions
 

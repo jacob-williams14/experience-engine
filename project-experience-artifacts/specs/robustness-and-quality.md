@@ -3,7 +3,7 @@
 - **Status:** next (queued for a future branch)
 - **Branch:** future
 - **Owner:** Jacob Williams
-- **Last updated:** 2026-06-16
+- **Last updated:** 2026-06-23
 
 ## Summary
 
@@ -28,6 +28,31 @@ relied on for real job-search artifacts:
 - **Fragile patterns:** `lib/voiceCache.ts` mixes `require("fs")` into ESM; `generateBio.ts` uses a
   biased `Math.random()` shuffle; `analyzeAuthorStyle.ts` does manual, lossy JSON escaping and
   fragile markdown-fence stripping; `RATE_LIMIT_DELAY` is inconsistent (100 vs 1000).
+
+### Found during the 2026-06-23 canonical-path run (local mode)
+
+Running `generateAtomicExperience.ts` in `local` mode to emit the canonical prompt surfaced three
+concrete failures, all of which made the no-API path unusable until worked around by hand:
+
+- **Stale voice cache can't fall back in local mode.** When `voice-cache/<author>-voice.json` is
+  older than the 3-month TTL (`lib/voiceCache.ts` / `lib/voiceHelper.ts`), `getVoiceAnalysis` tries
+  to *refresh* it, which calls `analyzeAuthorStyle` → `generateAIText`, which returns null/errors in
+  local mode ("AI provider is set to 'local' mode"). The existing catch only falls back to cache when
+  `cacheStatus.exists` is true, but the throw from `analyzeAuthorStyle` ("No posts could be
+  successfully analyzed") propagates past it and aborts the whole run. **Fix:** in local mode, treat a
+  present-but-stale cached signature as a valid input (use it, warn, don't refresh); never let voice
+  refresh failure abort prompt generation. Workaround used this time: temporarily bumped the cache
+  `lastUpdated` to "now" (reverted after).
+- **Output/input location collision.** The finished artifact
+  `linkedin-experience/jacob-williams-linkedin-profile.md` lives in the same directory
+  `discoverLinkedInFiles()` scans for per-project *sources*, so `--all` ingested it as a project and
+  fed truncated garbage bullets into the synthesis prompt. **Fix:** separate inputs from outputs
+  (distinct dirs, or a filename convention / front-matter marker that `discoverLinkedInFiles`
+  filters on, e.g. only `*-linkedin-experience.md`).
+- **rtk hook strips quoted CLI args.** Through the shell proxy, `--developer "Jacob Williams"` arrives
+  as `Jacob` (+ stray `Williams`), which silently breaks the cache slug and downstream name handling.
+  **Fix (operational):** run these generators from a wrapper script file (quotes preserved) rather
+  than inline shell, or via `rtk proxy`. Worth a note in the repo CLAUDE.md / skill instructions.
 
 ## Design
 

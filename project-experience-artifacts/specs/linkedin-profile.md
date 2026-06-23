@@ -1,9 +1,17 @@
 # Spec: LinkedIn Profile Generation
 
-- **Status:** active (delivered on this branch)
+- **Status:** superseded (the one-off artifact shipped; the *approach* is replaced by
+  [experience-bank.md](./experience-bank.md))
 - **Branch:** `add-linkedin-project-generation` (this one)
 - **Owner:** Jacob Williams
-- **Last updated:** 2026-06-16
+- **Last updated:** 2026-06-23
+
+> **2026-06-23 — direction change.** A LinkedIn profile is now understood as **one render target**
+> over the experience bank, not a product in its own right. The committed
+> `jacob-williams-linkedin-profile.md` stays as a worked example, but "build a profile generator" is
+> retired in favor of [experience-bank.md](./experience-bank.md) (bank as source of truth) +
+> `tailored-render` (profile/resume/JD as cheap views). The Headline/About/Experience pieces below
+> become render outputs of `tailored-render`, not a standalone generator.
 
 ## Summary
 
