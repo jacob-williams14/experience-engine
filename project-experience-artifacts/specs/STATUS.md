@@ -8,7 +8,7 @@ designed but intentionally parked · `done` = shipped · `superseded` = replaced
 
 | Spec | Status | Target branch | Last updated |
 | --- | --- | --- | --- |
-| [experience-bank.md](./experience-bank.md) | next | future | 2026-06-23 |
+| [experience-bank.md](./experience-bank.md) | active | `experience-bank` | 2026-06-23 |
 | [skills-migration.md](./skills-migration.md) | next | future | 2026-06-23 |
 | [resume-generator.md](./resume-generator.md) | deferred | future | 2026-06-23 |
 | [robustness-and-quality.md](./robustness-and-quality.md) | next | future | 2026-06-23 |

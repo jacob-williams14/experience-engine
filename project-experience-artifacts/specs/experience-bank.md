@@ -1,9 +1,16 @@
 # Spec: Experience Bank + Tailored Render
 
-- **Status:** next (primary direction for the next branch)
-- **Branch:** future
+- **Status:** active (in progress on the `experience-bank` branch)
+- **Branch:** `experience-bank`
 - **Owner:** Jacob Williams
 - **Last updated:** 2026-06-23
+
+> **Progress (2026-06-23):** bank seeded — `experience-bank/claims.yaml` populated with ~23 tagged,
+> anonymized claims from the 5 per-project files; `experience-bank/README.md` added; render rules
+> preserved in [render-rules-reference.md](./render-rules-reference.md). Retired synthesizer
+> (`generateAtomicExperience`) and its output artifacts deleted. Still to do: curate strength/
+> plain_language, add the bank→markdown index renderer, and build the `experience-bank` /
+> `tailored-render` skills.
 
 ## Summary
 
@@ -38,10 +45,13 @@ and not the highest-value one. So:
 1. **Extract** (per project, do once): project data (git logs, CSVs, existing
    `project-experience-summaries/*` and `linkedin-experience/*-linkedin-experience.md`) → a set of
    structured claims. Largely already done; this step normalizes what exists into the bank schema.
-2. **Curate** (human / Jacob — the quality gate): tag and rate each claim; mark featured/hooks; write
-   the confidentiality-safe phrasing; keep both a keyword-rich and a plain-language register.
-3. **Render** (on demand, cheap, disposable): given a target, select + lightly rephrase claims into a
-   view. Many small renders, never the source of truth.
+2. **Curate** (conversational, not hand-editing): tags, ratings, hooks, and the dual-register phrasing
+   live in the bank, but Jacob maintains them by *talking to Claude* ("add a claim about X", "bump
+   this to featured"), not by editing YAML. Seeded defaults are fine until a render exposes one that's
+   wrong.
+3. **Render** (on demand, cheap, disposable — and where judgment actually happens): given a target,
+   select + lightly rephrase claims into a view. Jacob steers at this step ("lead with courts", "drop
+   that one"). Many small renders, never the source of truth.
 
 ### Claim schema (per entry)
 
@@ -90,7 +100,8 @@ Deterministic scripts stay scripts: git/CSV parsing, the bank→markdown index r
 
 ## Quality gate
 
-- Curation is human-owned; nothing enters "featured" without Jacob's sign-off.
+- The gate is at **render time**, not at storage. Jacob doesn't hand-maintain the bank; he approves
+  the document that actually gets published.
 - A render is adopted for a given surface only if it's clearly as good or better than the current
   hand-written version for that surface (same standing rule as the rest of the repo).
 - No invented tech or metrics — claims and tags must trace to source material.

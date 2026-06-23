@@ -10,6 +10,11 @@ versioning scheme is adopted.
 
 ### Added
 
+- **Experience bank** (`experience-bank/`): `claims.yaml` seeded with ~23 tagged, confidentiality-safe
+  claims from the 5 per-project files, plus `README.md`. The bank is now the source of truth; documents
+  are renders over it.
+- `specs/render-rules-reference.md` — preserved the `createSynthesisPrompt` phrasing rules (for the
+  future `tailored-render` skill) before deleting the synthesizer.
 - LinkedIn profile artifact: `project-experience-artifacts/linkedin-experience/jacob-williams-linkedin-profile.md`
   (Headline variants, About section, refreshed Atomic Object Experience entry) — generated directly
   by Claude Code with no API usage.
@@ -22,6 +27,14 @@ versioning scheme is adopted.
   `robustness-and-quality.md`.
 - `project-experience-artifacts/specs/STATUS.md` — active-status tracker indexing all specs.
 - `CHANGELOG.md` (this file).
+
+### Removed
+
+- Retired the synthesizer `generateAtomicExperience.ts` (both copies) and its output artifacts
+  (`jacob-williams-linkedin-profile.md`, `jacob-williams-atomic-object-experience.md`). Its premise —
+  compress all claims into 4 generic bullets — was wrong; its rules are preserved in
+  `specs/render-rules-reference.md`. The per-project `*-linkedin-experience.md` files are kept as
+  bank input.
 
 ### Changed
 

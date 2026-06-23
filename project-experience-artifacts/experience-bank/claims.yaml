@@ -1,0 +1,344 @@
+# Experience Bank — source of truth for claim-based renders.
+#
+# Each claim is confidentiality-safe: only "Atomic Object" is named; clients are described by domain.
+# Renders (LinkedIn / resume / JD-tailored) SELECT and lightly rephrase from here — they never invent
+# tech or metrics not present in a claim. See ../specs/experience-bank.md and
+# ../specs/render-rules-reference.md.
+#
+# Fields:
+#   id            stable slug
+#   project       internal codename (NOT for output)
+#   domain        public-safe domain description (use this in renders)
+#   themes        [technical leadership | system design | cross-domain adaptability | reliability | growth | devops/CI | i18n | testing]
+#   tech          named technologies from the source (the recruiter keywords)
+#   scope         IC | owned-feature | co-tech-lead
+#   strength      featured | solid | filler   (Jacob's call — these are proposed defaults, adjust freely)
+#   hook          true if it's a "I need to talk to this person" problem
+#   keyword_rich  recruiter-facing phrasing (anonymized source)
+#   plain_language  plain-English version (filled for featured/hook; "" = to write during curation)
+
+meta:
+  owner: Jacob Williams
+  company: Atomic Object
+  updated: "2026-06-23"
+  note: >-
+    Seeded from the 5 per-project linkedin-experience files. Strength ratings and plain_language are a
+    starting proposal for Jacob to curate. Pre-Atomic experience not yet included (see open questions).
+
+claims:
+  # ── Domain: retail / consumer mobile (greenfield ordering app) ──────────────
+  - id: mobile-cotech-lead
+    project: biggby
+    domain: retail / consumer mobile
+    themes: [technical leadership, growth]
+    tech: [React Native, Expo, TypeScript]
+    scope: co-tech-lead
+    strength: featured
+    hook: false
+    keyword_rich: >-
+      Stepped into co-technical lead mid-project on a greenfield React Native mobile ordering app for
+      a national coffee chain, balancing hands-on feature work with architecture and stakeholder
+      communication as the original lead rolled off.
+    plain_language: >-
+      Took over as co-lead partway through building a coffee chain's ordering app — doing the coding
+      and the bigger calls at the same time when the first lead moved on.
+
+  - id: mobile-cicd
+    project: biggby
+    domain: retail / consumer mobile
+    themes: [devops/CI, system design]
+    tech: [EAS Build, GitHub Actions, CI/CD]
+    scope: owned-feature
+    strength: solid
+    hook: false
+    keyword_rich: >-
+      Built the project's CI/CD foundation from scratch with EAS Build and GitHub Actions —
+      automated iOS/Android builds, multi-environment deploys, and TestFlight/Play Console
+      submission — enabling reliable releases throughout the project.
+    plain_language: ""
+
+  - id: mobile-payments
+    project: biggby
+    domain: retail / consumer mobile
+    themes: [system design]
+    tech: [Stripe, React Native, GraphQL, REST]
+    scope: owned-feature
+    strength: featured
+    hook: true
+    keyword_rich: >-
+      Drove Stripe payment integration across multiple methods (cards, mobile pay, digital gift
+      cards) in a React Native/Expo app, coordinating with GraphQL and REST backends to ship
+      production-ready transaction flows.
+    plain_language: >-
+      Made the app actually take money — cards, mobile pay, and gift cards — and got those payment
+      flows solid enough to ship.
+
+  - id: mobile-techdebt
+    project: biggby
+    domain: retail / consumer mobile
+    themes: [reliability]
+    tech: [Expo, React Native]
+    scope: owned-feature
+    strength: solid
+    hook: false
+    keyword_rich: >-
+      Led proactive tech-debt remediation including an Expo SDK 53 migration with breaking-change
+      resolution and routing/repository restructuring that improved team velocity.
+    plain_language: ""
+
+  - id: mobile-design-system
+    project: biggby
+    domain: retail / consumer mobile
+    themes: [system design]
+    tech: [TypeScript, Tailwind CSS]
+    scope: owned-feature
+    strength: solid
+    hook: false
+    keyword_rich: >-
+      Turned a brand refresh into a reusable TypeScript component library with Tailwind styling that
+      kept the UI consistent across iOS and Android.
+    plain_language: ""
+
+  # ── Domain: state judicial / government finance ─────────────────────────────
+  - id: courts-payment-reminders
+    project: jis
+    domain: state judicial / government finance
+    themes: [system design]
+    tech: [.NET/C#, Twilio, SendGrid, SQL]
+    scope: owned-feature
+    strength: featured
+    hook: true
+    keyword_rich: >-
+      Built a consent-based payment-reminder system for a statewide court finance platform,
+      designing token-based correlation between the finance and reminders subsystems so citizens
+      could manage their own SMS/email preferences across Twilio and SendGrid.
+    plain_language: >-
+      Built the thing that lets people getting court-fee notices choose how they're reminded — and
+      made sure the system never loses track of who agreed to what.
+
+  - id: courts-form-governance
+    project: jis
+    domain: state judicial / government finance
+    themes: [system design, reliability]
+    tech: [SQL, Angular]
+    scope: owned-feature
+    strength: solid
+    hook: false
+    keyword_rich: >-
+      Enforced single-active-version governance across a statewide court forms ecosystem with
+      database constraints and UX guardrails that prevented configuration drift in document
+      templates used statewide.
+    plain_language: ""
+
+  - id: courts-forms-library
+    project: jis
+    domain: state judicial / government finance
+    themes: [devops/CI, system design]
+    tech: [NPM, Azure DevOps, CI/CD]
+    scope: owned-feature
+    strength: solid
+    hook: false
+    keyword_rich: >-
+      Packaged and shipped a reusable forms component library as an NPM package with an Azure DevOps
+      pipeline, letting other applications adopt standardized components and speeding cross-team
+      delivery.
+    plain_language: ""
+
+  - id: courts-growth-fullstack
+    project: jis
+    domain: state judicial / government finance
+    themes: [growth]
+    tech: [Angular, .NET/C#, SQL]
+    scope: IC
+    strength: featured
+    hook: false
+    keyword_rich: >-
+      Grew from UI features and defect fixes to designing REST endpoints and data models for payment
+      plan reminders, progressively owning end-to-end delivery across Angular, .NET/C#, and SQL.
+    plain_language: >-
+      Started on UI and bug fixes and ended up owning whole features end to end — front end, API, and
+      database.
+
+  - id: courts-qa-process
+    project: jis
+    domain: state judicial / government finance
+    themes: [testing]
+    tech: []
+    scope: owned-feature
+    strength: filler
+    hook: false
+    keyword_rich: >-
+      Introduced a structured QA process template that standardized testing across the team and
+      tightened alignment between designs and delivered features.
+    plain_language: ""
+
+  # ── Domain: global leadership-development / education platform ───────────────
+  - id: edu-headless-cms
+    project: root-compass
+    domain: global leadership-development / education
+    themes: [system design]
+    tech: [Laravel, Contentful, JSON Schema, PHP]
+    scope: owned-feature
+    strength: featured
+    hook: true
+    keyword_rich: >-
+      Architected a headless-CMS integration connecting a Laravel backend to Contentful's delivery
+      APIs for a module-based learning platform, using OPIS JSON Schema validation to keep data
+      integrity across complex nested content (modules, tools, videos, sessions).
+    plain_language: >-
+      Designed how a global learning platform's content was modeled and validated so deeply nested
+      material stayed consistent instead of quietly breaking.
+
+  - id: edu-i18n
+    project: root-compass
+    domain: global leadership-development / education
+    themes: [i18n, system design]
+    tech: [Laravel, Contentful, i18n]
+    scope: owned-feature
+    strength: featured
+    hook: false
+    keyword_rich: >-
+      Owned internationalization end to end for a worldwide user base, translating international
+      stakeholder requirements into API design, content-model architecture, and localized UI.
+    plain_language: >-
+      Made the platform work in multiple languages worldwide — from the API down to the UI.
+
+  - id: edu-testing-infra
+    project: root-compass
+    domain: global leadership-development / education
+    themes: [testing, devops/CI]
+    tech: [PHPUnit, Dusk, CI/CD]
+    scope: owned-feature
+    strength: solid
+    hook: false
+    keyword_rich: >-
+      Established testing infrastructure with PHPUnit and Dusk (headless ChromeDriver in CI),
+      improving deployment reliability and code quality across the team.
+    plain_language: ""
+
+  - id: edu-content-parsing
+    project: root-compass
+    domain: global leadership-development / education
+    themes: [system design]
+    tech: [Laravel, Contentful, REST API]
+    scope: owned-feature
+    strength: solid
+    hook: false
+    keyword_rich: >-
+      Designed dynamic content-parsing logic for sophisticated relationships between CMS content
+      types and the application layer, with caching and API optimization for scalable delivery.
+    plain_language: ""
+
+  - id: edu-docker-env
+    project: root-compass
+    domain: global leadership-development / education
+    themes: [devops/CI]
+    tech: [Docker, PostgreSQL, Redis]
+    scope: owned-feature
+    strength: filler
+    hook: false
+    keyword_rich: >-
+      Improved a Docker-based dev environment (PostgreSQL, Redis) and wrote setup documentation that
+      accelerated team onboarding.
+    plain_language: ""
+
+  - id: edu2-containerization
+    project: root-leading-change
+    domain: global leadership-development / education
+    themes: [devops/CI]
+    tech: [Docker]
+    scope: owned-feature
+    strength: solid
+    hook: false
+    keyword_rich: >-
+      Led Docker containerization for a companion learning platform, building a multi-application
+      environment that ran several apps concurrently without port conflicts.
+    plain_language: ""
+
+  - id: edu2-cms-migration
+    project: root-leading-change
+    domain: global leadership-development / education
+    themes: [system design, i18n]
+    tech: [Contentful]
+    scope: owned-feature
+    strength: solid
+    hook: false
+    keyword_rich: >-
+      Migrated content infrastructure from a legacy system to Contentful, enabling dynamic
+      multi-language delivery of blogs, articles, and podcasts for post-curriculum development.
+    plain_language: ""
+
+  - id: edu2-testing
+    project: root-leading-change
+    domain: global leadership-development / education
+    themes: [testing]
+    tech: [PHPUnit, Node.js]
+    scope: owned-feature
+    strength: filler
+    hook: false
+    keyword_rich: >-
+      Refactored the browser test suite and standardized the PHPUnit/Node runtime across dev and
+      production.
+    plain_language: ""
+
+  # ── Domain: healthcare / clinical (kinesiology evaluation platform) ──────────
+  - id: health-payload-platform
+    project: rore
+    domain: healthcare / clinical
+    themes: [system design]
+    tech: [PayloadCMS, TypeScript]
+    scope: owned-feature
+    strength: featured
+    hook: false
+    keyword_rich: >-
+      Built a PayloadCMS platform for a kinesiology practice managing client health histories and
+      movement evaluations, architecting collection structures for hundreds of interconnected
+      assessment types with complex relational dependencies.
+    plain_language: >-
+      Built the system a movement clinic uses to track patient histories and evaluations — hundreds
+      of test types that all relate to each other.
+
+  - id: health-clinical-forms
+    project: rore
+    domain: healthcare / clinical
+    themes: [system design]
+    tech: [PayloadCMS, TypeScript, React]
+    scope: owned-feature
+    strength: featured
+    hook: true
+    keyword_rich: >-
+      Solved form-composition problems unique to multi-session clinical evaluations — autosave with
+      live draft management, conditional field visibility that preserved data relationships, and
+      custom array controls that prevented accidental re-sorting of exam sequences.
+    plain_language: >-
+      Made the clinical evaluation forms behave — saving as you go, hiding fields without losing the
+      data behind them, and keeping multi-visit exam sequences from getting scrambled.
+
+  - id: health-migration-stability
+    project: rore
+    domain: healthcare / clinical
+    themes: [reliability]
+    tech: [PayloadCMS, RBAC]
+    scope: owned-feature
+    strength: featured
+    hook: false
+    keyword_rich: >-
+      Kept the platform stable through a PayloadCMS beta-to-stable migration (v109 to v116 to
+      release), maintaining data integrity across breaking upgrades while adding role-based access
+      control tied to clinical workflows.
+    plain_language: >-
+      Carried the platform through a rocky CMS upgrade without losing data, and locked down who could
+      see what along the way.
+
+  - id: health-autopopulation
+    project: rore
+    domain: healthcare / clinical
+    themes: [system design]
+    tech: [PayloadCMS]
+    scope: owned-feature
+    strength: solid
+    hook: false
+    keyword_rich: >-
+      Designed auto-population that cut duplicate data entry by pre-filling client fields and seeding
+      result types from test categories, streamlining practitioner workflows.
+    plain_language: ""

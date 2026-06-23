@@ -285,8 +285,8 @@ export async function generateLinkedInExperience(options: LinkedInExperienceOpti
 
 		const formattedOutput = `# ${projectName.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())} - LinkedIn Experience
 
-> Intermediate artifact for synthesis into a single LinkedIn Experience entry.
-> Use \`generateAtomicExperience.ts\` to combine all per-project files.
+> Per-project claim source. Feeds the experience bank (\`experience-bank/claims.yaml\`);
+> renders (LinkedIn / resume / JD) are produced from the bank, not from this file directly.
 
 **Developer:** ${options.developerName}
 **Source:** ${options.projectSummaryPath}
@@ -315,7 +315,7 @@ ${linkedInContent}
 		if (options.interactive) {
 			console.log('\n🔗 Next Steps:');
 			console.log('   • Generate per-project content for your other projects');
-			console.log('   • Then run generateAtomicExperience.ts to synthesize into a single LinkedIn entry');
+			console.log('   • Then add these claims to the experience bank (experience-bank/claims.yaml)');
 		}
 
 	} catch (error) {
