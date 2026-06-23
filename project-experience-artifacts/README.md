@@ -31,6 +31,9 @@ bun run configure-ai status
 # Generate professional biography (interactive mode - recommended)
 bun run generateBio.ts
 
+# Generate LinkedIn Experience section content (interactive mode)
+bun run generateLinkedInExperience.ts
+
 # Generate project summary (interactive mode)
 bun run generateProjectSummary.ts
 
@@ -149,6 +152,7 @@ StrengthsFinder → Auto-Discovery → Voice Integration → Authentic Voice
 **Core Scripts:**
 
 - **`generateBio.ts`** - Main biography generation with interactive interface
+- **`generateLinkedInExperience.ts`** - LinkedIn Experience section content generation
 - **`generateProjectSummary.ts`** - Project summary generation wrapper
 - **`scripts/analyzeProject.ts`** - Project analysis engine with streaming processing
 - **`scripts/generateBio.ts`** - Core biography generation logic
@@ -198,6 +202,7 @@ Generated in `professional-bios/`:
 ```
 project-experience-summaries/    # Generated project summaries
 professional-bios/              # Generated biographies
+linkedin-experience/            # LinkedIn Experience section content
 datasources/                    # Source git logs and CSV data
 resources/                      # Auto-discovered resources
 ├── strengths/                  # StrengthsFinder theme files
@@ -259,6 +264,28 @@ bun run generateBio.ts "Jacob Williams" \
 
 # Get help for any script
 bun run generateBio.ts --help
+```
+
+### LinkedIn Experience Generation
+
+```bash
+# Interactive mode (recommended)
+bun run generateLinkedInExperience.ts
+
+# Command line mode for big tech recruiting
+bun run generateLinkedInExperience.ts "project-experience-summaries/root-compass-project-summary.md" \
+  --developer "Jacob Williams" \
+  --role-context "senior-engineer" \
+  --company-context "big-tech"
+
+# For startup recruiting
+bun run generateLinkedInExperience.ts "project-experience-summaries/biggby-mobile-app-project-summary.md" \
+  --developer "Jacob Williams" \
+  --role-context "tech-lead" \
+  --company-context "startup"
+
+# Get help
+bun run generateLinkedInExperience.ts --help
 ```
 
 ### Project Analysis

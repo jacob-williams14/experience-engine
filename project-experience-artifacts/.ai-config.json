@@ -1,16 +1,18 @@
 {
   "provider": "claude",
-  "lastUpdated": "2025-09-24T01:20:27.361Z",
+  "lastUpdated": "2026-02-11T00:32:58.262Z",
   "models": {
     "openai": {
       "default": "gpt-4o-mini",
-      "analysis": "gpt-4o",
-      "bio": "gpt-4o"
+      "detailed": "gpt-4o",
+      "creative": "gpt-4o",
+      "concise": "gpt-4o-mini"
     },
     "claude": {
-      "default": "claude-3-5-sonnet-latest",
-      "analysis": "claude-sonnet-4-20250514",
-      "bio": "claude-sonnet-4-20250514"
+      "default": "claude-sonnet-4-5-20250929",
+      "detailed": "claude-sonnet-4-5-20250929",
+      "creative": "claude-sonnet-4-5-20250929",
+      "concise": "claude-sonnet-4-5-20250929"
     }
   }
 }

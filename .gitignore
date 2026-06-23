@@ -44,7 +44,3 @@ locally-generated-prompts/
 # Temporary processing files
 *.tmp
 *.temp
-
-# Temporary processing files
-*.tmp
-*.temp

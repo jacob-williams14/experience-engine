@@ -1,0 +1,46 @@
+# Changelog
+
+All notable changes to this repository are documented here.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/). This project does
+not use formal version numbers yet; changes are grouped by branch/date under `Unreleased` until a
+versioning scheme is adopted.
+
+## [Unreleased]
+
+### Added
+
+- LinkedIn profile artifact: `project-experience-artifacts/linkedin-experience/jacob-williams-linkedin-profile.md`
+  (Headline variants, About section, refreshed Atomic Object Experience entry) — generated directly
+  by Claude Code with no API usage.
+- `specs/experience-bank.md` — new primary direction: a tagged **claim bank** as the source of truth
+  with cheap, target-specific **renders** (LinkedIn/resume/JD) on top, replacing the profile-centric
+  framing. Reconciled across `linkedin-profile.md` (superseded), `skills-migration.md` (reframed to
+  `experience-bank` + `tailored-render` skills), and `resume-generator.md` (now a render target).
+- `project-experience-artifacts/specs/` — individual, trackable spec files: `linkedin-profile.md`,
+  `skills-migration.md`, `resume-generator.md`, `model-sdk-modernization.md`,
+  `robustness-and-quality.md`.
+- `project-experience-artifacts/specs/STATUS.md` — active-status tracker indexing all specs.
+- `CHANGELOG.md` (this file).
+
+### Changed
+
+- LinkedIn profile Experience section regenerated from the **canonical synthesizer prompt** (run in
+  `local` mode, no API) instead of a freehand draft. Removed a fabricated metric ("hundreds of
+  thousands of cases") that the prompt's own rules forbid.
+- `scripts/generateAtomicExperience.ts` `createSynthesisPrompt`: added a **required, reproducible
+  keyword rule** — every bullet ends with a parenthetical tech-stack tag drawn only from that
+  bullet's source material (e.g. "(React Native, Expo, Stripe)"). Reconciles the standing tension
+  where the prompt asked to keep recruiter keywords but the brevity rules evicted them, so reruns now
+  consistently surface the stack. Tags applied to the profile's Experience bullets.
+
+### Notes
+
+- Audit of the repo identified the AI-SDK layer (`lib/ai.ts`, `lib/claude.ts`, `lib/aiConfig.ts`)
+  as a generation behind and a candidate for removal once generators become Claude Code skills. See
+  `specs/skills-migration.md` and `specs/model-sdk-modernization.md`.
+- The committed career artifacts are treated as the quality baseline; regenerated artifacts are
+  adopted only when clearly better.
+- A 2026-06-23 canonical-path test run (local mode) confirmed real prompt drift and three no-API
+  reliability bugs (stale voice-cache can't fall back, output/input directory collision, rtk arg-quote
+  stripping). Logged in `specs/robustness-and-quality.md` and `specs/skills-migration.md`.

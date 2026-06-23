@@ -73,7 +73,7 @@ The voice signature should help capture ${authorName}'s authentic communication 
 
 Format as a clear, actionable description of their voice characteristics that can guide writing in their authentic style and voice.`;
 
-		const voiceSignature = await generateAIText(prompt, "analysis");
+		const voiceSignature = await generateAIText(prompt, "detailed");
 		return voiceSignature;
 	} catch (error) {
 		console.log(

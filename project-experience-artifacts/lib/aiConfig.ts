@@ -15,13 +15,15 @@ export interface AIConfig {
 	models: {
 		openai?: {
 			default: string;
-			analysis: string;
-			bio: string;
+			detailed: string;
+			creative: string;
+			concise: string;
 		};
 		claude?: {
 			default: string;
-			analysis: string;
-			bio: string;
+			detailed: string;
+			creative: string;
+			concise: string;
 		};
 	};
 }
@@ -33,13 +35,15 @@ const DEFAULT_CONFIG: AIConfig = {
 	models: {
 		openai: {
 			default: "gpt-4o-mini",
-			analysis: "gpt-4o",
-			bio: "gpt-4o",
+			detailed: "gpt-4o",
+			creative: "gpt-4o",
+			concise: "gpt-4o-mini",
 		},
 		claude: {
-			default: CLAUDE_MODELS.SONNET_3_5_LATEST,
-			analysis: CLAUDE_MODELS.SONNET_4,
-			bio: CLAUDE_MODELS.SONNET_4,
+			default: CLAUDE_MODELS.SONNET_4_5,
+			detailed: CLAUDE_MODELS.SONNET_4_5,
+			creative: CLAUDE_MODELS.SONNET_4_5,
+			concise: CLAUDE_MODELS.SONNET_4_5,
 		},
 	},
 };
@@ -121,7 +125,7 @@ export function setAIProvider(provider: AIProvider): void {
  * Get model name for a specific task using current provider
  */
 export function getModelForTask(
-	task: "default" | "analysis" | "bio"
+	task: "default" | "detailed" | "creative" | "concise"
 ): string | null {
 	const config = loadAIConfig();
 	const provider = config.provider;

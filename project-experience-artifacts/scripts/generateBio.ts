@@ -655,7 +655,7 @@ async function generateBio(
 		}
 
 		// Try to generate with AI - if local mode, will return null
-		const aiResult = await generateAIText(prompt, "bio");
+		const aiResult = await generateAIText(prompt, "creative");
 
 		if (aiResult === null) {
 			// === LOCAL MODE - PROMPT GENERATION ===

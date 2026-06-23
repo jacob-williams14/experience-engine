@@ -67,6 +67,25 @@ bun run getPosts.ts
 bun run htmlToMarkdown.ts
 ```
 
+### LinkedIn Experience Generation
+
+```bash
+# Interactive LinkedIn Experience generation (recommended)
+bun run generateLinkedInExperience.ts
+
+# Command-line for big tech recruiting
+bun run generateLinkedInExperience.ts "project-experience-summaries/root-compass-project-summary.md" \
+  --developer "Jacob Williams" \
+  --role-context "senior-engineer" \
+  --company-context "big-tech"
+
+# For startup/enterprise recruiting
+bun run generateLinkedInExperience.ts "project-experience-summaries/biggby-mobile-app-project-summary.md" \
+  --developer "Jacob Williams" \
+  --role-context "tech-lead" \
+  --company-context "startup"
+```
+
 ### Content Analysis and Management
 
 ```bash
