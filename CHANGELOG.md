@@ -33,6 +33,12 @@ versioning scheme is adopted.
 - `project-experience-artifacts/specs/STATUS.md` — active-status tracker indexing all specs.
 - `CHANGELOG.md` (this file).
 
+- **`voice-signature` skill** (`.claude/skills/voice-signature/`) — produces/refreshes the writing
+  voice from blog posts, including optional year-by-year style-evolution analysis (the preserved
+  `analyzeStyleOverTime` capability).
+- `specs/project-summary-rules-reference.md` — preserved the `analyzeProject` summary template/
+  framework so the `experience-bank` skill generates new summaries at the same depth and structure.
+
 ### Removed
 
 - Retired the synthesizer `generateAtomicExperience.ts` (both copies) and its output artifacts
@@ -40,6 +46,15 @@ versioning scheme is adopted.
   compress all claims into 4 generic bullets — was wrong; its rules are preserved in
   `specs/render-rules-reference.md`. The per-project `*-linkedin-experience.md` files are kept as
   bank input.
+- **Completed the skills migration — deleted the entire AI-SDK/provider layer and all AI generator
+  scripts (16 files):** `lib/ai.ts`, `lib/claude.ts`, `lib/aiConfig.ts`, `.ai-config.json`,
+  `scripts/configureAI.ts`, `lib/voiceHelper.ts`, `scripts/analyzeAuthorStyle.ts`,
+  `scripts/analyzeStyleOverTime.ts`, `generateProjectSummary.ts` + `scripts/analyzeProject.ts`,
+  `generateBio.ts` (+`scripts/`), `generateLinkedInExperience.ts` (+`scripts/`), and the empty
+  `scripts/validateOutput.ts` / `tools/validateArtifacts.ts` stubs. Project-summary and
+  style-evolution generation capability is preserved via skills + reference docs; per-project-bullet
+  and bio generation were intentionally dropped (their existing artifacts remain as data).
+- Removed now-unused dependencies: `@anthropic-ai/sdk`, `@ai-sdk/openai`, `ai`, `zod`.
 
 ### Changed
 

@@ -4,59 +4,59 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-TypeScript system that processes project artifacts (git logs, CSV backlogs) to generate professional project summaries, biographies, and LinkedIn experience content. Runs on **Bun** runtime.
+A system for turning project data (git logs, CSV backlogs, blog posts) into career artifacts. The
+architecture is **bank + skills**: a tagged claim bank is the source of truth, and documents are
+cheap renders over it. Generation is done by **Claude Code directly (no API)** via skills — there is
+no longer an AI-SDK/provider layer. Runs on **Bun**.
+
+## Architecture — three layers
+
+```text
+1. PARSE (deterministic scripts)    datasources/ → structured data
+2. EXTRACT (experience-bank skill)  summaries → experience-bank/claims.yaml  (the bank)
+3. RENDER (tailored-render skill)   bank → LinkedIn / resume / JD
+   (voice-signature skill feeds writing voice into renders)
+```
+
+- The **bank** (`experience-bank/claims.yaml`) holds tagged, confidentiality-safe claims. It's the
+  source of truth; never hand-edit for a one-off — fix the bank, then re-render.
+- **Skills** live in the repo-root `.claude/skills/`: `experience-bank` (generate summaries +
+  extract/maintain claims), `tailored-render` (render documents), `voice-signature` (writing voice).
+- **Preserved prompt IP** is in `specs/`: `project-summary-rules-reference.md` (summary template),
+  `render-rules-reference.md` (render phrasing rules). The skills follow these.
 
 ## Commands
 
 ```bash
-bun install                          # Install dependencies
-bun run type-check                   # TypeScript type checking (tsc --noEmit)
+bun install                  # Install dependencies
+bun run type-check           # TypeScript type checking (tsc --noEmit)
 
-# Main generators (all support interactive mode or CLI args)
-bun run generateBio.ts               # Generate professional biography
-bun run generateLinkedInExperience.ts # Generate LinkedIn experience section
-bun run generateProjectSummary.ts    # Generate project summary
+# Deterministic data prep (no AI)
+bun run extractGitData       # Parse git logs → structured data
+bun run processBacklog       # Parse CSV backlogs → structured data
+bun run getPosts             # Download blog posts → data/posts/
+bun run htmlToMarkdown       # Convert posts → data/posts-md/
 
-# Project analysis
-bun run scripts/analyzeProject.ts <git-log> <developer> <project> [flags]
-bun run tools/processBacklog.ts <csv-file> <developer> <project> [flags]
-
-# AI provider configuration
-bun run scripts/configureAI.ts status    # Check current provider
-bun run scripts/configureAI.ts set <provider>  # Set to openai|claude|local
-
-# Voice analysis pipeline (run in order)
-bun run getPosts.ts                  # Download blog posts
-bun run htmlToMarkdown.ts            # Convert to markdown
+# Bank
+bun run buildBankIndex       # Regenerate experience-bank/index.md from claims.yaml
 ```
 
-## Architecture
+Generation (summaries, claims, renders, voice) is NOT a script — invoke the relevant **skill**
+(`experience-bank`, `tailored-render`, `voice-signature`). Claude Code is the model.
 
-**Three AI modes** controlled by `.ai-config.json` and `lib/aiConfig.ts`:
-- **local**: Generates prompts to `locally-generated-prompts/` for manual copy/paste into AI tools
-- **openai**: Uses Vercel AI SDK (`ai` package) with GPT models
-- **claude**: Uses `@anthropic-ai/sdk` directly via `lib/claude.ts`
+## Key directories
 
-`lib/ai.ts` is the unified abstraction — `generateAIText(prompt, task)` routes to the configured provider. Returns `null` in local mode.
+- `datasources/` — input git logs and CSV backlogs
+- `data/posts-md/` — blog posts in markdown (voice input)
+- `project-experience-summaries/` — large generated per-project summaries
+- `experience-bank/` — the claim bank (`claims.yaml`), index renderer, generated `index.md`
+- `voice-cache/` — cached voice signature
+- `linkedin-experience/`, `professional-bios/` — older artifacts kept as data/history
+- `resources/strengths/` — StrengthsFinder themes
+- `specs/` — roadmap specs + preserved prompt-IP reference docs (see `specs/STATUS.md`)
 
-**Task-based model selection**: Each provider has four model tiers (`default`, `detailed`, `creative`, `concise`) with different temperature/token configs in `lib/ai.ts`.
+## No API
 
-**Pipeline flow**: Data sources (git logs, CSVs) → parsing (`tools/`) → AI analysis (`scripts/`) → output files (`project-experience-summaries/`, `professional-bios/`, `linkedin-experience/`).
-
-**Top-level `.ts` files** (`generateBio.ts`, `generateLinkedInExperience.ts`, `generateProjectSummary.ts`) are interactive CLI wrappers using `@inquirer/prompts`. They delegate to corresponding scripts in `scripts/`.
-
-**Path aliases** in `tsconfig.json`: `@/*` → `lib/`, `@tools/*` → `tools/`, `@scripts/*` → `scripts/`.
-
-## Key Data Directories
-
-- `datasources/` — Input git logs and CSV backlogs
-- `resources/strengths/` — StrengthsFinder theme files (auto-discovered)
-- `voice-cache/` — Cached voice analysis results
-- `project-experience-summaries/` — Generated project summaries (output)
-- `professional-bios/` — Generated biographies (output)
-- `linkedin-experience/` — Generated LinkedIn content (output)
-
-## Environment Variables
-
-- `OPENAI_API_KEY` — Required for openai mode
-- `ANTHROPIC_API_KEY` — Required for claude mode
+This project does not use API keys or any AI provider SDK. The former `local | openai | claude` mode
+system and the `lib/ai.ts` / `lib/claude.ts` / `lib/aiConfig.ts` layer were removed in the skills
+migration. Do not reintroduce them — generation is done inline by Claude Code through the skills.

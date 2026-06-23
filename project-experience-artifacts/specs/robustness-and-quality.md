@@ -17,17 +17,17 @@ of these files get deleted instead of fixed.
 The codebase is readable and typed, but the audit flagged gaps that matter once these tools are
 relied on for real job-search artifacts:
 
-- **Empty scaffolding:** `tools/validateArtifacts.ts` and `scripts/validateOutput.ts` are TODO-only
-  stubs that exit with "not implemented."
+- ~~**Empty scaffolding:** `tools/validateArtifacts.ts` and `scripts/validateOutput.ts` are TODO-only
+  stubs.~~ **Done 2026-06-23:** both deleted in the skills migration.
 - **No tests:** zero coverage for git parsing, CSV processing, AI-response parsing, or cache
   lifecycle.
 - **Unused reliability config:** `CONFIG.MAX_RETRIES` is defined but never used; no retry/backoff;
   no timeouts on AI calls.
-- **Stale deps:** `@anthropic-ai/sdk` (~0.63), Vercel `ai` (^4, v5 may break), floating
-  `@types/bun: latest`.
-- **Fragile patterns:** `lib/voiceCache.ts` mixes `require("fs")` into ESM; `generateBio.ts` uses a
-  biased `Math.random()` shuffle; `analyzeAuthorStyle.ts` does manual, lossy JSON escaping and
-  fragile markdown-fence stripping; `RATE_LIMIT_DELAY` is inconsistent (100 vs 1000).
+- **Stale deps:** ~~`@anthropic-ai/sdk` (~0.63), Vercel `ai` (^4)~~ removed 2026-06-23 (the AI-SDK
+  layer is gone), along with `@ai-sdk/openai` and `zod`. Remaining: floating `@types/bun: latest`
+  still to pin; `cheerio` / `csv-parser` / `yaml` / `@inquirer/*` to review.
+- **Fragile patterns (in surviving code):** `lib/voiceCache.ts` mixes `require("fs")` into ESM. (The
+  `generateBio` shuffle and `analyzeAuthorStyle` JSON-escaping issues were deleted with their files.)
 
 ### Found during the 2026-06-23 canonical-path run (local mode)
 

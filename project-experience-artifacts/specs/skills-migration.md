@@ -1,15 +1,20 @@
 # Spec: Migrate Generators to Claude Code Skills
 
-- **Status:** in progress (on the `experience-bank` branch)
+- **Status:** done (on the `experience-bank` branch)
 - **Branch:** `experience-bank`
 - **Owner:** Jacob Williams
 - **Last updated:** 2026-06-23
 
-> **Progress (2026-06-23):** the two core skills are built — `.claude/skills/experience-bank/`
-> (extract + maintain the bank) and `.claude/skills/tailored-render/` (render documents). Remaining:
-> the `voice-signature` skill, and deleting the now-optional AI-SDK layer (`lib/ai.ts`, `lib/claude.ts`,
-> `lib/aiConfig.ts`, `.ai-config.json`) once the skills fully cover generation — coordinate with
-> `model-sdk-modernization.md`.
+> **Done (2026-06-23):** three skills built — `.claude/skills/experience-bank/` (generate summaries +
+> extract/maintain claims), `.claude/skills/tailored-render/` (render documents),
+> `.claude/skills/voice-signature/` (writing voice, incl. optional style-evolution). The entire
+> AI-SDK/provider layer and all AI generator scripts were deleted (16 files): `lib/ai.ts`,
+> `lib/claude.ts`, `lib/aiConfig.ts`, `.ai-config.json`, `configureAI`, `voiceHelper`,
+> `analyzeAuthorStyle`, `analyzeStyleOverTime`, `generateProjectSummary` + `analyzeProject`,
+> `generateBio` (x2), `generateLinkedInExperience` (x2), and the empty validate stubs. Prompt IP
+> preserved in `specs/project-summary-rules-reference.md` and `specs/render-rules-reference.md`.
+> Unused deps removed (`@anthropic-ai/sdk`, `@ai-sdk/openai`, `ai`, `zod`). `model-sdk-modernization`
+> is now obsolete.
 
 ## Summary
 

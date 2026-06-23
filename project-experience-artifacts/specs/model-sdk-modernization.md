@@ -1,9 +1,14 @@
 # Spec: Model & AI-SDK Modernization
 
-- **Status:** next (queued for a future branch)
-- **Branch:** future
+- **Status:** obsolete (closed — the API path was removed, not modernized)
+- **Branch:** —
 - **Owner:** Jacob Williams
-- **Last updated:** 2026-06-16
+- **Last updated:** 2026-06-23
+
+> **Closed 2026-06-23.** The skills migration deleted the entire AI-SDK/provider layer
+> (`lib/ai.ts`, `lib/claude.ts`, `lib/aiConfig.ts`, `.ai-config.json`) and all AI generator scripts —
+> there is no API path left to modernize. Generation is done inline by Claude Code via skills. The
+> stale model IDs / pricing tables this spec targeted were deleted with their files. Kept for history.
 
 ## Summary
 

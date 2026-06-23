@@ -5,20 +5,11 @@
 	"type": "module",
 	"private": true,
 	"scripts": {
-		"generateProjectSummary": "bun run generateProjectSummary.ts",
-		"generateBio": "bun run generateBio.ts",
-		"generateLinkedInExperience": "bun run generateLinkedInExperience.ts",
 		"buildBankIndex": "bun run experience-bank/buildIndex.ts",
-		"configure-ai": "bun run scripts/configureAI.ts",
 		"getPosts": "bun run getPosts.ts",
 		"htmlToMarkdown": "bun run htmlToMarkdown.ts",
-		"analyzeProject": "bun run scripts/analyzeProject.ts",
-		"analyzeAuthorStyle": "bun run scripts/analyzeAuthorStyle.ts",
-		"analyzeStyleOverTime": "bun run scripts/analyzeStyleOverTime.ts",
-		"validateOutput": "bun run scripts/validateOutput.ts",
 		"extractGitData": "bun run tools/extractGitData.ts",
 		"processBacklog": "bun run tools/processBacklog.ts",
-		"validateArtifacts": "bun run tools/validateArtifacts.ts",
 		"type-check": "tsc --noEmit"
 	},
 	"devDependencies": {
@@ -29,15 +20,11 @@
 		"typescript": "^5"
 	},
 	"dependencies": {
-		"@ai-sdk/openai": "^1.3.22",
-		"@anthropic-ai/sdk": "^0.63.0",
 		"@inquirer/prompts": "^7.8.6",
 		"@inquirer/search": "^3.1.3",
-		"ai": "^4.3.16",
 		"cheerio": "^1.1.0",
 		"csv-parser": "^3.0.0",
-		"yaml": "^2.9.0",
-		"zod": "^3.22.4"
+		"yaml": "^2.9.0"
 	},
 	"engines": {
 		"bun": ">=1.0.0"
