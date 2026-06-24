@@ -8,6 +8,14 @@ versioning scheme is adopted.
 
 ## [Unreleased]
 
+### Changed (structure)
+
+- **Flattened the repo.** Moved everything from `project-experience-artifacts/` to the repo root and
+  removed the directory — this is a single-project repo, not a monorepo. Merged the project README
+  into the root README and stripped the `project-experience-artifacts/` path prefix from the skills,
+  `AGENTS.md`, and README. See `specs/repo-flatten.md`. (Paths in this changelog's older entries
+  reference the pre-flatten layout.)
+
 ### Added
 
 - **Experience bank** (`experience-bank/`): `claims.yaml` with **53 tagged, confidentiality-safe

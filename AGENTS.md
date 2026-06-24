@@ -6,9 +6,9 @@ Single source of truth for AI coding agents (Claude Code, Warp, Codex, etc.) wor
 ## What this repo is
 
 `prompts-and-tools` turns project data (git logs, CSV backlogs, blog posts) into career artifacts —
-LinkedIn entries, resume bullets, job-description-tailored sets. The project lives in
-`project-experience-artifacts/`. It's built around an **experience bank** (the source of truth) with
-cheap **renders** on top. **Generation is done by the agent directly — no API, no provider SDK.**
+LinkedIn entries, resume bullets, job-description-tailored sets. It's built around an **experience
+bank** (the source of truth) with cheap **renders** on top. **Generation is done by the agent
+directly — no API, no provider SDK.**
 
 ## Architecture — four layers
 
@@ -26,7 +26,7 @@ Skills live in the repo-root `.claude/skills/`. Invoke them by doing the task th
 look for the old generator scripts (deleted).
 
 - **`project-summary`** — datasources → a large per-project summary (follows
-  `project-experience-artifacts/specs/project-summary-rules-reference.md`).
+  `specs/project-summary-rules-reference.md`).
 - **`experience-bank`** — summary → tagged claims in `claims.yaml`; maintain the bank; rebuild index.
 - **`tailored-render`** — bank → LinkedIn / resume / JD / About (follows
   `specs/render-rules-reference.md`).
@@ -51,7 +51,6 @@ They chain `project-summary → experience-bank → tailored-render`, with `voic
 ## Deterministic commands (no model)
 
 ```bash
-cd project-experience-artifacts
 bun install
 bun run type-check        # tsc --noEmit
 bun run extractGitData    # parse git logs → structured data
@@ -61,7 +60,7 @@ bun run htmlToMarkdown    # convert posts → data/posts-md/  (voice input)
 bun run buildBankIndex    # regenerate experience-bank/index.md from claims.yaml
 ```
 
-## Layout (under `project-experience-artifacts/`)
+## Layout
 
 ```text
 experience-bank/              # the bank (claims.yaml), index renderer + index.md
@@ -77,7 +76,7 @@ Skills are at the repo root: `.claude/skills/`.
 
 ## When you change this repo
 
-- **Track work**: add/update a spec in `project-experience-artifacts/specs/`, the `specs/STATUS.md`
+- **Track work**: add/update a spec in `specs/`, the `specs/STATUS.md`
   index, and `CHANGELOG.md`. Don't just start editing.
 - **Preserve prompt IP before deleting** a generator — capture its rules into a `specs/*-reference.md`
   (that's how the summary and render templates survived the migration).

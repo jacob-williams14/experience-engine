@@ -1,36 +1,68 @@
-# Prompts & Tools
+# Project Experience Artifacts
 
-A personal repository for AI-assisted tooling. The active project turns Jacob's project history into
-career artifacts — built around an **experience bank** with cheap, on-demand **renders** (LinkedIn,
-resume, job-description-tailored bullets), driven by **Claude Code skills**, with **no API usage**.
+Turns project data (git logs, CSV backlogs, blog posts) into career artifacts — LinkedIn entries,
+resume bullets, job-description-tailored sets. Built around an **experience bank** (the source of
+truth) with cheap **renders** on top. Generation is done by **Claude Code directly — no API**.
 
-## Projects
+Runs on [Bun](https://bun.sh).
 
-### [Project Experience Artifacts](./project-experience-artifacts/)
+> **AI agents:** operating guidance is in [`AGENTS.md`](./AGENTS.md) (the source of truth, shared by
+> Claude Code, Warp, etc.). `CLAUDE.md` imports it; `WARP.md` points to it.
 
-Turns project data (git logs, CSV backlogs, blog posts) into career artifacts. A tagged claim **bank**
-(`experience-bank/claims.yaml`) is the source of truth; documents are renders over it. The work runs
-through four Claude Code skills — `project-summary`, `experience-bank`, `tailored-render`,
-`voice-signature` — not CLI generators. See its [README](./project-experience-artifacts/README.md).
+## How it works — four layers
 
 ```text
-datasources → project-summary → experience-bank (the bank) → tailored-render → documents
+1. PARSE (deterministic scripts)     datasources/ → structured data
+2. SUMMARIZE (project-summary skill) data → project-experience-summaries/
+3. EXTRACT (experience-bank skill)   summaries → experience-bank/claims.yaml  (the bank)
+4. RENDER (tailored-render skill)    bank → LinkedIn / resume / JD
+   (voice-signature skill feeds writing voice into renders)
 ```
 
-## For AI agents
+The work happens through **Claude Code skills** (in the repo-root `.claude/skills/`), not CLI
+generators. Just ask Claude:
 
-Operating guidance for Claude Code, Warp, and other agents is consolidated in
-**[`AGENTS.md`](./AGENTS.md)** (the source of truth). `CLAUDE.md` imports it; `WARP.md` points to it —
-so every agent works from the same instructions.
+- *"generate a project summary for X"* → `project-summary`
+- *"add a claim about X"* / *"pull the latest summaries into the bank"* → `experience-bank`
+- *"render a LinkedIn experience entry"* / *"tailor my bullets to this job description"* →
+  `tailored-render`
+- *"refresh my writing voice"* → `voice-signature`
 
-## Tech
+## The bank
 
-- **Runtime:** [Bun](https://bun.sh) (direct TypeScript execution, no build step)
-- **Storage:** a YAML claim bank; deterministic parsers for git logs / CSVs / blog posts
-- **Generation:** done inline by the coding agent via skills — no API keys or provider SDK
+`experience-bank/claims.yaml` holds tagged, confidentiality-safe claims (clients by domain; only
+"Atomic Object" named). You don't hand-edit it — maintain it conversationally; curate at render time.
+See [`experience-bank/README.md`](./experience-bank/README.md).
 
-## Status
+Browse it: `bun run buildBankIndex` regenerates [`experience-bank/index.md`](./experience-bank/index.md).
 
-Active. The repo was migrated from API-backed generator scripts to the bank + skills model; see
-[`specs/STATUS.md`](./project-experience-artifacts/specs/STATUS.md) for the roadmap and
-[`CHANGELOG.md`](./CHANGELOG.md) for what changed.
+## Deterministic scripts (no AI)
+
+```bash
+bun install
+bun run extractGitData    # parse git logs → structured data
+bun run processBacklog    # parse CSV backlogs → structured data
+bun run getPosts          # download blog posts → data/posts/
+bun run htmlToMarkdown    # convert posts → data/posts-md/  (voice input)
+bun run buildBankIndex    # regenerate the bank index
+bun run type-check        # tsc --noEmit
+```
+
+## Layout
+
+```text
+experience-bank/             # the bank (claims.yaml), index renderer + index.md
+project-experience-summaries/ # large generated per-project summaries (bank input)
+datasources/                 # source git logs and CSV backlogs
+data/posts-md/               # blog posts in markdown (voice input)
+voice-cache/                 # cached voice signature
+specs/                       # roadmap + preserved prompt-IP reference docs (see specs/STATUS.md)
+lib/ tools/                  # support libs + deterministic parsers
+.claude/skills/              # the 3 skills (repo root)
+```
+
+## No API
+
+This project uses no API keys or AI-provider SDK. The former `local | openai | claude` mode system
+and the `lib/ai.ts` / `lib/claude.ts` / `lib/aiConfig.ts` layer were removed in the skills migration
+(see `specs/skills-migration.md`). Generation is done inline by Claude Code through the skills.

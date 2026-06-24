@@ -1,9 +1,15 @@
 # Spec: Flatten the Single-Project Repo
 
-- **Status:** next (do on a dedicated `repo-flatten` branch)
+- **Status:** done (on the `repo-flatten` branch)
 - **Branch:** `repo-flatten`
 - **Owner:** Jacob Williams
 - **Last updated:** 2026-06-23
+
+> **Done 2026-06-23:** moved everything from `project-experience-artifacts/` to the repo root and
+> removed the directory; merged the project README into the root README; stripped the
+> `project-experience-artifacts/` prefix from the 4 skills, AGENTS.md, and README; verified
+> `bun install` / `type-check` / `buildBankIndex` at root. `.gitignore` unchanged (unanchored patterns
+> still match).
 
 ## Summary
 

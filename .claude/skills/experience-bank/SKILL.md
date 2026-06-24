@@ -2,7 +2,7 @@
 name: experience-bank
 description: >-
   Maintain Jacob's experience bank — the tagged claim store at
-  project-experience-artifacts/experience-bank/claims.yaml. Use when adding, updating, tagging, or
+  experience-bank/claims.yaml. Use when adding, updating, tagging, or
   curating experience claims, or when pulling new claims from the generated project summaries into the
   bank. Triggers on "add a claim", "update the bank", "pull from the summaries", "re-tag", "rebuild
   the bank index".
@@ -10,7 +10,7 @@ description: >-
 
 # Experience Bank
 
-The bank (`project-experience-artifacts/experience-bank/claims.yaml`) is the source of truth for
+The bank (`experience-bank/claims.yaml`) is the source of truth for
 Jacob's project experience. Documents (LinkedIn, resume, JD-tailored sets) are RENDERS over it — see
 the `tailored-render` skill. This skill is for keeping the bank populated and accurate.
 
@@ -74,7 +74,7 @@ the **`project-summary`** skill (datasources → summary), then extract claims f
 2. List the project's existing claims in `claims.yaml` so you don't duplicate.
 3. Extract genuinely distinct accomplishments as claim blocks (schema above), anonymized.
 4. Append them under the right domain section of `claims.yaml`.
-5. Rebuild the index: `cd project-experience-artifacts && bun run buildBankIndex`.
+5. Rebuild the index: `bun run buildBankIndex`.
 
 ## Curating
 

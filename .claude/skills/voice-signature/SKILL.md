@@ -10,7 +10,7 @@ description: >-
 # Voice Signature
 
 Produces the voice signature `tailored-render` applies so documents sound like Jacob. The signature
-is cached at `project-experience-artifacts/voice-cache/jacob-williams-voice.json`.
+is cached at `voice-cache/jacob-williams-voice.json`.
 
 ## No API
 
@@ -19,11 +19,10 @@ API or the (removed) AI-SDK layer.
 
 ## Inputs
 
-Jacob's Atomic Spin blog posts, in markdown, under `project-experience-artifacts/data/posts-md/`.
+Jacob's Atomic Spin blog posts, in markdown, under `data/posts-md/`.
 If that directory is empty or missing, regenerate it first:
 
 ```bash
-cd project-experience-artifacts
 bun run getPosts        # download posts
 bun run htmlToMarkdown  # convert to markdown
 ```
