@@ -28,8 +28,10 @@ relied on for real job-search artifacts:
 - **Stale deps:** ~~`@anthropic-ai/sdk` (~0.63), Vercel `ai` (^4)~~ removed 2026-06-23 (the AI-SDK
   layer is gone), along with `@ai-sdk/openai` and `zod`. Remaining: floating `@types/bun: latest`
   still to pin; `cheerio` / `csv-parser` / `yaml` / `@inquirer/*` to review.
-- **Fragile patterns (in surviving code):** `lib/voiceCache.ts` mixes `require("fs")` into ESM. (The
-  `generateBio` shuffle and `analyzeAuthorStyle` JSON-escaping issues were deleted with their files.)
+- ~~**Fragile patterns (in surviving code):** `lib/voiceCache.ts` mixes `require("fs")` into ESM.~~
+  **Fixed 2026-06-23:** replaced both `require("fs").statSync` calls with a top-level
+  `import { statSync } from "fs"`; verified at runtime. (The `generateBio` shuffle and
+  `analyzeAuthorStyle` JSON-escaping issues were deleted with their files.)
 
 ### Found during the 2026-06-23 canonical-path run (local mode)
 

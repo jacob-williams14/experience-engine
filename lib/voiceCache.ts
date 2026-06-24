@@ -3,7 +3,7 @@
  * Stores voice analysis results to avoid re-running expensive AI analysis
  */
 
-import { existsSync } from "fs";
+import { existsSync, statSync } from "fs";
 import { mkdir, readFile, writeFile } from "fs/promises";
 import { join } from "path";
 
@@ -40,7 +40,7 @@ export function shouldRefreshCache(authorName: string): boolean {
 		if (stats === 0) return true; // Empty cache file
 
 		// Check file modification time
-		const fileStats = require("fs").statSync(cacheFile);
+		const fileStats = statSync(cacheFile);
 		const ageInMonths =
 			(Date.now() - fileStats.mtime.getTime()) / (1000 * 60 * 60 * 24 * 30);
 
@@ -134,7 +134,7 @@ export async function saveVoiceContext(
 
 		// Verify the file was written correctly
 		if (existsSync(cacheFile)) {
-			const stats = require("fs").statSync(cacheFile);
+			const stats = statSync(cacheFile);
 			console.log(`✅ Cache file verified (${stats.size} bytes)`);
 		} else {
 			console.warn(`⚠️ Cache file was not created despite successful write operation`);
