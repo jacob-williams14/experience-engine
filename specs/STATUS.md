@@ -24,10 +24,10 @@ Reference docs (preserved prompt IP, not roadmap items):
 
 ## Working order for the next branch
 
-0. **kb-contract-rewire** (Phase 1, active) — repo rewired to the brainspace KB contract: paths
-   centralized in `lib/config.ts`, all state migrated out into `brainspace/{data,artifacts}/`, code
-   + skills repointed. Phases 2–4 (the `kind` dimension, worklog→bank enrichment, doc reconciliation)
-   follow.
+0. **kb-contract-rewire** (active) — Phase 1 done (paths centralized in `lib/config.ts`, state
+   migrated into `brainspace/{data,artifacts}/`, code + skills repointed). Phase 2 done (bank tagged
+   `kind: technical | non-technical`; index groups by kind). Remaining: Phase 3 (worklog→bank
+   enrichment), Phase 4 (reconcile `artifacts/README.md`).
 1. ~~**experience-bank**~~ — bank built and populated (active; curation is ongoing/conversational).
 2. ~~**skills-migration**~~ — **done**: 3 skills built, AI-SDK layer + generators deleted, IP preserved.
 3. ~~**model-sdk-modernization**~~ — **obsolete**: no API path left to modernize.

@@ -63,11 +63,19 @@ processed git-data `--save` output). No `data/` or output dirs in the repo.
 - All four `.claude/skills/*/SKILL.md` — repoint every read/write to the brainspace zones
   (default `~/Projects/brainspace/...`).
 
+## Phase 2 — bank organized by technical / non-technical (done)
+
+- Added `kind: technical | non-technical` to every claim (53 technical from the project summaries; the
+  3 `style-*` working-style claims = non-technical seeds). Documented the field in `claims.yaml`'s
+  header.
+- `buildIndex.ts` now groups by `kind` first (top-level `## Technical` / `## Non-technical`), domains
+  nested as `###` beneath; summary line carries the kind counts.
+- `experience-bank` skill schema documents `kind` and the forward-capture rule for non-technical.
+
 ## Out of scope (later phases)
 
-- **Phase 2:** add `kind: technical | non-technical` to the bank; index groups by kind.
 - **Phase 3:** worklog → bank enrichment (watermarked, forward-only).
-- **Phase 4:** reconcile `knowledge-base.md` / `artifacts/README.md` wording (largely done during
+- **Phase 4:** reconcile `artifacts/README.md` wording (the `knowledge-base.md` half was done in
   Phase 0).
 
 ## Verification

@@ -42,10 +42,11 @@ Each claim in `claims.yaml`:
 
 ```yaml
 - id: <domain-prefix>-<short-slug>     # stable, unique
+  kind: technical | non-technical       # technical = mined from project data; non-technical = the "why"
   project: <internal-codename>          # NOT for output
   domain: <public-safe domain string>   # USE THIS in renders, never the client name
   themes: [technical leadership | system design | cross-domain adaptability | reliability | growth | devops/CI | i18n | testing]
-  tech: [named technologies from the source only]
+  tech: [named technologies from the source only]   # usually [] for non-technical claims
   scope: IC | owned-feature | co-tech-lead
   strength: featured | solid | filler   # proposed default; Jacob adjusts at render time
   hook: true | false                    # a "I need to talk to this person" problem
@@ -54,6 +55,16 @@ Each claim in `claims.yaml`:
   plain_language: >-                     # plain-English; "" if not yet written (fill for featured/hook)
     ...
 ```
+
+**`kind`** is a first-class split, surfaced as top-level groups in the index:
+
+- **`technical`** — extracted from the project summaries (which trace to git logs / backlogs). Carries
+  the full `domain` / `tech` / `themes` / `strength` detail.
+- **`non-technical`** — decisions, mentoring, process, leadership — the "why" that git can't show.
+  These are **captured forward from the worklog** (`~/Projects/brainspace/WorkLife/atomic/worklog/`),
+  not mined retrospectively; `tech` is usually empty and they lean on the decision / context / who-was-
+  unblocked detail. (The worklog→bank enrichment flow is a later phase — see
+  `specs/kb-contract-rewire.md`.)
 
 ## Rules (non-negotiable)
 
@@ -78,7 +89,8 @@ below.
 1. Read the relevant
    `~/Projects/brainspace/artifacts/project-summaries/<project>-project-summary.md` fully.
 2. List the project's existing claims in `claims.yaml` so you don't duplicate.
-3. Extract genuinely distinct accomplishments as claim blocks (schema above), anonymized.
+3. Extract genuinely distinct accomplishments as claim blocks (schema above), anonymized. Claims
+   pulled from a project summary are `kind: technical`.
 4. Append them under the right domain section of `claims.yaml`.
 5. Rebuild the index: `bun run buildBankIndex`.
 

@@ -8,6 +8,16 @@ versioning scheme is adopted.
 
 ## [Unreleased]
 
+### Added — KB contract rewire (Phase 2): technical / non-technical bank
+
+- **Tagged every bank claim with `kind: technical | non-technical`** (53 technical pulled from the
+  project summaries; the 3 `style-*` working-style claims are the non-technical seeds). Non-technical
+  claims are the "why" (decisions, mentoring, process) and are captured forward from the worklog;
+  documented the field in `claims.yaml`'s header and the `experience-bank` skill schema.
+- **Bank index now groups by `kind`** (top-level `## Technical` / `## Non-technical`, with domains
+  nested beneath); `buildIndex.ts` surfaces both and reports the kind split. See
+  `specs/kb-contract-rewire.md` (Phase 2).
+
 ### Changed (structure) — KB contract rewire (Phase 1)
 
 - **Migrated all durable state out of the repo into the brainspace knowledge base.** The repo is now
