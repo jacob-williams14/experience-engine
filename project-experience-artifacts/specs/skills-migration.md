@@ -5,9 +5,10 @@
 - **Owner:** Jacob Williams
 - **Last updated:** 2026-06-23
 
-> **Done (2026-06-23):** three skills built — `.claude/skills/experience-bank/` (generate summaries +
-> extract/maintain claims), `.claude/skills/tailored-render/` (render documents),
-> `.claude/skills/voice-signature/` (writing voice, incl. optional style-evolution). The entire
+> **Done (2026-06-23):** four skills built — `.claude/skills/project-summary/` (datasources →
+> summary), `.claude/skills/experience-bank/` (summary → claims; maintain the bank),
+> `.claude/skills/tailored-render/` (render documents), `.claude/skills/voice-signature/` (writing
+> voice, incl. optional style-evolution). The entire
 > AI-SDK/provider layer and all AI generator scripts were deleted (16 files): `lib/ai.ts`,
 > `lib/claude.ts`, `lib/aiConfig.ts`, `.ai-config.json`, `configureAI`, `voiceHelper`,
 > `analyzeAuthorStyle`, `analyzeStyleOverTime`, `generateProjectSummary` + `analyzeProject`,
@@ -52,7 +53,8 @@ Tool → Skill mapping (bank + render model):
 
 | Tool(s) today | Becomes | Notes |
 | --- | --- | --- |
-| `analyzeProject` (+ `extractGitData`, `processBacklog`) feeding into per-project bullets | `experience-bank` skill | Extract + normalize + tag claims into the structured bank; parsing stays deterministic scripts the skill calls |
+| `analyzeProject` / `generateProjectSummary` (+ `extractGitData`, `processBacklog`) | `project-summary` skill | Generate the large per-project summaries from datasources; parsing stays deterministic scripts the skill calls |
+| (summary → claims) | `experience-bank` skill | Extract + normalize + tag claims into the structured bank from the summaries |
 | `generateAtomicExperience` + `generateLinkedInExperience` + `generateBio` (+ resume) | `tailored-render` skill | One render skill, many targets (LinkedIn entry/About/Headline, resume, JD-tailored set). Carries the `createSynthesisPrompt` rules — confidentiality, brevity, voice, lenses, no-invented-metrics, the reproducible tech-stack tag |
 | `analyzeAuthorStyle` / `voiceHelper` / `voiceCache` | `voice-signature` skill | Feeds tone into `tailored-render`; reconcile with the global `de-ai-text` skill to avoid overlap |
 

@@ -63,24 +63,10 @@ Each claim in `claims.yaml`:
   rather than repeat.
 - **`themes` holds themes only** — never put a `scope` value (IC/owned-feature/co-tech-lead) in it.
 
-## Generating a summary for a NEW project (if one doesn't exist)
+## Need a summary first?
 
-The summaries are the upstream layer. If `project-experience-summaries/<project>-project-summary.md`
-doesn't exist yet:
-
-1. Parse the raw data deterministically:
-
-   ```bash
-   cd project-experience-artifacts
-   bun run extractGitData   # git logs  → structured data
-   bun run processBacklog   # CSV backlog → structured data
-   ```
-
-2. Write the summary following `project-experience-artifacts/specs/project-summary-rules-reference.md`
-   — the preserved template/framework (analysis framework A–D, writing guidelines, and the EXACT
-   required document structure). The existing `project-experience-summaries/*-project-summary.md`
-   files are the matching exemplars. You are the model — write it directly, no API.
-3. Then extract claims from it (below).
+If `project-experience-summaries/<project>-project-summary.md` doesn't exist yet, generate it with
+the **`project-summary`** skill (datasources → summary), then extract claims from it below.
 
 ## Adding claims from a summary
 

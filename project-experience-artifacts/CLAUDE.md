@@ -12,16 +12,18 @@ no longer an AI-SDK/provider layer. Runs on **Bun**.
 ## Architecture — three layers
 
 ```text
-1. PARSE (deterministic scripts)    datasources/ → structured data
-2. EXTRACT (experience-bank skill)  summaries → experience-bank/claims.yaml  (the bank)
-3. RENDER (tailored-render skill)   bank → LinkedIn / resume / JD
+1. PARSE (deterministic scripts)     datasources/ → structured data
+2. SUMMARIZE (project-summary skill) data → project-experience-summaries/
+3. EXTRACT (experience-bank skill)   summaries → experience-bank/claims.yaml  (the bank)
+4. RENDER (tailored-render skill)    bank → LinkedIn / resume / JD
    (voice-signature skill feeds writing voice into renders)
 ```
 
 - The **bank** (`experience-bank/claims.yaml`) holds tagged, confidentiality-safe claims. It's the
   source of truth; never hand-edit for a one-off — fix the bank, then re-render.
-- **Skills** live in the repo-root `.claude/skills/`: `experience-bank` (generate summaries +
-  extract/maintain claims), `tailored-render` (render documents), `voice-signature` (writing voice).
+- **Skills** live in the repo-root `.claude/skills/`: `project-summary` (datasources → summary),
+  `experience-bank` (summary → claims; maintain the bank), `tailored-render` (bank → documents),
+  `voice-signature` (writing voice).
 - **Preserved prompt IP** is in `specs/`: `project-summary-rules-reference.md` (summary template),
   `render-rules-reference.md` (render phrasing rules). The skills follow these.
 

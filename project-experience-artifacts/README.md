@@ -9,15 +9,17 @@ Runs on [Bun](https://bun.sh).
 ## How it works — three layers
 
 ```text
-1. PARSE (deterministic scripts)    datasources/ → structured data
-2. EXTRACT (experience-bank skill)  summaries → experience-bank/claims.yaml  (the bank)
-3. RENDER (tailored-render skill)   bank → LinkedIn / resume / JD
+1. PARSE (deterministic scripts)     datasources/ → structured data
+2. SUMMARIZE (project-summary skill) data → project-experience-summaries/
+3. EXTRACT (experience-bank skill)   summaries → experience-bank/claims.yaml  (the bank)
+4. RENDER (tailored-render skill)    bank → LinkedIn / resume / JD
    (voice-signature skill feeds writing voice into renders)
 ```
 
 The work happens through **Claude Code skills** (in the repo-root `.claude/skills/`), not CLI
 generators. Just ask Claude:
 
+- *"generate a project summary for X"* → `project-summary`
 - *"add a claim about X"* / *"pull the latest summaries into the bank"* → `experience-bank`
 - *"render a LinkedIn experience entry"* / *"tailor my bullets to this job description"* →
   `tailored-render`

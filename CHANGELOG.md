@@ -15,9 +15,10 @@ versioning scheme is adopted.
   `README.md`. The bank is the source of truth; documents are renders over it.
 - **Bank index renderer**: `experience-bank/buildIndex.ts` (`bun run buildBankIndex`) generates
   `experience-bank/index.md`, a browsable grouped view. Adds the `yaml` dependency.
-- **Claude Code skills**: `.claude/skills/experience-bank/` (extract + maintain the bank) and
-  `.claude/skills/tailored-render/` (render LinkedIn/resume/JD documents from the bank) — the
-  `skills-migration` work landing.
+- **Claude Code skills** (one per operation, directly invokable): `.claude/skills/project-summary/`
+  (datasources → summary), `.claude/skills/experience-bank/` (summary → claims; maintain the bank),
+  `.claude/skills/tailored-render/` (render LinkedIn/resume/JD), `.claude/skills/voice-signature/`
+  (writing voice). The `skills-migration` work landing.
 - `specs/render-rules-reference.md` — preserved the `createSynthesisPrompt` phrasing rules (now used
   by the `tailored-render` skill) before deleting the synthesizer.
 - LinkedIn profile artifact: `project-experience-artifacts/linkedin-experience/jacob-williams-linkedin-profile.md`
