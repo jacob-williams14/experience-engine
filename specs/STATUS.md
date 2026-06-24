@@ -9,6 +9,7 @@ designed but intentionally parked · `done` = shipped · `superseded` = replaced
 | Spec | Status | Target branch | Last updated |
 | --- | --- | --- | --- |
 | [kb-contract-rewire.md](./kb-contract-rewire.md) | done (P1–4, merged) | `feat/kb-contract-rewire` | 2026-06-24 |
+| [log-work-capture.md](./log-work-capture.md) | active | user-level skill | 2026-06-24 |
 | [cowork-runnable-skills.md](./cowork-runnable-skills.md) | deferred | — | 2026-06-24 |
 | [experience-bank.md](./experience-bank.md) | active | `experience-bank` | 2026-06-23 |
 | [skills-migration.md](./skills-migration.md) | done | `experience-bank` | 2026-06-23 |
@@ -30,15 +31,19 @@ Reference docs (preserved prompt IP, not roadmap items):
    with a type-grouped index; worklog→bank enrichment with `source:`-keyed dedup + watermark;
    `artifacts/README.md` reframed). Enrichment tested end-to-end against the real worklog. brainspace
    is now its own git repo.
-1. ~~**cowork-runnable-skills**~~ — **deferred (abandoned for now)**: the async worklog handoff loop
+1. **log-work-capture** (active) — `/log-work` user-level skill written
+   (`~/.claude/skills/log-work/`, tracked via dotfiles); writes session logs to the worklog. Bank side
+   wired: enrich step now takes technical **or** non-technical from the worklog and carries
+   `source` + `agent_assisted`. Not yet exercised with a real session log. See `log-work-capture.md`.
+2. ~~**cowork-runnable-skills**~~ — **deferred (abandoned for now)**: the async worklog handoff loop
    already covers the workflow; the port's permanent sync cost isn't justified by speculative gain.
    Revisit only on real friction.
-2. ~~**experience-bank**~~ — bank built and populated (active; curation is ongoing/conversational).
-3. ~~**skills-migration**~~ — **done**: 3 skills built, AI-SDK layer + generators deleted, IP preserved.
-4. ~~**model-sdk-modernization**~~ — **obsolete**: no API path left to modernize.
-5. **robustness-and-quality** — remaining: tests, pin `@types/bun`, the `voiceCache` ESM fix, and the
+3. ~~**experience-bank**~~ — bank built and populated (active; curation is ongoing/conversational).
+4. ~~**skills-migration**~~ — **done**: 3 skills built, AI-SDK layer + generators deleted, IP preserved.
+5. ~~**model-sdk-modernization**~~ — **obsolete**: no API path left to modernize.
+6. **robustness-and-quality** — remaining: tests, pin `@types/bun`, the `voiceCache` ESM fix, and the
    no-API reliability bugs from 2026-06-23. (Validate stubs + stale AI deps already removed.)
-6. **resume-generator** — a render target, once you want it.
+7. **resume-generator** — a render target, once you want it.
 
 **Superseded:** `linkedin-profile.md` — the one-off artifact shipped, but profile-as-product is
 replaced by the bank + render model. Kept for history.

@@ -8,6 +8,24 @@ versioning scheme is adopted.
 
 ## [Unreleased]
 
+### Added — `/log-work` session capture + bank provenance
+
+- **`/log-work` skill (user-level, `~/.claude/skills/log-work/`, tracked via dotfiles)** — forward,
+  in-the-moment capture: at the end of a session in **any** project, writes a `kind: session-log`
+  entry into the brainspace worklog (what was built, decisions/why, who was unblocked, open threads),
+  `agent_assisted: true`, and commits it. Capture only — the `experience-bank` enrich step picks it up
+  later under the human approval gate. See `specs/log-work-capture.md`.
+- **Bank schema: `agent_assisted` added; `source` generalized** to any worklog-sourced claim. The
+  enrich step now extracts **technical or non-technical** claims from the worklog (relaxing the
+  Phase-3 "technical only from git summaries" rule) — the lightweight path for side/client projects —
+  and frames agent-assisted work at Jacob's altitude (`project-summary` still does not read the worklog).
+
+### Changed — rename bank claim dimension `kind` → `type`
+
+- Renamed the technical/non-technical dimension from `kind` to `type` across the renderer, the
+  `experience-bank` skill, `claims.yaml` (all 59 claims), and the specs. Worklog entry frontmatter
+  keeps `kind:` (`session-log` / `summary` / `handoff`) as a separate namespace.
+
 ### Changed — KB contract rewire (Phase 4): reconcile source-of-truth docs
 
 - **Reframed `brainspace/artifacts/README.md` to the bank model.** `contributions/` is now described

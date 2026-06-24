@@ -54,18 +54,19 @@ Each claim in `claims.yaml`:
     ...
   plain_language: >-                     # plain-English; "" if not yet written (fill for featured/hook)
     ...
-  source: <worklog-filename>            # non-technical claims only — the worklog entry it came from
+  source: <worklog-filename>            # any worklog-sourced claim — the entry it came from (dedup key)
+  agent_assisted: true | false          # set true if it came from an AI-assisted session log
 ```
 
-**`type`** is a first-class split, surfaced as top-level groups in the index:
+**`type`** is a first-class split, surfaced as top-level groups in the index. It's orthogonal to
+`source` (where the claim came from) and `agent_assisted` (whether an AI agent was involved):
 
-- **`technical`** — extracted from the project summaries (which trace to git logs / backlogs). Carries
-  the full `domain` / `tech` / `themes` / `strength` detail.
-- **`non-technical`** — decisions, mentoring, process, leadership — the "why" that git can't show.
-  These are **captured forward from the worklog** (`~/Projects/brainspace/WorkLife/atomic/worklog/`),
-  not mined retrospectively; `tech` is usually empty and they lean on the decision / context / who-was-
-  unblocked detail. (The worklog→bank enrichment flow is a later phase — see
-  `specs/kb-contract-rewire.md`.)
+- **`technical`** — *what was built*. Usually extracted from the project summaries (git logs /
+  backlogs), with full `domain` / `tech` / `themes` detail. Can **also** come from a `/log-work`
+  session log (the lightweight path for side/client projects that never get a summary) — tagged with
+  its `source` so the two paths stay distinguishable.
+- **`non-technical`** — decisions, mentoring, process, leadership — the "why" git can't show. Captured
+  forward from the worklog (weekly summaries + `/log-work` session logs); `tech` is usually empty.
 
 ## Rules (non-negotiable)
 
@@ -95,27 +96,30 @@ below.
 4. Append them under the right domain section of `claims.yaml`.
 5. Rebuild the index: `bun run buildBankIndex`.
 
-## Enrich from the worklog (non-technical claims)
+## Enrich from the worklog (technical + non-technical)
 
-This is the **forward-capture path** for the non-technical side of the bank — the "why" git can't
-show (decisions, mentoring, process, leadership). Triggered by "enrich the bank from the worklog" and
-by the weekly review. Source: `~/Projects/brainspace/WorkLife/atomic/worklog/`.
+This is the **forward-capture path** for the bank — the "why" git can't show (decisions, mentoring,
+process, leadership = `non-technical`) **and** the technical work from `/log-work` session logs that
+may never get a full project summary (= `technical`, e.g. side/client projects). Triggered by "enrich
+the bank from the worklog" and by the weekly review. Source: `~/Projects/brainspace/WorkLife/atomic/worklog/`.
 
 1. **Scope the input.** Consider only genuine work reflections: weekly summaries (`*-summary.md`) and
-   session logs (`YYYY-MM-DD-HHMM-<slug>.md`). **Skip** agent handoff entries (frontmatter
-   `kind: handoff`) and `README.md` — they're process chatter, not career material.
-2. **Skip what's already ingested.** Collect the `source:` values of all existing non-technical
-   claims. Skip any worklog entry whose filename already appears as a `source:`. This is the real
-   idempotency guard — it survives backfilled/out-of-order entries. (`meta.worklog_enriched_through`
-   is just a cursor telling you roughly where you left off; don't rely on it to dedup.)
-3. **Extract** `type: non-technical` claims from each remaining entry — a decision made and why, who
-   was mentored/unblocked, a process or leadership move. `tech` is usually `[]`; lean on the
-   decision / context / who-was-unblocked detail. Set `source:` to the worklog filename. Anonymize
-   per the confidentiality rules below and honor the worklog's NDA note. **Never invent** — if an
-   entry is still a template/placeholder (e.g. unfilled `⟵ add …` prompts, no real decisions written
-   up yet), treat it as **not yet written**: extract nothing from it, and in step 5 do **not** advance
-   the watermark past it (it's pending Jacob's fill-in, not "done"). The `source:` guard re-surfaces
-   it automatically once it has content.
+   session logs (`kind: session-log`, named `YYYY-MM-DD-HHMM-<slug>.md`). **Skip** agent handoff
+   entries (frontmatter `kind: handoff`) and `README.md` — process chatter, not career material.
+2. **Skip what's already ingested.** Collect the `source:` values of **all** existing claims. Skip any
+   worklog entry whose filename already appears as a `source:`. This is the real idempotency guard — it
+   survives backfilled/out-of-order entries. (`meta.worklog_enriched_through` is just a cursor for
+   where you left off; don't rely on it to dedup.)
+3. **Extract** claims from each remaining entry — **`type: technical`** (what was built) and/or
+   **`type: non-technical`** (a decision and why, who was mentored/unblocked, a process/leadership
+   move). On every extracted claim set `source:` to the worklog filename, and carry
+   `agent_assisted: true` if the entry's frontmatter says so. **Frame agent-assisted work at Jacob's
+   altitude** — what he directed, decided, reviewed, integrated — never "I built X" when an agent did
+   most of it. Anonymize per the confidentiality rules below and honor the worklog's NDA note. **Never
+   invent** — if an entry is still a template/placeholder (unfilled `⟵ add …` prompts, no real content
+   yet), treat it as **not yet written**: extract nothing, and in step 5 do **not** advance the
+   watermark past it (it's pending Jacob's fill-in). The `source:` guard re-surfaces it once it has
+   content.
 4. **Get sign-off.** Propose the candidate claims in chat — Jacob approves, edits, or drops each.
    This is the quality gate; nothing is written without his ok.
 5. **Write** the approved claims under the right domain (or a `working style / approach` style domain
