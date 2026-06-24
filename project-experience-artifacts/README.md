@@ -53,8 +53,6 @@ project-experience-summaries/ # large generated per-project summaries (bank inpu
 datasources/                 # source git logs and CSV backlogs
 data/posts-md/               # blog posts in markdown (voice input)
 voice-cache/                 # cached voice signature
-linkedin-experience/         # older per-project bullet artifacts (kept as data)
-professional-bios/           # older bio artifact (kept as data)
 specs/                       # roadmap + preserved prompt-IP reference docs (see specs/STATUS.md)
 lib/ tools/                  # support libs + deterministic parsers
 .claude/skills/              # the 3 skills (repo root)

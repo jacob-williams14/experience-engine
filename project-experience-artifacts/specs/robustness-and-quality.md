@@ -45,12 +45,10 @@ concrete failures, all of which made the no-API path unusable until worked aroun
   present-but-stale cached signature as a valid input (use it, warn, don't refresh); never let voice
   refresh failure abort prompt generation. Workaround used this time: temporarily bumped the cache
   `lastUpdated` to "now" (reverted after).
-- **Output/input location collision.** The finished artifact
-  `linkedin-experience/jacob-williams-linkedin-profile.md` lives in the same directory
-  `discoverLinkedInFiles()` scans for per-project *sources*, so `--all` ingested it as a project and
-  fed truncated garbage bullets into the synthesis prompt. **Fix:** separate inputs from outputs
-  (distinct dirs, or a filename convention / front-matter marker that `discoverLinkedInFiles`
-  filters on, e.g. only `*-linkedin-experience.md`).
+- ~~**Output/input location collision** in the old `discoverLinkedInFiles()` synthesizer flow.~~
+  **Resolved 2026-06-23:** the synthesizer and the entire `linkedin-experience/` directory were
+  deleted; the bank reads only from `project-experience-summaries/`, so there's no shared input/output
+  dir to collide.
 - **rtk hook strips quoted CLI args.** Through the shell proxy, `--developer "Jacob Williams"` arrives
   as `Jacob` (+ stray `Williams`), which silently breaks the cache slug and downstream name handling.
   **Fix (operational):** run these generators from a wrapper script file (quotes preserved) rather

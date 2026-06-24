@@ -53,8 +53,6 @@ Generation (summaries, claims, renders, voice) is NOT a script — invoke the re
 - `project-experience-summaries/` — large generated per-project summaries
 - `experience-bank/` — the claim bank (`claims.yaml`), index renderer, generated `index.md`
 - `voice-cache/` — cached voice signature
-- `linkedin-experience/`, `professional-bios/` — older artifacts kept as data/history
-- `resources/strengths/` — StrengthsFinder themes
 - `specs/` — roadmap specs + preserved prompt-IP reference docs (see `specs/STATUS.md`)
 
 ## No API

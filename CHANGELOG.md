@@ -56,6 +56,10 @@ versioning scheme is adopted.
   style-evolution generation capability is preserved via skills + reference docs; per-project-bullet
   and bio generation were intentionally dropped (their existing artifacts remain as data).
 - Removed now-unused dependencies: `@anthropic-ai/sdk`, `@ai-sdk/openai`, `ai`, `zod`.
+- Deleted `linkedin-experience/` (5 per-project bullet files — redundant with the bank, carried stale
+  tool headers, and leaked un-anonymized client names) and `professional-bios/` (superseded by the
+  bank + voice; its one distinct nuance was folded into a working-style claim first). Removed the now
+  orphaned `BIO_OUTPUT_DIR` config constant.
 - **Stale-resource cleanup:** deleted `resources/atomic-values/` (company boilerplate),
   `resources/strengths/` (distilled into the bank first — see below), `archive/` (old prompts/bios/
   examples), and `future-ideas/` (superseded by `specs/`). Also removed local junk:

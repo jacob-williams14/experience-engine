@@ -72,5 +72,5 @@
 ## working style / approach (3)
 
 - ★ Approaches problems by generating several paths to a goal and tracing them to root cause — drawn to diagnosing and fixing what…  `style-problem-solving`
-- ★ Takes initiative and makes the call others hesitate on, and is values-driven — motivated by leaving the team and the product better…  `style-leadership-initiative`
+- ★ Takes initiative and makes the call others hesitate on; a calming presence in tense moments who thinks several steps ahead, trusted to…  `style-leadership-initiative`
 - Mentors and teaches naturally, getting to know people personally and helping them grow; connects facts and events to reason from cause to…  `style-mentoring-connection`

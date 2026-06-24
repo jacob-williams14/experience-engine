@@ -42,6 +42,6 @@ Claims are stored already-anonymized: only "Atomic Object" is named; clients app
 
 ## Status
 
-Seed populated 2026-06-23 from the 5 per-project `linkedin-experience/*-linkedin-experience.md`
-files. Not yet a skill — that's the `experience-bank` + `tailored-render` migration in
-[`../specs/skills-migration.md`](../specs/skills-migration.md).
+Populated 2026-06-23 from `project-experience-summaries/*` (the generated upstream layer), 56 claims
+across 5 domains. Maintained via the `experience-bank` skill (see
+[`../specs/skills-migration.md`](../specs/skills-migration.md)).

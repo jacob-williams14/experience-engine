@@ -7,7 +7,6 @@ export const CONFIG = {
 	// File Paths (used by scripts)
 	PROCESSED_DATA_DIR: "data/processed",
 	PROJECT_SUMMARIES_DIR: "project-experience-summaries",
-	BIO_OUTPUT_DIR: "professional-bios",
 
 	// Git Processing (used by extractGitData.ts)
 	MAX_COMMITS_TO_ANALYZE: 500,

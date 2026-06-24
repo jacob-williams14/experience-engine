@@ -49,9 +49,8 @@ and not the highest-value one. So:
 
 ### Three layers
 
-1. **Extract** (per project, do once): project data (git logs, CSVs, existing
-   `project-experience-summaries/*` and `linkedin-experience/*-linkedin-experience.md`) → a set of
-   structured claims. Largely already done; this step normalizes what exists into the bank schema.
+1. **Extract** (per project, do once): from `project-experience-summaries/*` (the generated upstream
+   layer) → a set of structured claims. Done; the `experience-bank` skill maintains this.
 2. **Curate** (conversational, not hand-editing): tags, ratings, hooks, and the dual-register phrasing
    live in the bank, but Jacob maintains them by *talking to Claude* ("add a claim about X", "bump
    this to featured"), not by editing YAML. Seeded defaults are fine until a render exposes one that's
