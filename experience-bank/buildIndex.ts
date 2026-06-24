@@ -65,8 +65,10 @@ function groupByDomain(list: Claim[]): Map<string, Claim[]> {
 	return byDomain;
 }
 
-// Group by kind first (technical / non-technical), domains nested under each.
-const byKind = new Map<Kind, Claim[]>();
+// Group by kind first (technical / non-technical), domains nested under each. Map is string-keyed
+// because YAML can carry a value outside the Kind union (a typo like `kind: tech`); those claims are
+// surfaced with a warning rather than silently dropped from the index.
+const byKind = new Map<string, Claim[]>();
 for (const c of claims) {
 	const k = c.kind ?? "technical";
 	const arr = byKind.get(k) ?? [];
@@ -74,13 +76,22 @@ for (const c of claims) {
 	byKind.set(k, arr);
 }
 
+// Known kinds first (in order), then any unrecognized ones — warned, but still rendered.
+const knownKinds = KIND_ORDER.filter((k) => byKind.get(k)?.length);
+const unknownKinds = [...byKind.keys()].filter((k) => !KIND_ORDER.includes(k as Kind));
+for (const k of unknownKinds) {
+	const ids = byKind.get(k)!.map((c) => c.id).join(", ");
+	console.warn(
+		`⚠️  unrecognized kind "${k}" on ${byKind.get(k)!.length} claim(s) — expected ${KIND_ORDER.join(" | ")}: ${ids}`
+	);
+}
+const orderedKinds = [...knownKinds, ...unknownKinds];
+
 const total = claims.length;
 const featured = claims.filter((c) => c.strength === "featured").length;
 const hooks = claims.filter((c) => c.hook).length;
 const domainCount = new Set(claims.map((c) => c.domain)).size;
-const kindSummary = KIND_ORDER.filter((k) => byKind.get(k)?.length)
-	.map((k) => `${byKind.get(k)!.length} ${k}`)
-	.join(" · ");
+const kindSummary = orderedKinds.map((k) => `${byKind.get(k)!.length} ${k}`).join(" · ");
 
 const lines: string[] = [];
 lines.push("# Experience Bank — Index");
@@ -95,10 +106,12 @@ lines.push(
 );
 lines.push("");
 
-for (const kind of KIND_ORDER) {
-	const list = byKind.get(kind);
-	if (!list || !list.length) continue;
-	lines.push(`## ${KIND_LABEL[kind]} (${list.length})`);
+for (const kind of orderedKinds) {
+	const list = byKind.get(kind)!;
+	const label = KIND_ORDER.includes(kind as Kind)
+		? KIND_LABEL[kind as Kind]
+		: `${kind} (unrecognized kind)`;
+	lines.push(`## ${label} (${list.length})`);
 	lines.push("");
 	const byDomain = groupByDomain(list);
 	for (const domain of [...byDomain.keys()].sort()) {

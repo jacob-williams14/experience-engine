@@ -111,12 +111,19 @@ by the weekly review. Source: `~/Projects/brainspace/WorkLife/atomic/worklog/`.
 3. **Extract** `kind: non-technical` claims from each remaining entry — a decision made and why, who
    was mentored/unblocked, a process or leadership move. `tech` is usually `[]`; lean on the
    decision / context / who-was-unblocked detail. Set `source:` to the worklog filename. Anonymize
-   per the confidentiality rules below and honor the worklog's NDA note.
+   per the confidentiality rules below and honor the worklog's NDA note. **Never invent** — if an
+   entry is still a template/placeholder (e.g. unfilled `⟵ add …` prompts, no real decisions written
+   up yet), treat it as **not yet written**: extract nothing from it, and in step 5 do **not** advance
+   the watermark past it (it's pending Jacob's fill-in, not "done"). The `source:` guard re-surfaces
+   it automatically once it has content.
 4. **Get sign-off.** Propose the candidate claims in chat — Jacob approves, edits, or drops each.
    This is the quality gate; nothing is written without his ok.
 5. **Write** the approved claims under the right domain (or a `working style / approach` style domain
-   for cross-cutting ones), advance `meta.worklog_enriched_through` to the latest entry date you
-   processed, and rebuild the index (`bun run buildBankIndex`).
+   for cross-cutting ones), then advance `meta.worklog_enriched_through` to the latest date you
+   **completed** — i.e. the newest entry you either extracted from or confirmed is genuinely
+   complete-but-uneventful. Do **not** advance it over a still-unwritten template (see step 3). Then
+   rebuild the index (`bun run buildBankIndex`). The watermark is advisory; the per-claim `source:` is
+   the real dedup guard, so a thin entry left behind the watermark is still revisited correctly.
 
 > The companion `/log-work` capture skill (a separate Claude Code skill, not in this repo) writes the
 > session logs this consumes. If the worklog is thin, that's expected — this path fills forward.
