@@ -26,8 +26,10 @@ Reference docs (preserved prompt IP, not roadmap items):
 
 0. **kb-contract-rewire** (active) — Phase 1 done (paths centralized in `lib/config.ts`, state
    migrated into `brainspace/{data,artifacts}/`, code + skills repointed). Phase 2 done (bank tagged
-   `kind: technical | non-technical`; index groups by kind). Remaining: Phase 3 (worklog→bank
-   enrichment), Phase 4 (reconcile `artifacts/README.md`).
+   `kind: technical | non-technical`; index groups by kind). Phase 3 done (worklog→bank enrichment
+   mode on the `experience-bank` skill: `source:`-keyed dedup + `worklog_enriched_through` watermark;
+   `project-summary` deliberately does NOT read the worklog). Remaining: Phase 4 (reconcile
+   `artifacts/README.md`).
 1. ~~**experience-bank**~~ — bank built and populated (active; curation is ongoing/conversational).
 2. ~~**skills-migration**~~ — **done**: 3 skills built, AI-SDK layer + generators deleted, IP preserved.
 3. ~~**model-sdk-modernization**~~ — **obsolete**: no API path left to modernize.

@@ -72,9 +72,29 @@ processed git-data `--save` output). No `data/` or output dirs in the repo.
   nested as `###` beneath; summary line carries the kind counts.
 - `experience-bank` skill schema documents `kind` and the forward-capture rule for non-technical.
 
+## Phase 3 — worklog → bank enrichment (forward-only)
+
+A mode on the `experience-bank` skill that reads the worklog and proposes `kind: non-technical`
+claims (the "why": decisions, mentoring, process, leadership) for Jacob's approval, then writes the
+approved ones into the bank. Agent-driven (no code/API), per the contract.
+
+- **Scope of input:** genuine work reflections only — weekly summaries (`*-summary.md`) and session
+  logs (`YYYY-MM-DD-HHMM-<slug>.md`). SKIP agent handoff entries (frontmatter `kind: handoff`) and
+  `README.md`.
+- **Idempotency (the real guard):** each non-technical claim records `source: <worklog-filename>`;
+  skip any worklog entry already cited in an existing claim's `source:`. This survives backfill (an
+  out-of-order entry still isn't in any `source:`, so it's reconsidered).
+- **Watermark:** `meta.worklog_enriched_through: <YYYY-MM-DD>` records how far enrichment has run — a
+  fast "where did I leave off" marker and a visible cursor, not the dedup mechanism.
+- **Confidentiality:** anonymize per the same rules (clients by domain; honor the worklog's NDA note).
+- **Curation gate:** propose claims in chat; only write the ones Jacob approves; then advance the
+  watermark and rebuild the index.
+- **Decision (2026-06-24):** `project-summary` does **NOT** read the worklog. The "why" enters the
+  bank only through the worklog→non-technical path; summaries stay "what was built" (git/backlogs).
+  This preserves the two-kinds/two-sources split from Phase 2 and avoids double-counting.
+
 ## Out of scope (later phases)
 
-- **Phase 3:** worklog → bank enrichment (watermarked, forward-only).
 - **Phase 4:** reconcile `artifacts/README.md` wording (the `knowledge-base.md` half was done in
   Phase 0).
 

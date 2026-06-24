@@ -3,9 +3,9 @@ name: experience-bank
 description: >-
   Maintain Jacob's experience bank — the tagged claim store at
   artifacts/contributions/claims.yaml in the knowledge base. Use when adding, updating, tagging, or
-  curating experience claims, or when pulling new claims from the generated project summaries into the
-  bank. Triggers on "add a claim", "update the bank", "pull from the summaries", "re-tag", "rebuild
-  the bank index".
+  curating experience claims, when pulling new claims from the generated project summaries, or when
+  enriching the non-technical side from the worklog. Triggers on "add a claim", "update the bank",
+  "pull from the summaries", "enrich the bank from the worklog", "re-tag", "rebuild the bank index".
 ---
 
 # Experience Bank
@@ -54,6 +54,7 @@ Each claim in `claims.yaml`:
     ...
   plain_language: >-                     # plain-English; "" if not yet written (fill for featured/hook)
     ...
+  source: <worklog-filename>            # non-technical claims only — the worklog entry it came from
 ```
 
 **`kind`** is a first-class split, surfaced as top-level groups in the index:
@@ -93,6 +94,32 @@ below.
    pulled from a project summary are `kind: technical`.
 4. Append them under the right domain section of `claims.yaml`.
 5. Rebuild the index: `bun run buildBankIndex`.
+
+## Enrich from the worklog (non-technical claims)
+
+This is the **forward-capture path** for the non-technical side of the bank — the "why" git can't
+show (decisions, mentoring, process, leadership). Triggered by "enrich the bank from the worklog" and
+by the weekly review. Source: `~/Projects/brainspace/WorkLife/atomic/worklog/`.
+
+1. **Scope the input.** Consider only genuine work reflections: weekly summaries (`*-summary.md`) and
+   session logs (`YYYY-MM-DD-HHMM-<slug>.md`). **Skip** agent handoff entries (frontmatter
+   `kind: handoff`) and `README.md` — they're process chatter, not career material.
+2. **Skip what's already ingested.** Collect the `source:` values of all existing non-technical
+   claims. Skip any worklog entry whose filename already appears as a `source:`. This is the real
+   idempotency guard — it survives backfilled/out-of-order entries. (`meta.worklog_enriched_through`
+   is just a cursor telling you roughly where you left off; don't rely on it to dedup.)
+3. **Extract** `kind: non-technical` claims from each remaining entry — a decision made and why, who
+   was mentored/unblocked, a process or leadership move. `tech` is usually `[]`; lean on the
+   decision / context / who-was-unblocked detail. Set `source:` to the worklog filename. Anonymize
+   per the confidentiality rules below and honor the worklog's NDA note.
+4. **Get sign-off.** Propose the candidate claims in chat — Jacob approves, edits, or drops each.
+   This is the quality gate; nothing is written without his ok.
+5. **Write** the approved claims under the right domain (or a `working style / approach` style domain
+   for cross-cutting ones), advance `meta.worklog_enriched_through` to the latest entry date you
+   processed, and rebuild the index (`bun run buildBankIndex`).
+
+> The companion `/log-work` capture skill (a separate Claude Code skill, not in this repo) writes the
+> session logs this consumes. If the worklog is thin, that's expected — this path fills forward.
 
 ## Curating
 

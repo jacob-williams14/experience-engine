@@ -8,6 +8,18 @@ versioning scheme is adopted.
 
 ## [Unreleased]
 
+### Added — KB contract rewire (Phase 3): worklog → bank enrichment
+
+- **Worklog→bank enrichment mode on the `experience-bank` skill** — reads
+  `brainspace/WorkLife/atomic/worklog/`, proposes `kind: non-technical` claims (decisions, mentoring,
+  process — the "why") for Jacob's approval, then writes the approved ones. Agent-driven, no API.
+- **Idempotency by `source:`** — each non-technical claim records the worklog filename it came from;
+  entries already cited are skipped (survives backfill). `meta.worklog_enriched_through` added as an
+  advisory cursor. Documented both fields in `claims.yaml`'s header; skips `kind: handoff` entries.
+- **Decision:** `project-summary` does **not** read the worklog — the "why" enters the bank only via
+  the worklog→non-technical path, preserving the Phase 2 two-kinds/two-sources split. See
+  `specs/kb-contract-rewire.md` (Phase 3).
+
 ### Added — KB contract rewire (Phase 2): technical / non-technical bank
 
 - **Tagged every bank claim with `kind: technical | non-technical`** (53 technical pulled from the
