@@ -25,10 +25,10 @@ directly — no API, no provider SDK.**
 This repo is **pure processing**. All durable state lives in the knowledge base at
 `~/Projects/brainspace/` (override with `$BRAINSPACE_ROOT`); the repo owns only mechanism plus
 re-derivable intermediates. The full contract is at
-`~/Projects/brainspace/WorkLife/self/notes/knowledge-base.md`.
+`~/Projects/brainspace/docs/knowledge-base.md`.
 
 ```text
-READS   brainspace/data/{git-logs,backlogs,voice-samples}/   +  WorkLife/atomic/worklog/
+READS   brainspace/data/{git-logs,backlogs,voice-samples}/   +  career/atomic/worklog/
 WRITES  brainspace/artifacts/{project-summaries,contributions,linkedin,bio}/
 REPO    holds no durable data — only voice-cache/ (cache) and .tmp/ (intermediates)
 ```
@@ -94,7 +94,7 @@ REPO (mechanism only)
 
 KNOWLEDGE BASE (~/Projects/brainspace — durable state)
   data/{git-logs,backlogs,voice-samples}/   # inputs the tooling reads
-  WorkLife/atomic/worklog/                  # human "why" + cross-agent handoff
+  career/atomic/worklog/                  # human "why" + cross-agent handoff
   artifacts/{project-summaries,contributions,linkedin,bio}/   # outputs the tooling writes
 ```
 

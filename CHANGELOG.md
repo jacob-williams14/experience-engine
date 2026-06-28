@@ -8,6 +8,14 @@ versioning scheme is adopted.
 
 ## [Unreleased]
 
+### Changed — brainspace restructure: worklog path
+
+- **`KB.WORKLOG` repointed** from `WorkLife/atomic/worklog/` to `career/atomic/worklog/`. The
+  brainspace repo dissolved its `WorkLife/` wrapper into top-level `foundation/`, `career/`, and
+  `personal/` domains (2026-06-27). Updated `lib/config.ts` plus the contract references in
+  `AGENTS.md`, `README.md`, the specs, and the `experience-bank` skill. Reads/writes are otherwise
+  unchanged (`data/**` + the worklog → `artifacts/**`).
+
 ### Changed — bank scope: professional + personal (`context`)
 
 - **Dropped the "Atomic-only" rule.** The bank now holds professional (Atomic/client) **and**

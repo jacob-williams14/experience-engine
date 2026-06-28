@@ -6,9 +6,9 @@
 
 A separate effort locked a knowledge-base architecture: `~/Projects/brainspace/` **is** the durable
 source of truth and holds all state; this repo (`experience-engine`) is **pure processing** that reads
-`brainspace/data/**` + `brainspace/WorkLife/atomic/worklog/**` and writes `brainspace/artifacts/**`,
+`brainspace/data/**` + `brainspace/career/atomic/worklog/**` and writes `brainspace/artifacts/**`,
 owning no durable data beyond minor intermediates (a voice cache, processed `.tmp/`). The contract is
-documented at `~/Projects/brainspace/WorkLife/self/notes/knowledge-base.md` (ratified; cowork mounts
+documented at `~/Projects/brainspace/docs/knowledge-base.md` (ratified; cowork mounts
 the brainspace root and reads the bank).
 
 Today this repo violates that: it holds inputs (`datasources/`, `data/posts*`), outputs
@@ -28,7 +28,7 @@ KB root resolved once in `lib/config.ts`: `BRAINSPACE_ROOT` env var, default `~/
 | git logs | `data/git-logs/` | read |
 | backlogs | `data/backlogs/` | read |
 | voice samples (markdown) | `data/voice-samples/` | read |
-| worklog | `WorkLife/atomic/worklog/` | read (Phase 3) |
+| worklog | `career/atomic/worklog/` | read (Phase 3) |
 | project summaries | `artifacts/project-summaries/` | write |
 | bank | `artifacts/contributions/` | read/write (`claims.yaml` + `index.md`) |
 | LinkedIn / bio renders | `artifacts/linkedin/`, `artifacts/bio/` | write |

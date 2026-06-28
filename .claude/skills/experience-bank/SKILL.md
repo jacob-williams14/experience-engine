@@ -102,7 +102,7 @@ below.
 This is the **forward-capture path** for the bank — the "why" git can't show (decisions, mentoring,
 process, leadership = `non-technical`) **and** the technical work from `/log-work` session logs that
 may never get a full project summary (= `technical`, e.g. side/client projects). Triggered by "enrich
-the bank from the worklog" and by the weekly review. Source: `~/Projects/brainspace/WorkLife/atomic/worklog/`.
+the bank from the worklog" and by the weekly review. Source: `~/Projects/brainspace/career/atomic/worklog/`.
 
 1. **Scope the input.** Consider only genuine work reflections: weekly summaries (`*-summary.md`) and
    session logs (`type: session-log`, named `YYYY-MM-DD-HHMM-<slug>.md`). **Skip** agent handoff

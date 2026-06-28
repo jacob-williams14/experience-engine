@@ -14,7 +14,7 @@ may never get the heavy git-log→summary treatment — their work can still rea
 
 You log sessions from *whatever project you're working in*, not just `experience-engine`. A user-level
 skill (`~/.claude/skills/log-work/`) loads in every Claude Code session. It writes into the one shared
-worklog at `~/Projects/brainspace/WorkLife/atomic/worklog/`; the bank and all processing stay in the
+worklog at `~/Projects/brainspace/career/atomic/worklog/`; the bank and all processing stay in the
 `experience-engine` tool.
 
 ## Three orthogonal dimensions (settled)
@@ -70,7 +70,7 @@ This is what lets side/client projects produce claims without a full summary pas
 
 ## Confidentiality
 
-The log lives in `WorkLife/` (NDA-noted) and may contain client specifics — written **honestly**.
+The log lives in `career/atomic/worklog/` (NDA-noted) and may contain client specifics — written **honestly**.
 Anonymization (clients → domain) happens only when a claim reaches the bank, at the enrich step. The
 log itself is not sanitized.
 

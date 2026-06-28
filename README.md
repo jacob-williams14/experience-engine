@@ -21,7 +21,7 @@ Runs on [Bun](https://bun.sh).
 
 State lives in the knowledge base at `~/Projects/brainspace/` (the repo is pure processing and owns
 no durable data — see [`AGENTS.md`](./AGENTS.md) and the contract in
-`~/Projects/brainspace/WorkLife/self/notes/knowledge-base.md`). Override the root with
+`~/Projects/brainspace/docs/knowledge-base.md`). Override the root with
 `$BRAINSPACE_ROOT`.
 
 The work happens through **Claude Code skills** (in the repo-root `.claude/skills/`), not CLI

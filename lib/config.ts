@@ -8,7 +8,7 @@ import { join } from "path";
 /**
  * Knowledge-base (brainspace) root — the durable source of truth this tooling reads from and writes
  * to. The repo itself owns no durable data (see the contract in
- * `brainspace/WorkLife/self/notes/knowledge-base.md`). Override the location with `BRAINSPACE_ROOT`;
+ * `brainspace/docs/knowledge-base.md`). Override the location with `BRAINSPACE_ROOT`;
  * defaults to `~/Projects/brainspace`.
  */
 export const BRAINSPACE_ROOT =
@@ -23,7 +23,7 @@ export const KB = {
 	GIT_LOGS: join(BRAINSPACE_ROOT, "data", "git-logs"),
 	BACKLOGS: join(BRAINSPACE_ROOT, "data", "backlogs"),
 	VOICE_SAMPLES: join(BRAINSPACE_ROOT, "data", "voice-samples"),
-	WORKLOG: join(BRAINSPACE_ROOT, "WorkLife", "atomic", "worklog"),
+	WORKLOG: join(BRAINSPACE_ROOT, "career", "atomic", "worklog"),
 	// writes
 	PROJECT_SUMMARIES: join(BRAINSPACE_ROOT, "artifacts", "project-summaries"),
 	CONTRIBUTIONS: join(BRAINSPACE_ROOT, "artifacts", "contributions"),
