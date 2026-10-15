@@ -23,7 +23,13 @@ You (Claude Code) are the model. Read the JD and the bank directly.
 
 ## Inputs
 
-- The job description (pasted, or a URL Jacob gives you).
+- The job description (pasted, or a URL Jacob gives you). For a URL, read it through the session's
+  browser (built-in browser first, then Claude in Chrome — load the matching `anthropic-skills:*`
+  browser skill), read-only. **LinkedIn job pages** render the description outside the page's
+  main region, so `get_page_text` returns only the header: scroll the "About the job" heading into
+  view, then pull the text with `javascript_tool` by walking up from that heading to the first
+  ancestor whose `innerText` is longer than ~800 characters. If the page is a sign-in wall, ask
+  Jacob to sign in himself (never type credentials) or to paste the text.
 - `artifacts/contributions/claims.yaml` — **read it as text, not only parsed**: the section comments
   (`# ── …`) carry load-bearing caveats (e.g. "never 'product lead'", "client-reported", "co-built",
   "never claim … launched it") that a YAML parser drops.
@@ -66,6 +72,8 @@ You (Claude Code) are the model. Read the JD and the bank directly.
      Score 1 if met, 0.5 if within 15% of the threshold, else 0. Below 75% of a total-years
      threshold is a dealbreaker.
 3. **Score.** All requirements weigh equally. Match = must-have % × 0.7 + nice-to-have % × 0.3.
+   When the JD lists **no nice-to-haves**, the match is the must-have % alone (don't score an empty
+   list as 0 or 100); write the Score line as `0.7 × NN% + 0.3 × (none) = NN%`.
    Show counts as summed points (`4.5/6`). Pick the band from the unrounded match; display it
    rounded to a whole percent.
 4. **Recommend.** Any **dealbreaker** → **skip**, whatever the score. Otherwise:

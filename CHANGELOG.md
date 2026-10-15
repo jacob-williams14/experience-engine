@@ -17,7 +17,9 @@ versioning scheme is adopted.
   against the bank and resume. Generic content (cover
   letters, application timelines, posting cadence) was dropped.
 - `linkedin-review` exercised end-to-end on 2026-10-14 (built-in browser, live profile): first
-  snapshot and an approved paste list landed in brainspace. `jd-analyzer` not yet run for real.
+  snapshot and an approved paste list landed in brainspace. `jd-analyzer` first run the same day on
+  a LinkedIn posting; it surfaced two gaps now fixed: a browser-reading step (LinkedIn's description
+  needs a page-script read) and a scoring rule for postings with no nice-to-haves.
 
 ### Changed — brainspace restructure: worklog path
 
@@ -202,6 +204,7 @@ versioning scheme is adopted.
   `specs/skills-migration.md` and `specs/model-sdk-modernization.md`.
 - The committed career artifacts are treated as the quality baseline; regenerated artifacts are
   adopted only when clearly better.
-- A 2026-06-23 canonical-path test run (local mode) confirmed real prompt drift and three no-API
-  reliability bugs (stale voice-cache can't fall back, output/input directory collision, rtk arg-quote
-  stripping). Logged in `specs/robustness-and-quality.md` and `specs/skills-migration.md`.
+- A 2026-06-23 canonical-path test run (local mode) confirmed real prompt
+  drift and three no-API reliability bugs (stale voice-cache can't fall back,
+  output/input directory collision, rtk arg-quote stripping). Logged in
+  `specs/robustness-and-quality.md` and `specs/skills-migration.md`.
