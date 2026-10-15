@@ -8,6 +8,17 @@ versioning scheme is adopted.
 
 ## [Unreleased]
 
+### Added — `jd-analyzer` and `linkedin-review` skills
+
+- Adapted from `job-description-analyzer` and `linkedin-profile-optimizer` in
+  [Paramchoudhary/ResumeSkills](https://github.com/Paramchoudhary/ResumeSkills) (MIT), rewired so the
+  experience bank is the only evidence: match scores cite claim ids, and the LinkedIn review reads
+  the live profile through whichever browser the session has (read-only — Jacob pastes fixes) and audits it
+  against the bank and resume. Generic content (cover
+  letters, application timelines, posting cadence) was dropped.
+- `linkedin-review` exercised end-to-end on 2026-10-14 (built-in browser, live profile): first
+  snapshot and an approved paste list landed in brainspace. `jd-analyzer` not yet run for real.
+
 ### Changed — brainspace restructure: worklog path
 
 - **`KB.WORKLOG` repointed** from `WorkLife/atomic/worklog/` to `career/atomic/worklog/`. The

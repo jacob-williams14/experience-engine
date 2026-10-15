@@ -46,6 +46,11 @@ look for the old generator scripts (deleted).
 - **`tailored-render`** — bank → LinkedIn / resume / JD / About (follows
   `specs/render-rules-reference.md`).
 - **`voice-signature`** — blog posts → writing-voice signature (incl. optional style-evolution).
+- **`jd-analyzer`** — job description → match score backed by claim ids, honest gaps, and the
+  claim set to hand to `tailored-render`.
+- **`linkedin-review`** — reads the live LinkedIn profile (built-in browser or Claude in Chrome, read-only; or a Save-to-PDF
+  export), audits it
+  against the bank and resume, and proposes numbered paste-ready fixes; snapshots to `data/linkedin/`.
 
 They chain `project-summary → experience-bank → tailored-render`, with `voice-signature` feeding renders.
 

@@ -32,6 +32,8 @@ generators. Just ask Claude:
 - *"render a LinkedIn experience entry"* / *"tailor my bullets to this job description"* →
   `tailored-render`
 - *"refresh my writing voice"* → `voice-signature`
+- *"should I apply to this job?"* → `jd-analyzer` (then `tailored-render`)
+- *"review my LinkedIn"* → `linkedin-review`
 
 ## The bank
 
