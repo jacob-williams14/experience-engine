@@ -46,7 +46,10 @@ render directly.
    - No invented metrics or tech. Use a claim's `plain_language` register when the target wants plain
      English; `keyword_rich` when it wants recruiter keywords.
    - Apply Jacob's voice from `voice-cache/jacob-williams-voice.json`
-     (read it) as an override so it sounds like him.
+     (read it) as an override so it sounds like him — **long-form only** (a full About, a bio).
+     It's a blog voice; its tics ("Here's the thing", binary contrasts, punchy fragments) read as
+     AI slop in short copy. For headlines, Experience lines, and bullets, start from his resume
+     wording and run `/no-ai-slop` in detect mode on the draft before showing it.
 4. **Steer with Jacob.** He curates at this step — "lead with the courts work", "drop that one",
    "more plain-language". His sign-off here is the quality gate. Adopt a render for a real surface
    only if it's clearly as good or better than what he already has.

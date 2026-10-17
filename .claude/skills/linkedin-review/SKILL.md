@@ -31,12 +31,13 @@ You (Claude Code) are the model. Read the profile and the bank directly.
      the desktop app's pane; load the `anthropic-skills:built-in-browser` skill and follow it.
   2. **Claude in Chrome** (`mcp__claude-in-chrome__*`; CLI: `claude --chrome`) — load the
      `anthropic-skills:chrome-browser` skill and follow it.
-  3. **PDF export** — LinkedIn profile → More → Save to PDF, saved in `data/linkedin/`. Works in any
-     browser, including Brave.
+  3. **PDF export** — LinkedIn profile → More → Save to PDF, dropped into `artifacts/linkedin/`
+     (or any path Jacob gives). Works in any browser, including Brave.
 
   Check with ToolSearch which browser tools exist; don't use other browser automation (e.g.
   agent-browser) — LinkedIn sign-in happens only in a browser Jacob can see.
-- `data/linkedin/` — earlier profile snapshots this skill saved; the newest is the diff baseline.
+- `artifacts/linkedin/paste-list-*.md` — earlier approved paste lists; the newest says what changed
+  last time and is the only baseline kept (no profile snapshots).
 - `artifacts/contributions/claims.yaml` — read as text: section comments (`# ── …`) carry caveats
   (e.g. "client-reported, cite as such", "never 'product lead'", "co-built") a parser drops. It's
   long: grep the `# ──` headers first, then read the relevant blocks — the newest caveats sit in the
@@ -58,14 +59,12 @@ You (Claude Code) are the model. Read the profile and the bank directly.
      credentials. Wait, then continue.
    - **Site permission pending or refused**, or the browser doesn't respond: tell Jacob, then wait
      or drop to the next source.
-   - **PDF:** use the newest profile PDF in `data/linkedin/` that has no snapshot yet (Read tool),
-     and skip to step 3. If there's none, ask Jacob for a Save-to-PDF export and stop.
+   - **PDF:** use the newest profile PDF in `artifacts/linkedin/` (Read tool) and skip to step 3.
+     If there's none, ask Jacob for a Save-to-PDF export and stop.
 2. **Read, read-only** (browser only). `get_page_text` (or `read_page`) on the profile, then on
    `…/details/experience/` and `…/details/skills/` (the main page truncates both). Only these
    pages; no clicks on Edit, Connect, Message, or posts; no repeated reloads. Close tabs you opened.
-3. **Snapshot.** Save what you read to `data/linkedin/profile-<YYYY-MM-DD>.md` (Headline, About,
-   Experience, Skills, Featured — verbatim). If an earlier snapshot exists, note what changed since.
-4. **Consistency audit.** Check every number, title, date, domain list, and client description. A
+3. **Consistency audit.** Check every number, title, date, domain list, and client description. A
    **finding** is any of:
    - a value that differs from the bank or the resume;
    - a figure with no source (e.g. a store count the bank never states) — propose removing it;
@@ -78,7 +77,7 @@ You (Claude Code) are the model. Read the profile and the bank directly.
    wording. A finding can be **split**: a `Fix:` for the part both support and a `needs Jacob:` line
    for the rest. The bank holds no titles or dates, so the resume decides those; anything neither
    holds (e.g. a start month) is `needs Jacob`.
-5. **Proposed changes** — paste-ready text within LinkedIn's limits:
+4. **Proposed changes** — paste-ready text within LinkedIn's limits:
    - **Headline** (220 chars): keep Jacob's positioning; note keyword trade-offs.
    - **About** (2,600 max; the first ~300 show before "see more"): targeted edits following the
      confidentiality and no-invention rules in `specs/render-rules-reference.md`. A full rewrite
@@ -89,7 +88,7 @@ You (Claude Code) are the model. Read the profile and the bank directly.
    - **Skills** (up to 50; top 3 featured): rank by relevance to Career direction, then roughly by
      how many claims carry the tag. Soft skills count when a claim's `themes` or text supports them.
      Resume skills with no claim are **bank gaps**, not skills to add.
-6. **Profile checklist** — from what the page showed: photo, banner, Featured, recommendations,
+5. **Profile checklist** — from what the page showed: photo, banner, Featured, recommendations,
    Open to Work. Mark each present / missing / couldn't tell.
 
 ## Output
@@ -97,7 +96,7 @@ You (Claude Code) are the model. Read the profile and the bank directly.
 In chat (Jacob may not have watched the browser pane — say what you read):
 
 ```text
-Read     <pages read | PDF file> · snapshot data/linkedin/profile-<date>.md · changed since <last date>: <summary | first snapshot>
+Read     <pages read | PDF file> · last paste list: <date | none>
 Audit (most severe first)
   1. [section] <finding> — live: "<text>" | bank: <value> (<claim id>) | resume: <value>
      Fix: "<paste-ready text>"  — or —  needs Jacob: <the decision>
@@ -111,9 +110,10 @@ Approve by number (e.g. "1, 2, 5"); give decisions with needs-Jacob items (e.g. 
 ## After approval
 
 Hand back the approved items as one paste list, grouped by section, in the order LinkedIn's editor
-shows them. A `needs Jacob` item without its decision isn't included — say so. Don't edit LinkedIn.
-When Jacob says he's updated it, re-read (step 2), refresh the snapshot, and confirm each item
-landed. Facts Jacob settles along the way belong in the bank — point to the `experience-bank` skill.
+shows them. A `needs Jacob` item without its decision isn't included — say so. Save it to
+`artifacts/linkedin/paste-list-<YYYY-MM-DD>.md` once Jacob approves — it's the record of what
+changed and the baseline for the next review. Don't edit LinkedIn. When Jacob says he's updated it,
+re-read (step 2) and confirm each item landed. Facts Jacob settles along the way belong in the bank — point to the `experience-bank` skill.
 
 ## Rules
 

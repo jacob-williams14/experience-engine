@@ -8,6 +8,20 @@ versioning scheme is adopted.
 
 ## [Unreleased]
 
+### Changed — tracking rule, no LinkedIn snapshots, short-copy voice rule
+
+- `CHANGELOG.md` is now the tracker for all changes; specs are reserved for real development
+  work. The two new skills had shipped with only a changelog entry, which turned out to be the
+  right amount.
+- `linkedin-review` no longer saves profile snapshots (`data/linkedin/` removed from brainspace).
+  The approved paste list in `artifacts/linkedin/` is the record and the next review's baseline;
+  the live profile is always re-readable.
+- `tailored-render` applies the blog voice to long-form only; short copy starts from resume
+  wording and gets a `/no-ai-slop` detect pass. The first LinkedIn review showed the blog tics
+  read as AI slop in a 300-character About.
+- `AGENTS.md` pointed at `brainspace/docs/knowledge-base.md`; the file lives at
+  `docs/reference/knowledge-base.md`.
+
 ### Added — `jd-analyzer` and `linkedin-review` skills
 
 - Adapted from `job-description-analyzer` and `linkedin-profile-optimizer` in

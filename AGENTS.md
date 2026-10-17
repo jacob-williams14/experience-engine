@@ -25,7 +25,7 @@ directly — no API, no provider SDK.**
 This repo is **pure processing**. All durable state lives in the knowledge base at
 `~/Projects/brainspace/` (override with `$BRAINSPACE_ROOT`); the repo owns only mechanism plus
 re-derivable intermediates. The full contract is at
-`~/Projects/brainspace/docs/knowledge-base.md`.
+`~/Projects/brainspace/docs/reference/knowledge-base.md`.
 
 ```text
 READS   brainspace/data/{git-logs,backlogs,voice-samples}/   +  career/atomic/worklog/
@@ -50,7 +50,8 @@ look for the old generator scripts (deleted).
   claim set to hand to `tailored-render`.
 - **`linkedin-review`** — reads the live LinkedIn profile (built-in browser or Claude in Chrome, read-only; or a Save-to-PDF
   export), audits it
-  against the bank and resume, and proposes numbered paste-ready fixes; snapshots to `data/linkedin/`.
+  against the bank and resume, and proposes numbered paste-ready fixes; the approved paste list is
+  saved to `artifacts/linkedin/`.
 
 They chain `project-summary → experience-bank → tailored-render`, with `voice-signature` feeding renders.
 
@@ -105,8 +106,9 @@ KNOWLEDGE BASE (~/Projects/brainspace — durable state)
 
 ## When you change this repo
 
-- **Track work**: add/update a spec in `specs/`, the `specs/STATUS.md`
-  index, and `CHANGELOG.md`. Don't just start editing.
+- **Track work in `CHANGELOG.md`**: every change gets an entry under `Unreleased`. Specs in
+  `specs/` (+ the `specs/STATUS.md` index) are for real development work — multi-step builds,
+  migrations, anything worth planning before editing — not for skill tweaks or doc fixes.
 - **Preserve prompt IP before deleting** a generator — capture its rules into a `specs/*-reference.md`
   (that's how the summary and render templates survived the migration).
 - **Commits**: Conventional Commits, imperative mood; focus the body on *why*. No AI-attribution
