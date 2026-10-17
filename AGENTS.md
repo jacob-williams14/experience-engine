@@ -48,8 +48,7 @@ look for the old generator scripts (deleted).
 - **`voice-signature`** — blog posts → writing-voice signature (incl. optional style-evolution).
 - **`jd-analyzer`** — job description → match score backed by claim ids, honest gaps, and the
   claim set to hand to `tailored-render`.
-- **`linkedin-review`** — reads the live LinkedIn profile (built-in browser or Claude in Chrome, read-only; or a Save-to-PDF
-  export), audits it
+- **`linkedin-review`** — reads the live LinkedIn profile (built-in browser or Claude in Chrome, read-only), audits it
   against the bank and resume, and proposes numbered paste-ready fixes; the approved paste list is
   saved to `artifacts/linkedin/`.
 

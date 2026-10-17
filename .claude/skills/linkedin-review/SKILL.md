@@ -3,8 +3,8 @@ name: linkedin-review
 description: >-
   Review Jacob's LIVE LinkedIn profile against the experience bank and resume — headline, About,
   Experience, Skills — reading it through whichever browser the session has (the desktop app's
-  built-in browser or Claude in Chrome) or a LinkedIn "Save to PDF" export, then proposing numbered,
-  paste-ready fixes he applies himself. Use when asked to review/optimize/update LinkedIn
+  built-in browser or Claude in Chrome), then proposing numbered, paste-ready fixes he applies
+  himself. Use when asked to review/optimize/update LinkedIn
   or sync LinkedIn with the resume. Triggers on "review my LinkedIn", "optimize my LinkedIn", "sync
   LinkedIn with my resume", "is my LinkedIn up to date".
 ---
@@ -31,11 +31,10 @@ You (Claude Code) are the model. Read the profile and the bank directly.
      the desktop app's pane; load the `anthropic-skills:built-in-browser` skill and follow it.
   2. **Claude in Chrome** (`mcp__claude-in-chrome__*`; CLI: `claude --chrome`) — load the
      `anthropic-skills:chrome-browser` skill and follow it.
-  3. **PDF export** — LinkedIn profile → More → Save to PDF, dropped into `artifacts/linkedin/`
-     (or any path Jacob gives). Works in any browser, including Brave.
 
   Check with ToolSearch which browser tools exist; don't use other browser automation (e.g.
-  agent-browser) — LinkedIn sign-in happens only in a browser Jacob can see.
+  agent-browser) — LinkedIn sign-in happens only in a browser Jacob can see. If neither browser is
+  available, say so and stop; there is no file-based fallback.
 - `artifacts/linkedin/paste-list-*.md` — earlier approved paste lists; the newest says what changed
   last time and is the only baseline kept (no profile snapshots).
 - `artifacts/contributions/claims.yaml` — read as text: section comments (`# ── …`) carry caveats
@@ -58,10 +57,8 @@ You (Claude Code) are the model. Read the profile and the bank directly.
      `tabs_context`; the pane may be hidden), then ask him to sign in himself — never type
      credentials. Wait, then continue.
    - **Site permission pending or refused**, or the browser doesn't respond: tell Jacob, then wait
-     or drop to the next source.
-   - **PDF:** use the newest profile PDF in `artifacts/linkedin/` (Read tool) and skip to step 3.
-     If there's none, ask Jacob for a Save-to-PDF export and stop.
-2. **Read, read-only** (browser only). `get_page_text` (or `read_page`) on the profile, then on
+     or drop to the next browser.
+2. **Read, read-only**. `get_page_text` (or `read_page`) on the profile, then on
    `…/details/experience/` and `…/details/skills/` (the main page truncates both). Only these
    pages; no clicks on Edit, Connect, Message, or posts; no repeated reloads. Close tabs you opened.
 3. **Consistency audit.** Check every number, title, date, domain list, and client description. A
@@ -96,7 +93,7 @@ You (Claude Code) are the model. Read the profile and the bank directly.
 In chat (Jacob may not have watched the browser pane — say what you read):
 
 ```text
-Read     <pages read | PDF file> · last paste list: <date | none>
+Read     <pages read> · last paste list: <date | none>
 Audit (most severe first)
   1. [section] <finding> — live: "<text>" | bank: <value> (<claim id>) | resume: <value>
      Fix: "<paste-ready text>"  — or —  needs Jacob: <the decision>

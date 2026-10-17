@@ -17,8 +17,10 @@ versioning scheme is adopted.
   The approved paste list in `artifacts/linkedin/` is the record and the next review's baseline;
   the live profile is always re-readable.
 - `tailored-render` applies the blog voice to long-form only; short copy starts from resume
-  wording and gets a `/no-ai-slop` detect pass. The first LinkedIn review showed the blog tics
-  read as AI slop in a 300-character About.
+  wording. Every draft, long or short, gets a `/no-ai-slop` detect pass. The first LinkedIn
+  review showed the blog tics read as AI slop in a 300-character About.
+- `linkedin-review` drops the Save-to-PDF fallback inherited from the original skill; the live
+  profile through a browser is the only input.
 - `AGENTS.md` pointed at `brainspace/docs/knowledge-base.md`; the file lives at
   `docs/reference/knowledge-base.md`.
 
