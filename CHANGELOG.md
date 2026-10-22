@@ -8,6 +8,13 @@ versioning scheme is adopted.
 
 ## [Unreleased]
 
+### Changed — `jd-analyzer` reads the target profile for direction fit
+
+- Direction fit now comes from `brainspace/career/target-profile.md` (role shape, dealbreakers,
+  company-shape bars) instead of the hedged Career direction paragraph in about-jacob. A posting
+  the profile says to skip is skip regardless of score. The profile was written 2026-10-21 from a
+  long interview-style session.
+
 ### Changed — tracking rule, no LinkedIn snapshots, short-copy voice rule
 
 - `CHANGELOG.md` is now the tracker for all changes; specs are reserved for real development

@@ -33,9 +33,12 @@ You (Claude Code) are the model. Read the JD and the bank directly.
 - `artifacts/contributions/claims.yaml` — **read it as text, not only parsed**: the section comments
   (`# ── …`) carry load-bearing caveats (e.g. "never 'product lead'", "client-reported", "co-built",
   "never claim … launched it") that a YAML parser drops.
-- `foundation/about-jacob.md` — hard facts: degree and graduation year, and the **Career direction**
-  section (the real steering signal). It names clients — never copy those names into output.
-- `career/job-search.md` — current search state; often thin, so lean on about-jacob for direction.
+- `career/target-profile.md` — **the steering signal**: role shape, what drains Jacob, company
+  shapes with their bars, domains, and the signals to check on any posting. Direction fit is judged
+  against this, not against the posting's own framing.
+- `foundation/about-jacob.md` — hard facts: degree and graduation year. It names clients — never
+  copy those names into output.
+- `career/job-search.md` — current search state (pipeline, backlog).
 
 ### Claim fields to use
 
@@ -86,7 +89,12 @@ You (Claude Code) are the model. Read the JD and the bank directly.
    | 50–59% | stretch | stretch |
    | under 50% | likely skip | skip |
 
-   Weigh against the Career direction in about-jacob — say in one clause if it changes the call.
+   Then **weigh against `career/target-profile.md`**: does the role sit upstream of the spec with
+   users and design in the loop, or is it spec execution on a feature squad? Does the company
+   shape clear its bar (startup: belief in product and team; scale-up: an interesting function with
+   a real product trio)? A posting the profile says to skip is **skip** even at a high match score;
+   say which profile line decided it. Otherwise say in one clause whether the profile strengthens
+   or weakens the call.
 5. **Gaps, honestly.**
    - **Dealbreaker**: a hard constraint Jacob can't meet (years below 75% of the threshold, license,
      clearance). If the role is on-site, hybrid, or region-restricted and Jacob's location or
