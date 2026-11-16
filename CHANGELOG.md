@@ -8,6 +8,20 @@ versioning scheme is adopted.
 
 ## [Unreleased]
 
+### Changed — bank claims gain `refs`, themes become a closed list, enrichment cross-references tickets
+
+- `/log-work` session logs now carry `tickets:` and `tech:` frontmatter and a `Results / numbers`
+  section (replacing free-form `tags`, `Unblocked / mentored` and `Open threads`). Enrichment
+  uses `tickets` to find the claim a log's work already produced and extends it instead of
+  duplicating; a log with no tickets stands alone as a source.
+- Claims gain an internal `refs` field (ticket / PR ids) as the join key, and
+  `meta.worklog_folded` records logs folded into an existing claim so they aren't re-read.
+- `themes` is now a closed, documented list of 14: `system design` is narrowed to architecture
+  and `feature delivery`, `security`, `AI-assisted delivery`, `mentoring`, `client partnership`
+  and `product judgment` are added. The old list of eight left non-technical claims squeezed into
+  engineering themes and put `system design` on half the bank.
+- Enrichment sign-off is per batch, with only the judgment calls surfaced, not per claim.
+
 ### Changed — `jd-analyzer` reads the target profile for direction fit
 
 - Direction fit now comes from `brainspace/career/target-profile.md` (role shape, dealbreakers,
