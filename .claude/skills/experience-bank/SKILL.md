@@ -58,6 +58,8 @@ Each claim in `claims.yaml`:
     ...
   source: <worklog-filename>            # any worklog-sourced claim — the entry it came from (dedup key)
   agent_assisted: true | false          # set true if it came from an AI-assisted session log
+  verified: <YYYY-MM-DD>                # Jacob checked this wording against its source at a render — absent = unchecked
+  correction: <one line>                # what Jacob corrected, e.g. "co-built with a teammate, not sole" — binding
 ```
 
 ### Themes
@@ -89,6 +91,14 @@ Add a theme only with Jacob's ok, and add it to this table and to the header com
 tracked under. It is the join key between a claim, the backlog rows it came from, and the session
 logs that carry the same ids in their `tickets:` frontmatter. Fill it whenever the source names
 them; leave it off when the work was untracked. Like `project`, it never appears in a render.
+
+**`verified` and `correction`** are how an overstated claim gets caught and stays fixed.
+`verified` is set only by the `tailored-render` skill, when Jacob accepts a render that used the
+claim after seeing its evidence. Nothing else sets it: not extraction, not enrichment, not the
+enrich-bank routine. If you change a verified claim's wording, scope or numbers, remove its
+`verified` date — the new wording has not been checked. `correction` records a fix Jacob made;
+it outranks the source. When a log or summary says more than a correction allows, the correction
+wins, and no later run may widen the claim back.
 
 **`type`** is a first-class split, surfaced as top-level groups in the index. It's orthogonal to
 `source` (where the claim came from) and `agent_assisted` (whether an AI agent was involved):
@@ -146,6 +156,8 @@ the bank from the worklog" and by the weekly review. Source: `~/Projects/brainsp
 3. **Cross-reference before extracting.** Session logs written since 2026-11-16 carry `tickets:`
    and `tech:` frontmatter (older ones carry `tags:` and name tickets only in prose — read those
    for ids instead).
+   - **The claim carries a `correction`** → read it first and stay inside it, whatever the
+     log says.
    - **A ticket matches an existing claim's `refs`** → that work already has a claim. Don't add a
      second one: extend the existing claim with what only the log knows (the decision and why, a
      figure from `Results / numbers`), and add any new ids to its `refs`. Leave its `source`
@@ -186,6 +198,9 @@ the bank from the worklog" and by the weekly review. Source: `~/Projects/brainsp
 Jacob curates conversationally, not by editing YAML. When he says "bump X to featured", "that's not a
 hook", "add a claim about Y", make the edit in `claims.yaml` and rebuild the index. Strength/hook are
 only filters for renders, so they don't need to be perfect up front.
+
+When he says a claim overstates something, rewrite the claim to what he says is true, add a
+one-line `correction`, and set `verified` to today. Fix it here, never only in a render.
 
 ## Scope: professional + personal
 

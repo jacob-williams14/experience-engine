@@ -8,6 +8,17 @@ versioning scheme is adopted.
 
 ## [Unreleased]
 
+### Added — claims are checked where they are used: render-time evidence, `verified`, `correction`
+
+- `tailored-render` now shows, in chat under each render, the evidence for every unverified
+  claim it used: source file, scope, agent-assisted or not, each number with its caveat, and
+  anything the wording stretches. Accepting the render stamps those claims `verified`.
+- Why: enrichment PRs can now merge without Jacob, and he does not review the bank claim by
+  claim. A render uses a dozen claims, so that is where an overstated one is cheap to catch.
+- A `correction` note on a claim records a fix he made and binds later enrichment, so a source
+  log that overstates cannot reintroduce it. Changing a verified claim's wording clears
+  `verified`.
+
 ### Changed — bank claims gain `refs`, themes become a closed list, enrichment cross-references tickets
 
 - `/log-work` session logs now carry `tickets:` and `tech:` frontmatter and a `Results / numbers`
