@@ -30,6 +30,7 @@ re-derivable intermediates. The full contract is at
 ```text
 READS   brainspace/data/{git-logs,backlogs,voice-samples}/   +  career/atomic/worklog/
 WRITES  brainspace/artifacts/{project-summaries,contributions,linkedin,bio}/
+        + career/postings/ and career/job-search.md Pipeline (job-scout)
 REPO    holds no durable data — only voice-cache/ (cache) and .tmp/ (intermediates)
 ```
 
@@ -48,11 +49,14 @@ look for the old generator scripts (deleted).
 - **`voice-signature`** — blog posts → writing-voice signature (incl. optional style-evolution).
 - **`jd-analyzer`** — job description → match score backed by claim ids, honest gaps, and the
   claim set to hand to `tailored-render`.
+- **`job-scout`** — orchestrates a job sweep: Haiku scouts find roles, the top N are triaged, Sonnet
+  agents run `jd-analyzer` on each (saved to `career/postings/`), and the Pipeline table is updated.
 - **`linkedin-review`** — reads the live LinkedIn profile (built-in browser or Claude in Chrome, read-only), audits it
   against the bank and resume, and proposes numbered paste-ready fixes; the approved paste list is
   saved to `artifacts/linkedin/`.
 
 They chain `project-summary → experience-bank → tailored-render`, with `voice-signature` feeding renders.
+`job-scout` fans out `jd-analyzer` across many postings.
 
 ## Hard rules
 

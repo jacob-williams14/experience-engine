@@ -8,6 +8,13 @@ versioning scheme is adopted.
 
 ## [Unreleased]
 
+### Added — `job-scout` skill
+
+- Orchestrates a job-search sweep: Haiku scouts per company bucket (public ATS JSON APIs first),
+  orchestrator triage, Sonnet `jd-analyzer` agents per top posting saved to `career/postings/`,
+  and Pipeline rows recorded in `career/job-search.md`. The orchestrator never reads JD bodies or
+  the bank. `jd-analyzer` now names the canonical save path.
+
 ### Added — claims are checked where they are used: render-time evidence, `verified`, `correction`
 
 - `tailored-render` now shows, in chat under each render, the evidence for every unverified

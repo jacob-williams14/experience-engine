@@ -134,7 +134,8 @@ Hand-off      <ordered claim ids>
 
 When the JD lists no responsibilities, write `Duties none listed`. When the recommendation is skip,
 write `Hand-off skipped (recommendation is skip)` and drop its sub-lines. Snapshot claims are noted in
-`Caveats`. Save only if Jacob asks.
+`Caveats`. Save only if Jacob asks (or when `job-scout` runs you); the canonical path is
+`career/postings/<date>-<company>-<role-slug>.md` in the KB.
 
 ## Next: tailored-render
 
