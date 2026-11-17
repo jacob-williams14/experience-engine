@@ -51,9 +51,30 @@ render directly.
      wording instead. Either way, run `/no-ai-slop` in detect mode on every draft before showing
      it — the voice's tics ("Here's the thing", binary contrasts, punchy fragments) are exactly
      what it flags.
-4. **Steer with Jacob.** He curates at this step — "lead with the courts work", "drop that one",
+4. **Show the evidence** under the render, in chat only. Jacob does not review the bank claim by
+   claim, and enrichment PRs can merge without him, so this is where a claim gets checked: when
+   it is about to be used. For every claim the render draws on that has no `verified` date,
+   give one line:
+   - the bullet it backs and the claim `id`,
+   - where it came from: the worklog file in `source`, or the project summary for its `project`,
+   - `scope`, and whether it is `agent_assisted` (so "built" is read as "directed and reviewed"),
+   - each number in the bullet with where the source states it and any caveat it carries,
+   - anything in the source that the claim's wording stretches: a teammate's part, a co-build,
+     a result that was partial. Read the source to check; say "source agrees" when it does.
+
+   List already-verified claims in a single line of ids. If a claim's source can't be found or
+   doesn't support the wording, say so plainly rather than rendering around it.
+
+   This block names internal things (worklog filenames, project codenames, ticket ids). It is
+   for Jacob's eyes in chat and **never** goes into the document or a saved render.
+5. **Steer with Jacob.** He curates at this step — "lead with the courts work", "drop that one",
    "more plain-language". His sign-off here is the quality gate. Adopt a render for a real surface
    only if it's clearly as good or better than what he already has.
+6. **Record what he checked.** When Jacob accepts the render, set `verified: <today's date>` on
+   each unverified claim it used that he did not question, and rebuild the index
+   (`bun run buildBankIndex`). When he corrects one ("I co-built that", "that number was one
+   run"), fix the **claim** through the `experience-bank` skill, add its `correction` note, then
+   re-render; a corrected claim is verified as of the fix. Never patch only the render.
 
 ## Lenses
 

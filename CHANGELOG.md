@@ -15,6 +15,31 @@ versioning scheme is adopted.
   and Pipeline rows recorded in `career/job-search.md`. The orchestrator never reads JD bodies or
   the bank. `jd-analyzer` now names the canonical save path.
 
+### Added — claims are checked where they are used: render-time evidence, `verified`, `correction`
+
+- `tailored-render` now shows, in chat under each render, the evidence for every unverified
+  claim it used: source file, scope, agent-assisted or not, each number with its caveat, and
+  anything the wording stretches. Accepting the render stamps those claims `verified`.
+- Why: enrichment PRs can now merge without Jacob, and he does not review the bank claim by
+  claim. A render uses a dozen claims, so that is where an overstated one is cheap to catch.
+- A `correction` note on a claim records a fix he made and binds later enrichment, so a source
+  log that overstates cannot reintroduce it. Changing a verified claim's wording clears
+  `verified`.
+
+### Changed — bank claims gain `refs`, themes become a closed list, enrichment cross-references tickets
+
+- `/log-work` session logs now carry `tickets:` and `tech:` frontmatter and a `Results / numbers`
+  section (replacing free-form `tags`, `Unblocked / mentored` and `Open threads`). Enrichment
+  uses `tickets` to find the claim a log's work already produced and extends it instead of
+  duplicating; a log with no tickets stands alone as a source.
+- Claims gain an internal `refs` field (ticket / PR ids) as the join key, and
+  `meta.worklog_folded` records logs folded into an existing claim so they aren't re-read.
+- `themes` is now a closed, documented list of 14: `system design` is narrowed to architecture
+  and `feature delivery`, `security`, `AI-assisted delivery`, `mentoring`, `client partnership`
+  and `product judgment` are added. The old list of eight left non-technical claims squeezed into
+  engineering themes and put `system design` on half the bank.
+- Enrichment sign-off is per batch, with only the judgment calls surfaced, not per claim.
+
 ### Changed — `jd-analyzer` reads the target profile for direction fit
 
 - Direction fit now comes from `brainspace/career/target-profile.md` (role shape, dealbreakers,

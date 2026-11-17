@@ -45,8 +45,9 @@ Each claim in `claims.yaml`:
   type: technical | non-technical       # technical = mined from project data; non-technical = the "why"
   context: professional | personal      # professional = Atomic/client work; personal = side projects
   project: <internal-codename>          # NOT for output
+  refs: [<ticket / PR ids>]             # internal join key to backlog work and session logs — NOT for output
   domain: <public-safe domain string>   # USE THIS in renders, never the client name
-  themes: [technical leadership | system design | cross-domain adaptability | reliability | growth | devops/CI | i18n | testing]
+  themes: [<one to three from the theme list below>]
   tech: [named technologies from the source only]   # usually [] for non-technical claims
   scope: IC | owned-feature | co-tech-lead
   strength: featured | solid | filler   # proposed default; Jacob adjusts at render time
@@ -57,7 +58,47 @@ Each claim in `claims.yaml`:
     ...
   source: <worklog-filename>            # any worklog-sourced claim — the entry it came from (dedup key)
   agent_assisted: true | false          # set true if it came from an AI-assisted session log
+  verified: <YYYY-MM-DD>                # Jacob checked this wording against its source at a render — absent = unchecked
+  correction: <one line>                # what Jacob corrected, e.g. "co-built with a teammate, not sole" — binding
 ```
+
+### Themes
+
+`themes` is a closed list — one to three per claim, the narrowest that fit. Renders filter on it,
+so a theme carried by half the bank selects nothing.
+
+| Theme | Use it for |
+| --- | --- |
+| `technical leadership` | leading a team or a technical direction: setting the approach, owning calls, running reviews |
+| `system design` | architecture, data modeling, integration contracts, cross-cutting patterns — **not** an ordinary feature build |
+| `feature delivery` | building and shipping a user-facing feature end to end |
+| `reliability` | correctness, stability, hard defects, upgrades and migrations kept safe |
+| `testing` | test infrastructure, test strategy, QA process |
+| `devops/CI` | builds, pipelines, releases, environments |
+| `security` | auth and access design, supply-chain hardening, sandboxing, secrets, backups |
+| `AI-assisted delivery` | designing, running or measuring agent-assisted development: specs, review, sandboxes, pipelines |
+| `mentoring` | growing another person: onboarding, pairing, coaching, feedback |
+| `client partnership` | working with client stakeholders: bridging, shaping the account, giving them the evidence to decide |
+| `product judgment` | defining or correcting what gets built: scoping, premise checks, feature definition |
+| `cross-domain adaptability` | ramping on an unfamiliar domain, platform or discipline |
+| `growth` | Jacob's own growth in scope or skill |
+| `i18n` | internationalization and localization |
+
+Add a theme only with Jacob's ok, and add it to this table and to the header comment of
+`claims.yaml` in the same change.
+
+**`refs`** holds the ticket keys (`PRO-3008`) and PRs (`<repo>#<number>`) a claim's work was
+tracked under. It is the join key between a claim, the backlog rows it came from, and the session
+logs that carry the same ids in their `tickets:` frontmatter. Fill it whenever the source names
+them; leave it off when the work was untracked. Like `project`, it never appears in a render.
+
+**`verified` and `correction`** are how an overstated claim gets caught and stays fixed.
+`verified` is set only by the `tailored-render` skill, when Jacob accepts a render that used the
+claim after seeing its evidence. Nothing else sets it: not extraction, not enrichment, not the
+enrich-bank routine. If you change a verified claim's wording, scope or numbers, remove its
+`verified` date — the new wording has not been checked. `correction` records a fix Jacob made;
+it outranks the source. When a log or summary says more than a correction allows, the correction
+wins, and no later run may widen the claim back.
 
 **`type`** is a first-class split, surfaced as top-level groups in the index. It's orthogonal to
 `source` (where the claim came from) and `agent_assisted` (whether an AI agent was involved):
@@ -93,7 +134,8 @@ below.
    `~/Projects/brainspace/artifacts/project-summaries/<project>-project-summary.md` fully.
 2. List the project's existing claims in `claims.yaml` so you don't duplicate.
 3. Extract genuinely distinct accomplishments as claim blocks (schema above), anonymized. Claims
-   pulled from a project summary are `type: technical`.
+   pulled from a project summary are `type: technical`. Set `refs` to the ticket / PR ids the
+   summary cites for that work.
 4. Append them under the right domain section of `claims.yaml`.
 5. Rebuild the index: `bun run buildBankIndex`.
 
@@ -108,10 +150,24 @@ the bank from the worklog" and by the weekly review. Source: `~/Projects/brainsp
    session logs (`type: session-log`, named `YYYY-MM-DD-HHMM-<slug>.md`). **Skip** agent handoff
    entries (frontmatter `type: handoff`) and `README.md` — process chatter, not career material.
 2. **Skip what's already ingested.** Collect the `source:` values of **all** existing claims. Skip any
-   worklog entry whose filename already appears as a `source:`. This is the real idempotency guard — it
+   worklog entry whose filename already appears as a `source:` or under `meta.worklog_folded`. This is the real idempotency guard — it
    survives backfilled/out-of-order entries. (`meta.worklog_enriched_through` is just a cursor for
    where you left off; don't rely on it to dedup.)
-3. **Extract** claims from each remaining entry — **`type: technical`** (what was built) and/or
+3. **Cross-reference before extracting.** Session logs written since 2026-11-16 carry `tickets:`
+   and `tech:` frontmatter (older ones carry `tags:` and name tickets only in prose — read those
+   for ids instead).
+   - **The claim carries a `correction`** → read it first and stay inside it, whatever the
+     log says.
+   - **A ticket matches an existing claim's `refs`** → that work already has a claim. Don't add a
+     second one: extend the existing claim with what only the log knows (the decision and why, a
+     figure from `Results / numbers`), and add any new ids to its `refs`. Leave its `source`
+     alone; record the log as handled by listing its filename under `meta.worklog_folded`.
+   - **A ticket matches nothing, or `tickets:` is empty** → the log is the only record of that
+     work. Extract from it as a standalone source, and copy its `tickets` into the claim's `refs`.
+   - Take `tech` for a new claim from the log's `tech:` field, checked against the body. A number
+     enters a claim only from the log's `Results / numbers` section (or a stated measurement in
+     an older log), carrying its caveat; a log that says `None this session.` contributes none.
+4. **Extract** claims from each remaining entry — **`type: technical`** (what was built) and/or
    **`type: non-technical`** (a decision and why, who was mentored/unblocked, a process/leadership
    move). On every extracted claim set `source:` to the worklog filename, carry `agent_assisted: true`
    if the entry's frontmatter says so, and set `context:` (`personal` for side projects, else
@@ -119,15 +175,18 @@ the bank from the worklog" and by the weekly review. Source: `~/Projects/brainsp
    altitude** — what he directed, decided, reviewed, integrated — never "I built X" when an agent did
    most of it. Anonymize per the confidentiality rules below and honor the worklog's NDA note. **Never
    invent** — if an entry is still a template/placeholder (unfilled `⟵ add …` prompts, no real content
-   yet), treat it as **not yet written**: extract nothing, and in step 5 do **not** advance the
+   yet), treat it as **not yet written**: extract nothing, and in step 6 do **not** advance the
    watermark past it (it's pending Jacob's fill-in). The `source:` guard re-surfaces it once it has
    content.
-4. **Get sign-off.** Propose the candidate claims in chat — Jacob approves, edits, or drops each.
-   This is the quality gate; nothing is written without his ok.
-5. **Write** the approved claims under the right domain (or a `working style / approach` style domain
+5. **Get sign-off on the batch, not each claim.** Summarize the run in chat — how many claims
+   added and extended, per project, and call out only the ones that need a human call: a number
+   with a caveat, an attribution you couldn't settle, anything touching confidentiality. Jacob
+   approves the batch (or redirects it); he does not review claim by claim (decided 2026-11-16).
+   Nothing is written without that ok, and the diff of `claims.yaml` is the detailed record.
+6. **Write** the approved claims under the right domain (or a `working style / approach` style domain
    for cross-cutting ones), then advance `meta.worklog_enriched_through` to the latest date you
    **completed** — i.e. the newest entry you either extracted from or confirmed is genuinely
-   complete-but-uneventful. Do **not** advance it over a still-unwritten template (see step 3). Then
+   complete-but-uneventful. Do **not** advance it over a still-unwritten template (see step 4). Then
    rebuild the index (`bun run buildBankIndex`). The watermark is advisory; the per-claim `source:` is
    the real dedup guard, so a thin entry left behind the watermark is still revisited correctly.
 
@@ -139,6 +198,9 @@ the bank from the worklog" and by the weekly review. Source: `~/Projects/brainsp
 Jacob curates conversationally, not by editing YAML. When he says "bump X to featured", "that's not a
 hook", "add a claim about Y", make the edit in `claims.yaml` and rebuild the index. Strength/hook are
 only filters for renders, so they don't need to be perfect up front.
+
+When he says a claim overstates something, rewrite the claim to what he says is true, add a
+one-line `correction`, and set `verified` to today. Fix it here, never only in a render.
 
 ## Scope: professional + personal
 
