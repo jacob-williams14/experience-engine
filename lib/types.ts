@@ -36,27 +36,11 @@ export interface BacklogContribution {
 	project: Project;
 	tasks: BacklogTask[]; // raw CSV rows assigned to the developer
 	metadata: {
-		totalRows: number;
 		assigneeColumns: string[]; // which columns were used for filtering
 		allColumns: string[]; // all columns in the CSV
 	};
 }
 
-export interface ProcessingResult<T> {
-	success: boolean;
-	data?: T;
-	errors: ProcessingErrorData[];
-	warnings: string[];
-	metadata: {
-		processingTime: number;
-		recordsProcessed: number;
-		recordsSkipped: number;
-	};
-}
-
-export interface ProcessingErrorData {
-	type: "validation" | "processing";
-	message: string;
-	context?: Record<string, unknown>;
-	severity: "low" | "medium" | "high" | "critical";
-}
+export type ProcessingResult<T> =
+	| { success: true; data: T; warnings: string[] }
+	| { success: false; error: string };

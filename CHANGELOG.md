@@ -29,6 +29,10 @@ versioning scheme is adopted.
   `@handle` as a name, folds accents, strips an Excel BOM, matches `--column` in any case, and
   fails when no row matches (listing the assignees it saw). Both parsers share argument parsing,
   and a flag missing its value is an error. The index also refuses a non-list `tech`.
+- From `/simplify`: both parsers go through one `partitionByDeveloper` (match keys built once), so
+  both fail the same way when nothing matches, by listing who they saw. A backlog with two
+  candidate assignee columns now fails and asks for `--column` instead of OR-ing them. Results are
+  a plain success/error union; tests call the renderer and parsers in-process.
 
 ### Changed — skills close confidentiality and caveat gaps
 
@@ -42,8 +46,8 @@ versioning scheme is adopted.
 ### Added — `bun test` suite over fixtures
 
 - `test/` covers the parsers' attribution, the index renderer (golden output, internal fields
-  kept out, the sorter's line limit, refusals) and root resolution. Run against the old code, 16
-  of the first 22 tests fail.
+  kept out, the sorter's line limit, refusals) and root resolution. The first version of the
+  suite (22 tests) failed 16 against the old code.
 
 ### Removed — dead code
 

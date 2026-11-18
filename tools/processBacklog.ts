@@ -2,16 +2,27 @@
 
 /**
  * Backlog Processing Tool
- * Processes CSV backlog files and extracts the rows assigned to one developer.
+ * Parses a CSV backlog and keeps the rows assigned to one developer.
  */
 
 import csv from "csv-parser";
 import { createReadStream } from "fs";
 import { join } from "path";
-import { parseArgs, setupGracefulExit, subjects } from "../lib/cliUtils.js";
+import {
+	IDENTITY_FLAGS,
+	parseParserArgs,
+	projectFor,
+	report,
+	setupGracefulExit,
+} from "../lib/cliUtils.js";
 import { CONFIG } from "../lib/config.js";
-import { matchesDeveloper, parseAssignees } from "../lib/identity.js";
-import type { BacklogContribution, BacklogTask, ProcessingResult } from "../lib/types.js";
+import { noMatch, parseAssignees, partitionByDeveloper } from "../lib/identity.js";
+import type {
+	BacklogContribution,
+	BacklogTask,
+	Developer,
+	ProcessingResult,
+} from "../lib/types.js";
 
 const ASSIGNEE_PATTERNS = ["assignee", "assigned", "members", "owner", "responsible"];
 
@@ -34,127 +45,73 @@ function parseCSV(filePath: string): Promise<BacklogTask[]> {
 const NOT_THE_DOER = /\b(by|from|previous|prior|original|ids?)\b/;
 
 /**
- * Columns that name who did the work: the one given with --column (any case), else any whose
- * header contains an assignee-like word and isn't one of the exclusions above.
+ * The column that says who did the work: the one given with --column (any case), else the single
+ * header with an assignee-like word that isn't excluded above. More than one candidate is an
+ * error: picking one, or OR-ing them, could credit a teammate named in the other.
  */
-function findAssigneeColumns(headers: string[], explicit?: string): string[] {
-	if (explicit) return headers.filter((h) => h.toLowerCase() === explicit.toLowerCase());
-	return headers.filter((header) => {
+function findAssigneeColumn(headers: string[], explicit?: string): string | { error: string } {
+	if (explicit) {
+		const found = headers.find((h) => h.toLowerCase() === explicit.toLowerCase());
+		return found ?? { error: `Column "${explicit}" is not in this CSV` };
+	}
+	const candidates = headers.filter((header) => {
 		const lower = header.toLowerCase();
 		return ASSIGNEE_PATTERNS.some((p) => lower.includes(p)) && !NOT_THE_DOER.test(lower);
 	});
-}
-
-function failure(message: string, startTime: number): ProcessingResult<BacklogContribution> {
+	if (candidates.length === 1) return candidates[0]!;
 	return {
-		success: false,
-		errors: [{ type: "processing", message, severity: "critical" }],
-		warnings: [],
-		metadata: { processingTime: Date.now() - startTime, recordsProcessed: 0, recordsSkipped: 0 },
+		error:
+			(candidates.length === 0
+				? `No assignee column found (looked for: ${ASSIGNEE_PATTERNS.join(", ")}). `
+				: `Several possible assignee columns: ${candidates.join(", ")}. `) +
+			"Name the column that says who did the work with --column <header>.",
 	};
 }
 
 async function processBacklog(
 	filePath: string,
-	developerName: string,
+	developer: Developer,
 	projectName: string,
-	options: {
-		developerEmail?: string;
-		developerUsername?: string;
-		developerAliases?: string[];
-		assigneeColumn?: string;
-		saveToFile?: boolean;
-		outputDir?: string;
-	} = {}
+	options: { assigneeColumn?: string; saveToFile?: boolean; outputDir?: string } = {}
 ): Promise<ProcessingResult<BacklogContribution>> {
-	const startTime = Date.now();
-
+	console.log(`📊 Processing backlog: ${filePath}`);
+	let rows: BacklogTask[];
 	try {
-		console.log(`📊 Processing backlog: ${filePath}`);
-		console.log(`🔍 Filtering for developer: ${developerName}`);
-
-		const csvRows = await parseCSV(filePath);
-		const headers = csvRows.length > 0 ? Object.keys(csvRows[0]!) : [];
-		console.log(`📄 Parsed ${csvRows.length} CSV records`);
-		console.log(`🔍 Available columns: ${headers.join(", ")}`);
-
-		// Without an assignee column there is no way to tell whose work a row is. Keeping every
-		// row would credit the whole team's tickets to the developer, so stop and ask instead.
-		const assigneeColumns = findAssigneeColumns(headers, options.assigneeColumn);
-		if (assigneeColumns.length === 0) {
-			return failure(
-				options.assigneeColumn
-					? `Column "${options.assigneeColumn}" is not in this CSV`
-					: `No assignee column found (looked for: ${ASSIGNEE_PATTERNS.join(", ")}). ` +
-							"Name the column that says who did the work with --column <header>.",
-				startTime
-			);
-		}
-		console.log(`🎯 Assignee columns: ${assigneeColumns.join(", ")}`);
-
-		const { developer, project, stem } = subjects(
-			{
-				name: developerName,
-				email: options.developerEmail,
-				username: options.developerUsername,
-				aliases: options.developerAliases,
-			},
-			projectName
-		);
-
-		const tasks: BacklogTask[] = [];
-		const others = new Set<string>();
-		for (const row of csvRows) {
-			const cells = assigneeColumns.map((column) => row[column] ?? "");
-			const people = cells.flatMap(parseAssignees);
-			if (people.some((who) => matchesDeveloper(who, developer))) tasks.push(row);
-			else cells.filter(Boolean).forEach((cell) => others.add(cell));
-		}
-		console.log(`🎯 Found ${tasks.length} rows assigned to ${developerName}`);
-		// Matching is exact, so an empty result usually means another spelling: show the
-		// assignees that were seen, and fail rather than hand back an empty backlog.
-		if (tasks.length === 0) {
-			const seen = [...others].slice(0, 20).join(" · ") || "(every cell was empty)";
-			return failure(
-				`No rows assigned to ${developerName}. Assignees seen: ${seen}. ` +
-					"Pass --alias / --username / --email for the spelling that is the developer.",
-				startTime
-			);
-		}
-
-		const data: BacklogContribution = {
-			developer,
-			project,
-			tasks,
-			metadata: { totalRows: tasks.length, assigneeColumns, allColumns: headers },
-		};
-
-		if (options.saveToFile) {
-			const outputFile = join(
-				options.outputDir ?? CONFIG.PROCESSED_DATA_DIR,
-				`${stem}-backlog-data.json`
-			);
-			await Bun.write(outputFile, JSON.stringify(data, null, 2));
-			console.log(`💾 Saved processed data to: ${outputFile}`);
-		}
-
-		return {
-			success: true,
-			data,
-			errors: [],
-			warnings: [],
-			metadata: {
-				processingTime: Date.now() - startTime,
-				recordsProcessed: tasks.length,
-				recordsSkipped: csvRows.length - tasks.length,
-			},
-		};
+		rows = await parseCSV(filePath);
 	} catch (error) {
-		return failure(
-			`Failed to process backlog: ${error instanceof Error ? error.message : String(error)}`,
-			startTime
-		);
+		return { success: false, error: `Cannot read ${filePath}: ${(error as Error).message}` };
 	}
+	const headers = rows.length > 0 ? Object.keys(rows[0]!) : [];
+	console.log(`📄 Parsed ${rows.length} CSV records; columns: ${headers.join(", ")}`);
+
+	const column = findAssigneeColumn(headers, options.assigneeColumn);
+	if (typeof column !== "string") return { success: false, error: column.error };
+	console.log(`🎯 Assignee column: ${column}`);
+
+	const { mine, others } = partitionByDeveloper(
+		rows,
+		(row) => parseAssignees(row[column] ?? ""),
+		developer
+	);
+	if (mine.length === 0) return { success: false, error: noMatch("rows", developer, others) };
+	console.log(`🎯 Found ${mine.length} rows assigned to ${developer.name}`);
+
+	const { project, stem } = projectFor(developer, projectName);
+	const data: BacklogContribution = {
+		developer,
+		project,
+		tasks: mine,
+		metadata: { assigneeColumns: [column], allColumns: headers },
+	};
+	if (options.saveToFile) {
+		const outputFile = join(
+			options.outputDir ?? CONFIG.PROCESSED_DATA_DIR,
+			`${stem}-backlog-data.json`
+		);
+		await Bun.write(outputFile, JSON.stringify(data, null, 2));
+		console.log(`💾 Saved processed data to: ${outputFile}`);
+	}
+	return { success: true, data, warnings: [] };
 }
 
 // ===== CLI Interface =====
@@ -175,28 +132,16 @@ Example:
 
 async function main() {
 	setupGracefulExit();
-	const { positional, flags } = parseArgs(process.argv.slice(2), USAGE, {
-		"--email": "value",
-		"--username": "value",
-		"--alias": "list",
-		"--column": "value",
-		"--save": "bool",
+	const { filePath, developer, projectName, flags } = parseParserArgs(
+		process.argv.slice(2),
+		USAGE,
+		{ ...IDENTITY_FLAGS, "--column": "value" } as const
+	);
+	const result = await processBacklog(filePath, developer, projectName, {
+		assigneeColumn: flags["--column"],
+		saveToFile: flags["--save"],
 	});
-	const [filePath, developerName, projectName] = positional as [string, string, string];
-
-	const result = await processBacklog(filePath, developerName, projectName, {
-		developerEmail: flags["--email"] as string | undefined,
-		developerUsername: flags["--username"] as string | undefined,
-		developerAliases: flags["--alias"] as string[] | undefined,
-		assigneeColumn: flags["--column"] as string | undefined,
-		saveToFile: flags["--save"] === true,
-	});
-	if (!result.success) {
-		console.error("\n❌ Processing failed:");
-		result.errors.forEach((error) => console.error(`   ${error.message}`));
-		process.exit(1);
-	}
-	console.log(`\n✅ ${result.data!.metadata.totalRows} rows matched`);
+	report(result, `${result.success ? result.data.tasks.length : 0} rows matched`);
 }
 
 if (import.meta.main) {

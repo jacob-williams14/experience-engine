@@ -94,7 +94,7 @@ export function validateClaims(claims: Claim[]): string[] {
 }
 
 /** Renders index.md from the claims. Pure: warnings are returned, not printed. */
-export function renderIndex(claims: Claim[]): { markdown: string; warnings: string[]; summary: string } {
+export function renderIndex(claims: Claim[]): { markdown: string; warnings: string[] } {
 	// Group by type first (technical / non-technical), domains nested under each. Map is string-keyed
 	// because YAML can carry a value outside the ClaimType union (a typo like `type: tech`); those claims
 	// are surfaced with a warning rather than silently dropped from the index.
@@ -159,7 +159,7 @@ export function renderIndex(claims: Claim[]): { markdown: string; warnings: stri
 		}
 	}
 
-	return { markdown: lines.join("\n"), warnings, summary: typeSummary };
+	return { markdown: lines.join("\n"), warnings };
 }
 
 if (import.meta.main) {
@@ -175,9 +175,9 @@ if (import.meta.main) {
 		for (const e of errors) console.error(`   ${e}`);
 		process.exit(1);
 	}
-	const { markdown, warnings, summary } = renderIndex(claims);
+	const { markdown, warnings } = renderIndex(claims);
 	for (const w of warnings) console.warn(w);
 	// Bun.write auto-creates the parent dir; and reading SRC above already requires it to exist.
 	await Bun.write(OUT, markdown);
-	console.log(`✅ Wrote ${OUT} — ${claims.length} claims (${summary}).`);
+	console.log(`✅ Wrote ${OUT} — ${claims.length} claims.`);
 }
