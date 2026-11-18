@@ -8,16 +8,10 @@
 import csv from "csv-parser";
 import { createReadStream } from "fs";
 import { join } from "path";
-import { setupGracefulExit } from "../lib/cliUtils.js";
+import { parseArgs, setupGracefulExit, subjects } from "../lib/cliUtils.js";
 import { CONFIG } from "../lib/config.js";
 import { matchesDeveloper, parseAssignees } from "../lib/identity.js";
-import type {
-	BacklogContribution,
-	BacklogTask,
-	Developer,
-	ProcessingResult,
-	Project,
-} from "../lib/types.js";
+import type { BacklogContribution, BacklogTask, ProcessingResult } from "../lib/types.js";
 
 const ASSIGNEE_PATTERNS = ["assignee", "assigned", "members", "owner", "responsible"];
 
@@ -26,24 +20,28 @@ function parseCSV(filePath: string): Promise<BacklogTask[]> {
 		const rows: BacklogTask[] = [];
 		createReadStream(filePath)
 			.on("error", reject)
-			.pipe(csv())
+			// Excel's UTF-8 export starts with a BOM, which csv-parser leaves on the first header.
+			.pipe(csv({ mapHeaders: ({ header }) => header.replace(/^\uFEFF/, "").trim() }))
 			.on("data", (row: BacklogTask) => rows.push(row))
 			.on("end", () => resolve(rows))
 			.on("error", reject);
 	});
 }
 
+// Headers that carry an assignee word but name someone else ("Assigned By", "Previous Owner") or
+// hold opaque ids ("Assignee Id"). Crediting the person who assigned a ticket is the same error
+// as crediting a teammate.
+const NOT_THE_DOER = /\b(by|from|previous|prior|original|ids?)\b/;
+
 /**
- * Columns that name who did the work: the one given with --column, else any whose header contains
- * an assignee-like word. Id columns ("Assignee Id") are skipped: they hold opaque ids, not names.
+ * Columns that name who did the work: the one given with --column (any case), else any whose
+ * header contains an assignee-like word and isn't one of the exclusions above.
  */
 function findAssigneeColumns(headers: string[], explicit?: string): string[] {
-	if (explicit) return headers.filter((h) => h === explicit);
+	if (explicit) return headers.filter((h) => h.toLowerCase() === explicit.toLowerCase());
 	return headers.filter((header) => {
 		const lower = header.toLowerCase();
-		return (
-			ASSIGNEE_PATTERNS.some((p) => lower.includes(p)) && !/\bids?$/.test(lower)
-		);
+		return ASSIGNEE_PATTERNS.some((p) => lower.includes(p)) && !NOT_THE_DOER.test(lower);
 	});
 }
 
@@ -94,23 +92,35 @@ async function processBacklog(
 		}
 		console.log(`🎯 Assignee columns: ${assigneeColumns.join(", ")}`);
 
-		const developer: Developer = {
-			name: developerName,
-			email: options.developerEmail,
-			username: options.developerUsername,
-			aliases: options.developerAliases,
-		};
-		const project: Project = {
-			name: projectName,
-			slug: projectName.toLowerCase().replace(/\s+/g, "-"),
-		};
-
-		const tasks = csvRows.filter((row) =>
-			assigneeColumns.some((column) =>
-				parseAssignees(row[column] ?? "").some((who) => matchesDeveloper(who, developer))
-			)
+		const { developer, project, stem } = subjects(
+			{
+				name: developerName,
+				email: options.developerEmail,
+				username: options.developerUsername,
+				aliases: options.developerAliases,
+			},
+			projectName
 		);
+
+		const tasks: BacklogTask[] = [];
+		const others = new Set<string>();
+		for (const row of csvRows) {
+			const cells = assigneeColumns.map((column) => row[column] ?? "");
+			const people = cells.flatMap(parseAssignees);
+			if (people.some((who) => matchesDeveloper(who, developer))) tasks.push(row);
+			else cells.filter(Boolean).forEach((cell) => others.add(cell));
+		}
 		console.log(`🎯 Found ${tasks.length} rows assigned to ${developerName}`);
+		// Matching is exact, so an empty result usually means another spelling: show the
+		// assignees that were seen, and fail rather than hand back an empty backlog.
+		if (tasks.length === 0) {
+			const seen = [...others].slice(0, 20).join(" · ") || "(every cell was empty)";
+			return failure(
+				`No rows assigned to ${developerName}. Assignees seen: ${seen}. ` +
+					"Pass --alias / --username / --email for the spelling that is the developer.",
+				startTime
+			);
+		}
 
 		const data: BacklogContribution = {
 			developer,
@@ -122,7 +132,7 @@ async function processBacklog(
 		if (options.saveToFile) {
 			const outputFile = join(
 				options.outputDir ?? CONFIG.PROCESSED_DATA_DIR,
-				`${developerName.toLowerCase().replace(/\s+/g, "-")}-${project.slug}-backlog-data.json`
+				`${stem}-backlog-data.json`
 			);
 			await Bun.write(outputFile, JSON.stringify(data, null, 2));
 			console.log(`💾 Saved processed data to: ${outputFile}`);
@@ -164,44 +174,23 @@ Example:
   bun run tools/processBacklog.ts ~/Projects/brainspace/data/backlogs/<file>.csv "Jacob Williams" "Project" --save`;
 
 async function main() {
-	const args = process.argv.slice(2);
 	setupGracefulExit();
+	const { positional, flags } = parseArgs(process.argv.slice(2), USAGE, {
+		"--email": "value",
+		"--username": "value",
+		"--alias": "list",
+		"--column": "value",
+		"--save": "bool",
+	});
+	const [filePath, developerName, projectName] = positional as [string, string, string];
 
-	if (args.includes("--help") || args.includes("-h") || args[0] === "help") {
-		console.log(USAGE);
-		process.exit(0);
-	}
-	if (args.length < 3) {
-		console.error(USAGE);
-		process.exit(1);
-	}
-
-	const [filePath, developerName, projectName] = args;
-	const options: Parameters<typeof processBacklog>[3] = {};
-	for (let i = 3; i < args.length; i++) {
-		switch (args[i]) {
-			case "--email":
-				options.developerEmail = args[++i];
-				break;
-			case "--username":
-				options.developerUsername = args[++i];
-				break;
-			case "--alias":
-				(options.developerAliases ??= []).push(args[++i]!);
-				break;
-			case "--column":
-				options.assigneeColumn = args[++i];
-				break;
-			case "--save":
-				options.saveToFile = true;
-				break;
-			default:
-				console.error(`Unknown option: ${args[i]}\n\n${USAGE}`);
-				process.exit(1);
-		}
-	}
-
-	const result = await processBacklog(filePath!, developerName!, projectName!, options);
+	const result = await processBacklog(filePath, developerName, projectName, {
+		developerEmail: flags["--email"] as string | undefined,
+		developerUsername: flags["--username"] as string | undefined,
+		developerAliases: flags["--alias"] as string[] | undefined,
+		assigneeColumn: flags["--column"] as string | undefined,
+		saveToFile: flags["--save"] === true,
+	});
 	if (!result.success) {
 		console.error("\n❌ Processing failed:");
 		result.errors.forEach((error) => console.error(`   ${error.message}`));

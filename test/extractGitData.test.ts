@@ -2,7 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { existsSync, readFileSync } from "fs";
 import { join } from "path";
 import { extractGitData } from "../tools/extractGitData";
-import { fixture, tempDir } from "./helpers";
+import { fixture, run, tempDir } from "./helpers";
 
 const LOG = fixture("git-log.txt");
 const extract = (opts: Parameters<typeof extractGitData>[3] = {}) =>
@@ -52,5 +52,13 @@ describe("extractGitData attribution", () => {
 		const saved = join(dir, "dev-person-demo-git-data.json");
 		expect(existsSync(saved)).toBe(true);
 		expect(JSON.parse(readFileSync(saved, "utf8")).commits).toHaveLength(2);
+	});
+});
+
+describe("extractGitData CLI", () => {
+	test("a flag missing its value is an error, not silently ignored", () => {
+		const { code, out } = run(["run", "tools/extractGitData.ts", LOG, "Dev Person", "Demo", "--email"]);
+		expect(code).toBe(1);
+		expect(out).toContain("--email needs a value");
 	});
 });

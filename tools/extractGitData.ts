@@ -6,16 +6,14 @@
  */
 
 import { join } from "path";
-import { setupGracefulExit } from "../lib/cliUtils.js";
+import { parseArgs, setupGracefulExit, subjects } from "../lib/cliUtils.js";
 import { CONFIG } from "../lib/config.js";
 import { matchesDeveloper } from "../lib/identity.js";
 import type {
-	Developer,
 	GitCommit,
 	GitContribution,
 	ProcessingErrorData,
 	ProcessingResult,
-	Project,
 } from "../lib/types.js";
 
 // ===== Utility Functions =====
@@ -155,31 +153,28 @@ async function extractGitData(
 
 		console.log(`✅ Successfully parsed ${allCommits.length} commits`);
 
-		// Create developer and project objects
-		const developer: Developer = {
-			name: developerName,
-			email: options.developerEmail,
-			username: options.developerUsername,
-			aliases: options.developerAliases,
-		};
-
-		const project: Project = {
-			name: projectName,
-			slug: projectName.toLowerCase().replace(/\s+/g, "-"),
-		};
-
-		// Filter commits for the specific developer
-		const developerCommits = allCommits.filter((c) =>
-			matchesDeveloper({ name: c.author, email: c.email }, developer)
+		const { developer, project, stem } = subjects(
+			{
+				name: developerName,
+				email: options.developerEmail,
+				username: options.developerUsername,
+				aliases: options.developerAliases,
+			},
+			projectName
 		);
+
+		const developerCommits: GitCommit[] = [];
+		const otherAuthors = new Set<string>();
+		for (const c of allCommits) {
+			if (matchesDeveloper({ name: c.author, email: c.email }, developer)) developerCommits.push(c);
+			else otherAuthors.add(c.author);
+		}
 		console.log(
 			`🎯 Found ${developerCommits.length} commits by ${developerName}`
 		);
 		// Matching is exact, so list the other authors: one of them may be the developer under
 		// another spelling (pass it with --alias).
-		const others = [
-			...new Set(allCommits.filter((c) => !developerCommits.includes(c)).map((c) => c.author)),
-		];
+		const others = [...otherAuthors];
 		if (others.length > 0) {
 			console.log(`👥 Other authors (pass --alias for any that is you): ${others.join(", ")}`);
 		}
@@ -215,7 +210,7 @@ async function extractGitData(
 		if (options.saveToFile) {
 			const outputFile = join(
 				options.outputDir ?? CONFIG.PROCESSED_DATA_DIR,
-				`${developer.name.toLowerCase().replace(/\s+/g, "-")}-${project.slug}-git-data.json`
+				`${stem}-git-data.json`
 			);
 			await Bun.write(outputFile, JSON.stringify(contribution, null, 2));
 			console.log(`💾 Saved processed data to: ${outputFile}`);
@@ -272,41 +267,21 @@ Example:
   bun run tools/extractGitData.ts ~/Projects/brainspace/data/git-logs/<file>.txt "Jacob Williams" "Project" --save`;
 
 async function main() {
-	const args = process.argv.slice(2);
 	setupGracefulExit();
+	const { positional, flags } = parseArgs(process.argv.slice(2), USAGE, {
+		"--email": "value",
+		"--username": "value",
+		"--alias": "list",
+		"--save": "bool",
+	});
+	const [filePath, developerName, projectName] = positional as [string, string, string];
 
-	if (args.includes("--help") || args.includes("-h") || args[0] === "help") {
-		console.log(USAGE);
-		process.exit(0);
-	}
-	if (args.length < 3) {
-		console.error(USAGE);
-		process.exit(1);
-	}
-
-	const [filePath, developerName, projectName] = args;
-	const options: Parameters<typeof extractGitData>[3] = {};
-	for (let i = 3; i < args.length; i++) {
-		switch (args[i]) {
-			case "--email":
-				options.developerEmail = args[++i];
-				break;
-			case "--username":
-				options.developerUsername = args[++i];
-				break;
-			case "--alias":
-				(options.developerAliases ??= []).push(args[++i]!);
-				break;
-			case "--save":
-				options.saveToFile = true;
-				break;
-			default:
-				console.error(`Unknown option: ${args[i]}\n\n${USAGE}`);
-				process.exit(1);
-		}
-	}
-
-	const result = await extractGitData(filePath!, developerName!, projectName!, options);
+	const result = await extractGitData(filePath, developerName, projectName, {
+		developerEmail: flags["--email"] as string | undefined,
+		developerUsername: flags["--username"] as string | undefined,
+		developerAliases: flags["--alias"] as string[] | undefined,
+		saveToFile: flags["--save"] === true,
+	});
 	result.warnings.forEach((w) => console.log(`⚠️  ${w}`));
 	if (!result.success || result.errors.length > 0) {
 		console.error("\n❌ Git data extraction failed!");

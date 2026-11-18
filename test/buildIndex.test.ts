@@ -67,3 +67,13 @@ describe("buildBankIndex", () => {
 		expect(index).toBeNull();
 	});
 });
+
+describe("buildBankIndex shape checks", () => {
+	test("refuses a scalar tech instead of crashing", () => {
+		const bad = BANK.replace("tech: [SQLite]", "tech: SQLite");
+		const { code, out, index } = buildIndex(bad);
+		expect(code).toBe(1);
+		expect(out).toContain('claim "retail-offline": tech must be a list');
+		expect(index).toBeNull();
+	});
+});

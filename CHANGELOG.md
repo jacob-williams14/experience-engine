@@ -25,6 +25,10 @@ versioning scheme is adopted.
 - `BRAINSPACE_ROOT=""` resolved to the current directory and a quoted `~` was not expanded; both
   now resolve correctly. Repo-local `.tmp/` paths are anchored to the repo, not the cwd.
 - `htmlToMarkdown` exits non-zero when a post fails to convert.
+- From `/code-review`: the backlog parser skips "Assigned By"-style and id columns, reads an
+  `@handle` as a name, folds accents, strips an Excel BOM, matches `--column` in any case, and
+  fails when no row matches (listing the assignees it saw). Both parsers share argument parsing,
+  and a flag missing its value is an error. The index also refuses a non-list `tech`.
 
 ### Changed — skills close confidentiality and caveat gaps
 
@@ -39,7 +43,7 @@ versioning scheme is adopted.
 
 - `test/` covers the parsers' attribution, the index renderer (golden output, internal fields
   kept out, the sorter's line limit, refusals) and root resolution. Run against the old code, 16
-  of its 22 tests fail.
+  of the first 22 tests fail.
 
 ### Removed — dead code
 

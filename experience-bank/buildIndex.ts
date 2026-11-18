@@ -67,8 +67,8 @@ function groupByDomain(list: Claim[]): Map<string, Claim[]> {
 
 /**
  * Problems that make the index wrong rather than merely untidy: a claim with no id or no domain,
- * or an id used twice (ids are the stable key renders, refs and corrections point at). The index
- * is not written while any of these stand.
+ * an id used twice (ids are the stable key renders, refs and corrections point at), or a field of
+ * the wrong shape for the renderer. The index is not written while any of these stand.
  */
 export function validateClaims(claims: Claim[]): string[] {
 	const errors: string[] = [];
@@ -80,9 +80,15 @@ export function validateClaims(claims: Claim[]): string[] {
 		}
 		const where = c.id ? `claim "${c.id}"` : `claim #${i + 1}`;
 		if (!c.id) errors.push(`${where} has no id`);
+		else if (typeof c.id !== "string") errors.push(`${where}: id must be a string`);
 		else if (seen.has(c.id)) errors.push(`${where}: duplicate id`);
 		else seen.add(c.id);
 		if (!c.domain) errors.push(`${where} has no domain`);
+		else if (typeof c.domain !== "string") errors.push(`${where}: domain must be a string`);
+		if (c.tech !== undefined && c.tech !== null && !Array.isArray(c.tech))
+			errors.push(`${where}: tech must be a list`);
+		if (c.keyword_rich != null && typeof c.keyword_rich !== "string")
+			errors.push(`${where}: keyword_rich must be text`);
 	}
 	return errors;
 }
