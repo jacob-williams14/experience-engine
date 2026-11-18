@@ -162,7 +162,7 @@ function htmlToMarkdown(html: string): string {
 		.trim();
 }
 
-async function convertPostToMarkdown(postFile: string): Promise<void> {
+async function convertPostToMarkdown(postFile: string): Promise<boolean> {
 	try {
 		const postPath = join(POSTS_DIR, postFile);
 		const postData: PostData = JSON.parse(await Bun.file(postPath).text());
@@ -197,8 +197,10 @@ permalink: "${postData.link}"
 
 		await Bun.write(markdownPath, fullMarkdown);
 		console.log(`Converted ${postFile} to ${markdownDir}/${markdownFile}`);
+		return true;
 	} catch (error) {
 		console.error(`Error converting ${postFile}:`, error);
+		return false;
 	}
 }
 
@@ -275,19 +277,18 @@ async function main() {
 			}
 
 			console.log(`📝 Converting ${files.length} posts...`);
-			await Promise.all(
+			const results = await Promise.all(
 				files.map((file: string) => convertPostToMarkdown(file))
 			);
+			const failed = results.filter((ok) => !ok).length;
 
 			console.log("");
-			console.log(
-				`✅ Successfully converted ${files.length} posts to markdown!`
-			);
+			console.log(`✅ Converted ${files.length - failed} of ${files.length} posts to markdown`);
 			console.log(`📁 Markdown files saved to: ${VOICE_SAMPLES_DIR}/`);
-			console.log("");
-			console.log(
-				"Next step: Voice analysis is now available in biography generation"
-			);
+			if (failed > 0) {
+				console.error(`❌ ${failed} post(s) failed to convert (see errors above)`);
+				process.exit(1);
+			}
 		} else {
 			// Convert single file
 			const filename = args[0];
@@ -297,7 +298,7 @@ async function main() {
 			}
 
 			console.log(`🔄 Converting single post: ${filename}`);
-			await convertPostToMarkdown(filename);
+			if (!(await convertPostToMarkdown(filename))) process.exit(1);
 			console.log("✅ Conversion completed!");
 		}
 	} catch (err) {

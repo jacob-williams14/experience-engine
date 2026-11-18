@@ -1,0 +1,37 @@
+commit aaaaaaaaaaaaaaaaaaaa
+Author: Dev Person <dev@example.com>
+Date:   Wed Nov 23 12:01:22 2022 -0500
+
+    Add login screen
+    with a second line
+
+commit bbbbbbbbbbbbbbbbbbbb
+Merge: 1111111 2222222
+Author: Dev <other.dev@example.com>
+Date:   Wed Nov 23 12:01:22 2022 -0500
+
+    Merge: a different Dev builds payments
+
+commit cccccccccccccccccccc
+Author: Dev Personson <personson@example.com>
+Date:   Wed Nov 23 12:01:22 2022 -0500
+
+    A different person ships the CI pipeline
+
+commit dddddddddddddddddddd
+Author: Per <per@example.com>
+Date:   Wed Nov 23 12:01:22 2022 -0500
+
+    Per does the migration
+
+commit eeeeeeeeeeeeeeeeeeee
+Author: dpx <dev@example.com>
+Date:   Wed Nov 23 12:01:22 2022 -0500
+
+    Dev commits under a handle, same email
+
+commit ffffffffffffffffffff
+Author: dev.person <dp@example.com>
+Date:   Wed Nov 23 12:01:22 2022 -0500
+
+    Dev commits with a dotted name

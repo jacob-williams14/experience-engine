@@ -46,16 +46,6 @@ async function fetchAllPosts(): Promise<WPPost[]> {
 	return allPosts;
 }
 
-async function ensureOutputDir() {
-	try {
-		await Bun.write(`${OUTPUT_DIR}/.gitkeep`, "");
-	} catch {
-		console.log(`Creating output directory: ${OUTPUT_DIR}`);
-		const proc = Bun.spawn(["mkdir", "-p", OUTPUT_DIR]);
-		await proc.exited;
-	}
-}
-
 async function saveEachPost(posts: WPPost[]) {
 	for (const post of posts) {
 		try {
@@ -89,16 +79,14 @@ async function main() {
 		console.log(
 			"  This is a one-time setup step that creates a local database of posts"
 		);
-		console.log("  Posts are saved as JSON files in ./.tmp/posts/ directory");
+		console.log(`  Posts are saved as JSON files in ${OUTPUT_DIR}`);
 		console.log("");
 		console.log("Options:");
 		console.log("  --help, -h    Show this help message");
 		console.log("");
 		console.log("Next steps:");
 		console.log("  1. Convert to markdown: bun run htmlToMarkdown.ts all");
-		console.log(
-			'  2. Analyze specific author: bun run scripts/analyzeAuthorStyle.ts "Author Name"'
-		);
+		console.log('  2. Refresh the voice: ask Claude to "refresh my voice" (voice-signature skill)');
 		console.log("");
 		console.log("Note:");
 		console.log(
@@ -115,7 +103,6 @@ async function main() {
 		console.log(`📁 Output directory: ${OUTPUT_DIR}`);
 		console.log("");
 
-		await ensureOutputDir();
 		const posts = await fetchAllPosts();
 		await saveEachPost(posts);
 

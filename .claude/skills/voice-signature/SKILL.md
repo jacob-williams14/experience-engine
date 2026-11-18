@@ -33,7 +33,10 @@ bun run htmlToMarkdown  # convert to markdown
 
 ## Process
 
-1. Read a representative sample of the posts in `~/Projects/brainspace/data/voice-samples/` (aim for 10+; more is better).
+1. Read a representative sample of **Jacob's** posts in `~/Projects/brainspace/data/voice-samples/`
+   (aim for 10+; more is better). The folder holds every author's posts from the blog: select by
+   the `author:` frontmatter (e.g. `grep -l '^author: "Jacob Williams"'`) and never analyze a
+   post another author wrote.
 2. Analyze the voice: structural patterns, sentence rhythm, characteristic phrases, tone, humor,
    how ideas connect, audience relationship. Capture what makes it recognizably *his*, not generic.
 3. Write the signature as markdown following the structure of the existing
@@ -42,12 +45,11 @@ bun run htmlToMarkdown  # convert to markdown
    final "Writing Guidance Summary" of actionable bullets).
 4. Write the JSON to `voice-cache/jacob-williams-voice.json` with fields:
    `authorName`, `voiceSignature` (the markdown), `lastUpdated` (ISO date), `sourcesAnalyzed`.
-   `lib/voiceCache.ts` holds the read/write helpers if you prefer to go through code.
 
 ## Optional: style-evolution analysis (richer signature)
 
 For a deeper signature, analyze the posts **by year** before writing the summary — this is the
-preserved capability from the retired `analyzeStyleOverTime` tool. Group `~/Projects/brainspace/data/voice-samples/` posts by
+preserved capability from the retired `analyzeStyleOverTime` tool. Group Jacob's `~/Projects/brainspace/data/voice-samples/` posts by
 year and, per year, capture: `structurePattern`, `toneDescription`, `commonThemes[]`, `perspective`,
 `style`, `devices[]`, `depth`, `audience`. Write the per-year array to
 `enriched-style-summaries-<author>-<timestamp>.json` (the existing files are the format exemplar),

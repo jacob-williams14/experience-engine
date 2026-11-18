@@ -77,8 +77,9 @@ They chain `project-summary → experience-bank → tailored-render`, with `voic
 ```bash
 bun install
 bun run type-check        # tsc --noEmit
-bun run extractGitData    # parse git logs → structured data
-bun run processBacklog    # parse CSV backlogs → structured data
+bun test                  # tests over small fixtures in test/fixtures/ — never the live bank
+bun run extractGitData    # parse git logs → .tmp/processed/ with --save (exact author match)
+bun run processBacklog    # parse CSV backlogs → .tmp/processed/ with --save (fails without an assignee column)
 bun run getPosts          # download blog posts → .tmp/posts/ (intermediate)
 bun run htmlToMarkdown    # convert posts → brainspace/data/voice-samples/  (voice input)
 bun run buildBankIndex    # regenerate the bank index.md from claims.yaml (in artifacts/contributions/)
@@ -97,6 +98,7 @@ REPO (mechanism only)
   lib/ tools/        # support libs + deterministic parsers (paths via lib/config.ts → KB.*)
   getPosts.ts htmlToMarkdown.ts   # blog download + markdown conversion
   specs/             # roadmap (STATUS.md) + preserved prompt-IP reference docs
+  test/              # bun test suite + fixtures (made-up data only)
   .claude/skills/    # the primary interface
   voice-cache/       # cached voice signature (allowed repo-local cache)
   .tmp/              # re-derivable intermediates (raw posts, processed git data) — gitignored

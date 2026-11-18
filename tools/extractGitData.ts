@@ -3,11 +3,12 @@
 /**
  * Git Data Extraction Tool
  * Processes git log files and extracts structured developer contribution data
- * Based on SpinBot's data processing patterns
  */
 
+import { join } from "path";
 import { setupGracefulExit } from "../lib/cliUtils.js";
 import { CONFIG } from "../lib/config.js";
+import { matchesDeveloper } from "../lib/identity.js";
 import type {
 	Developer,
 	GitCommit,
@@ -16,21 +17,6 @@ import type {
 	ProcessingResult,
 	Project,
 } from "../lib/types.js";
-
-// ===== Configuration =====
-const TOOL_CONFIG = {
-	MAX_COMMIT_MESSAGE_LENGTH: CONFIG.COMMIT_MESSAGE_MAX_LENGTH,
-	MAX_COMMITS_TO_PROCESS: CONFIG.MAX_COMMITS_TO_ANALYZE,
-	OUTPUT_DIR: CONFIG.PROCESSED_DATA_DIR,
-} as const;
-
-// ===== Error Handling =====
-class GitExtractionError extends Error {
-	constructor(message: string, public context?: Record<string, unknown>) {
-		super(message);
-		this.name = "GitExtractionError";
-	}
-}
 
 // ===== Utility Functions =====
 
@@ -107,6 +93,7 @@ function parseGitLogEntry(entry: string): GitCommit | null {
 		return {
 			hash: hash.substring(0, 12),
 			author,
+			email,
 			date,
 			message: message || "No commit message",
 		};
@@ -116,28 +103,6 @@ function parseGitLogEntry(entry: string): GitCommit | null {
 	}
 }
 
-/**
- * Filter commits by developer
- */
-function filterCommitsByDeveloper(
-	commits: GitCommit[],
-	developer: Developer
-): GitCommit[] {
-	const namesToMatch = [
-		developer.name.toLowerCase(),
-		...(developer.aliases?.map((a) => a.toLowerCase()) || []),
-		developer.username?.toLowerCase(),
-		developer.email?.toLowerCase(),
-	].filter(Boolean);
-
-	return commits.filter((commit) => {
-		const authorName = commit.author.toLowerCase();
-
-		return namesToMatch.some(
-			(name) => authorName.includes(name!) || name!.includes(authorName)
-		);
-	});
-}
 
 /**
  * Main extraction function
@@ -151,6 +116,7 @@ async function extractGitData(
 		developerUsername?: string;
 		developerAliases?: string[];
 		saveToFile?: boolean;
+		outputDir?: string;
 	} = {}
 ): Promise<ProcessingResult<GitContribution>> {
 	const startTime = Date.now();
@@ -203,10 +169,20 @@ async function extractGitData(
 		};
 
 		// Filter commits for the specific developer
-		const developerCommits = filterCommitsByDeveloper(allCommits, developer);
+		const developerCommits = allCommits.filter((c) =>
+			matchesDeveloper({ name: c.author, email: c.email }, developer)
+		);
 		console.log(
 			`🎯 Found ${developerCommits.length} commits by ${developerName}`
 		);
+		// Matching is exact, so list the other authors: one of them may be the developer under
+		// another spelling (pass it with --alias).
+		const others = [
+			...new Set(allCommits.filter((c) => !developerCommits.includes(c)).map((c) => c.author)),
+		];
+		if (others.length > 0) {
+			console.log(`👥 Other authors (pass --alias for any that is you): ${others.join(", ")}`);
+		}
 
 		if (developerCommits.length === 0) {
 			errors.push({
@@ -220,11 +196,11 @@ async function extractGitData(
 		// Limit commits if necessary
 		const commitsToProcess = developerCommits.slice(
 			0,
-			TOOL_CONFIG.MAX_COMMITS_TO_PROCESS
+			CONFIG.MAX_COMMITS_TO_ANALYZE
 		);
 		if (commitsToProcess.length < developerCommits.length) {
 			warnings.push(
-				`Limited analysis to ${TOOL_CONFIG.MAX_COMMITS_TO_PROCESS} most recent commits (found ${developerCommits.length})`
+				`Limited analysis to ${CONFIG.MAX_COMMITS_TO_ANALYZE} most recent commits (found ${developerCommits.length})`
 			);
 		}
 
@@ -237,9 +213,10 @@ async function extractGitData(
 
 		// Optionally save processed data
 		if (options.saveToFile) {
-			const outputFile = `${TOOL_CONFIG.OUTPUT_DIR}/${developer.name
-				.toLowerCase()
-				.replace(/\s+/g, "-")}-${project.slug}-git-data.json`;
+			const outputFile = join(
+				options.outputDir ?? CONFIG.PROCESSED_DATA_DIR,
+				`${developer.name.toLowerCase().replace(/\s+/g, "-")}-${project.slug}-git-data.json`
+			);
 			await Bun.write(outputFile, JSON.stringify(contribution, null, 2));
 			console.log(`💾 Saved processed data to: ${outputFile}`);
 		}
@@ -280,72 +257,37 @@ async function extractGitData(
 
 // ===== CLI Interface =====
 
+const USAGE = `Usage: bun run tools/extractGitData.ts <git-log-file> <developer-name> <project-name> [options]
+
+Options:
+  --email <email>           Developer email (matched against the commit author email)
+  --username <username>     Developer username/handle
+  --alias <alias>           Another spelling of the developer's name (repeatable)
+  --save                    Save the parsed data to .tmp/processed/ (JSON)
+
+Matching is exact (case, spaces and punctuation ignored): a teammate whose name merely contains
+the developer's is not counted. The other authors are listed so you can add an --alias.
+
+Example:
+  bun run tools/extractGitData.ts ~/Projects/brainspace/data/git-logs/<file>.txt "Jacob Williams" "Project" --save`;
+
 async function main() {
 	const args = process.argv.slice(2);
-
-	// Setup graceful exit handling
 	setupGracefulExit();
 
 	if (args.includes("--help") || args.includes("-h") || args[0] === "help") {
-		console.log("📈 Git Data Extraction Tool");
-		console.log("");
-		console.log(
-			"Usage: bun run tools/extractGitData.ts <git-log-file> <developer-name> <project-name> [options]"
-		);
-		console.log("");
-		console.log("Options:");
-		console.log("  --email <email>           Developer email address");
-		console.log("  --username <username>     Developer username/handle");
-		console.log(
-			"  --alias <alias>           Additional name alias (can be used multiple times)"
-		);
-		console.log("  --save                    Save processed data to JSON file");
-		console.log("");
-		console.log("Description:");
-		console.log(
-			"  Extracts and analyzes git commit data for a specific developer"
-		);
-		console.log("");
-		console.log("Examples:");
-		console.log(
-			'  bun run tools/extractGitData.ts ~/Projects/brainspace/data/git-logs/<file>.txt "Jacob Williams" "Project" --email "jacob@example.com"'
-		);
-		console.log(
-			'  bun run tools/extractGitData.ts ~/Projects/brainspace/data/git-logs/<file>.txt "Developer" "App" --save'
-		);
+		console.log(USAGE);
 		process.exit(0);
 	}
-
 	if (args.length < 3) {
-		console.error(
-			"Usage: bun run tools/extractGitData.ts <git-log-file> <developer-name> <project-name> [options]"
-		);
-		console.error("");
-		console.error("Options:");
-		console.error("  --email <email>           Developer email address");
-		console.error("  --username <username>     Developer username/handle");
-		console.error(
-			"  --alias <alias>           Additional name alias (can be used multiple times)"
-		);
-		console.error(
-			"  --save                    Save processed data to JSON file"
-		);
-		console.error("");
-		console.error("Example:");
-		console.error(
-			'  bun run tools/extractGitData.ts ~/Projects/brainspace/data/git-logs/root_compass_git_log.txt "Jacob Williams" "Compass Platform" --email jacob@example.com --save'
-		);
+		console.error(USAGE);
 		process.exit(1);
 	}
 
 	const [filePath, developerName, projectName] = args;
-
-	// Parse options
 	const options: Parameters<typeof extractGitData>[3] = {};
 	for (let i = 3; i < args.length; i++) {
-		const flag = args[i];
-
-		switch (flag) {
+		switch (args[i]) {
 			case "--email":
 				options.developerEmail = args[++i];
 				break;
@@ -353,47 +295,31 @@ async function main() {
 				options.developerUsername = args[++i];
 				break;
 			case "--alias":
-				options.developerAliases = options.developerAliases || [];
-				options.developerAliases.push(args[++i]!);
+				(options.developerAliases ??= []).push(args[++i]!);
 				break;
 			case "--save":
 				options.saveToFile = true;
 				break;
+			default:
+				console.error(`Unknown option: ${args[i]}\n\n${USAGE}`);
+				process.exit(1);
 		}
 	}
 
-	try {
-		const result = await extractGitData(
-			filePath!,
-			developerName!,
-			projectName!,
-			options
-		);
-
-		if (result.success) {
-			console.log("\n✅ Git data extraction completed successfully!");
-			console.log(
-				`📊 Processed ${result.metadata.recordsProcessed} commits in ${result.metadata.processingTime}ms`
-			);
-
-			if (result.warnings.length > 0) {
-				console.log("\n⚠️  Warnings:");
-				result.warnings.forEach((warning) => console.log(`   ${warning}`));
-			}
-		} else {
-			console.error("\n❌ Git data extraction failed!");
-			result.errors.forEach((error) => console.error(`   ${error.message}`));
-			process.exit(1);
-		}
-	} catch (error) {
-		console.error("💥 Fatal error:", error);
+	const result = await extractGitData(filePath!, developerName!, projectName!, options);
+	result.warnings.forEach((w) => console.log(`⚠️  ${w}`));
+	if (!result.success || result.errors.length > 0) {
+		console.error("\n❌ Git data extraction failed!");
+		result.errors.forEach((error) => console.error(`   ${error.message}`));
 		process.exit(1);
 	}
+	console.log(
+		`\n✅ Processed ${result.metadata.recordsProcessed} commits in ${result.metadata.processingTime}ms`
+	);
 }
 
-// Run if this file is executed directly
 if (import.meta.main) {
 	main();
 }
 
-export { extractGitData };
+export { extractGitData, parseGitLogEntry };

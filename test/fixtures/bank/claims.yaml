@@ -1,0 +1,70 @@
+# Fixture bank: made-up claims for the index tests. Not real data.
+meta:
+  updated: "2026-01-01"
+
+claims:
+  # ── Domain: retail / consumer mobile ──
+  - id: retail-checkout
+    type: technical
+    context: professional
+    project: acmeco
+    refs: [ACME-12, acme-app#34]
+    domain: retail / consumer mobile
+    themes: [feature delivery]
+    tech: [React Native, Stripe]
+    scope: owned-feature
+    strength: solid
+    hook: false
+    keyword_rich: >-
+      Built the checkout flow for a national retail chain's ordering app, from cart to payment
+      confirmation, across iOS and Android with a shared codebase and a single release train.
+    source: 2026-01-01-0900-acmeco-checkout.md
+    correction: co-built with a teammate named Pat, not sole
+  - id: retail-offline
+    type: technical
+    context: professional
+    project: acmeco
+    domain: retail / consumer mobile
+    themes: [reliability]
+    tech: [SQLite]
+    scope: IC
+    strength: featured
+    hook: true
+    keyword_rich: Made ordering work offline.
+  - id: courts-reports
+    type: technical
+    context: professional
+    project: courtco
+    domain: state judicial / government finance
+    themes: [system design]
+    tech: []
+    scope: co-tech-lead
+    strength: filler
+    hook: false
+    keyword_rich: Designed the reporting pipeline for a statewide court system.
+  - id: side-tool
+    type: technical
+    context: personal
+    project: sidething
+    domain: developer tooling / personal projects
+    themes: [AI-assisted delivery]
+    tech: [Bun]
+    scope: IC
+    strength: solid
+    hook: false
+    keyword_rich: Directed an agent pipeline for a personal tool.
+  - id: style-mentor
+    type: non-technical
+    context: professional
+    domain: working style / approach
+    themes: [mentoring]
+    tech: []
+    scope: cross-cutting
+    strength: featured
+    hook: false
+    keyword_rich: Mentors newer developers through pairing.
+  - id: odd-type
+    type: tech
+    context: professional
+    domain: retail / consumer mobile
+    keyword_rich: A claim with a typo in its type.

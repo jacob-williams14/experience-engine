@@ -2,110 +2,60 @@
 
 /**
  * Backlog Processing Tool
- * Processes CSV backlog files and extracts structured developer contribution data
+ * Processes CSV backlog files and extracts the rows assigned to one developer.
  */
 
 import csv from "csv-parser";
 import { createReadStream } from "fs";
+import { join } from "path";
 import { setupGracefulExit } from "../lib/cliUtils.js";
+import { CONFIG } from "../lib/config.js";
+import { matchesDeveloper, parseAssignees } from "../lib/identity.js";
 import type {
 	BacklogContribution,
 	BacklogTask,
 	Developer,
-	ProcessingErrorData,
 	ProcessingResult,
 	Project,
 } from "../lib/types.js";
 
-// ===== CSV Row Interface =====
-interface CSVRow {
-	[key: string]: string;
-}
+const ASSIGNEE_PATTERNS = ["assignee", "assigned", "members", "owner", "responsible"];
 
-// ===== Helper Functions =====
-
-/**
- * Parse CSV file using proper csv-parser library
- */
-function parseCSV(filePath: string): Promise<CSVRow[]> {
+function parseCSV(filePath: string): Promise<BacklogTask[]> {
 	return new Promise((resolve, reject) => {
-		const rows: CSVRow[] = [];
-
+		const rows: BacklogTask[] = [];
 		createReadStream(filePath)
+			.on("error", reject)
 			.pipe(csv())
-			.on("data", (row: CSVRow) => {
-				rows.push(row);
-			})
-			.on("end", () => {
-				resolve(rows);
-			})
-			.on("error", (error) => {
-				reject(error);
-			});
+			.on("data", (row: BacklogTask) => rows.push(row))
+			.on("end", () => resolve(rows))
+			.on("error", reject);
 	});
 }
 
 /**
- * Find likely assignee columns by looking for common patterns
+ * Columns that name who did the work: the one given with --column, else any whose header contains
+ * an assignee-like word. Id columns ("Assignee Id") are skipped: they hold opaque ids, not names.
  */
-function findAssigneeColumns(headers: string[]): string[] {
-	const assigneePatterns = [
-		"assignee",
-		"assigned",
-		"members",
-		"owner",
-		"responsible",
-	];
-
+function findAssigneeColumns(headers: string[], explicit?: string): string[] {
+	if (explicit) return headers.filter((h) => h === explicit);
 	return headers.filter((header) => {
-		const headerLower = header.toLowerCase();
-		return assigneePatterns.some((pattern) => headerLower.includes(pattern));
+		const lower = header.toLowerCase();
+		return (
+			ASSIGNEE_PATTERNS.some((p) => lower.includes(p)) && !/\bids?$/.test(lower)
+		);
 	});
 }
 
-/**
- * Check if a row is assigned to the developer by checking all possible assignee columns
- */
-function isRowAssignedToDeveloper(
-	row: CSVRow,
-	assigneeColumns: string[],
-	developerName: string,
-	options: { developerEmail?: string; developerUsername?: string }
-): boolean {
-	// If no assignee columns found, include all rows
-	if (assigneeColumns.length === 0) return true;
-
-	// Check each potential assignee column
-	for (const column of assigneeColumns) {
-		const assigneeValue = row[column];
-		if (!assigneeValue) continue;
-
-		const assigneeLower = assigneeValue.toLowerCase();
-
-		// Check developer name (with and without spaces)
-		const nameMatch =
-			assigneeLower.includes(developerName.toLowerCase()) ||
-			assigneeLower.includes(developerName.toLowerCase().replace(/\s+/g, ""));
-
-		// Check email if provided
-		const emailMatch = options.developerEmail
-			? assigneeLower.includes(options.developerEmail.toLowerCase())
-			: false;
-
-		// Check username if provided
-		const usernameMatch = options.developerUsername
-			? assigneeLower.includes(options.developerUsername.toLowerCase())
-			: false;
-
-		if (nameMatch || emailMatch || usernameMatch) {
-			return true;
-		}
-	}
-
-	return false;
+function failure(message: string, startTime: number): ProcessingResult<BacklogContribution> {
+	return {
+		success: false,
+		errors: [{ type: "processing", message, severity: "critical" }],
+		warnings: [],
+		metadata: { processingTime: Date.now() - startTime, recordsProcessed: 0, recordsSkipped: 0 },
+	};
 }
 
-// ===== Main processing function =====
 async function processBacklog(
 	filePath: string,
 	developerName: string,
@@ -113,7 +63,10 @@ async function processBacklog(
 	options: {
 		developerEmail?: string;
 		developerUsername?: string;
+		developerAliases?: string[];
+		assigneeColumn?: string;
 		saveToFile?: boolean;
+		outputDir?: string;
 	} = {}
 ): Promise<ProcessingResult<BacklogContribution>> {
 	const startTime = Date.now();
@@ -121,211 +74,140 @@ async function processBacklog(
 	try {
 		console.log(`📊 Processing backlog: ${filePath}`);
 		console.log(`🔍 Filtering for developer: ${developerName}`);
-		console.log(`📝 Project: ${projectName}`);
 
-		// Read and parse CSV file
 		const csvRows = await parseCSV(filePath);
-
-		console.log(`📄 Parsed ${csvRows.length} CSV records`);
-
-		// Show available columns
 		const headers = csvRows.length > 0 ? Object.keys(csvRows[0]!) : [];
+		console.log(`📄 Parsed ${csvRows.length} CSV records`);
 		console.log(`🔍 Available columns: ${headers.join(", ")}`);
 
-		// Find potential assignee columns
-		const assigneeColumns = findAssigneeColumns(headers);
-		if (assigneeColumns.length > 0) {
-			console.log(
-				`🎯 Potential assignee columns: ${assigneeColumns.join(", ")}`
-			);
-		} else {
-			console.log("⚠️  No assignee columns detected - will include all rows");
-			console.log(
-				"   💡 Looking for columns containing: assignee, assigned, members, owner, responsible"
+		// Without an assignee column there is no way to tell whose work a row is. Keeping every
+		// row would credit the whole team's tickets to the developer, so stop and ask instead.
+		const assigneeColumns = findAssigneeColumns(headers, options.assigneeColumn);
+		if (assigneeColumns.length === 0) {
+			return failure(
+				options.assigneeColumn
+					? `Column "${options.assigneeColumn}" is not in this CSV`
+					: `No assignee column found (looked for: ${ASSIGNEE_PATTERNS.join(", ")}). ` +
+							"Name the column that says who did the work with --column <header>.",
+				startTime
 			);
 		}
+		console.log(`🎯 Assignee columns: ${assigneeColumns.join(", ")}`);
 
-		// Filter rows for this developer
-		const developerRows: BacklogTask[] = [];
-		const errors: ProcessingErrorData[] = [];
-
-		for (const row of csvRows) {
-			try {
-				if (
-					isRowAssignedToDeveloper(row, assigneeColumns, developerName, options)
-				) {
-					developerRows.push(row); // Just keep the raw CSV row
-				}
-			} catch (error) {
-				errors.push({
-					type: "processing",
-					message: `Failed to process row: ${
-						error instanceof Error ? error.message : "Unknown error"
-					}`,
-					severity: "medium",
-					context: { rowIndex: developerRows.length },
-				});
-			}
-		}
-
-		console.log(
-			`🎯 Found ${developerRows.length} rows assigned to ${developerName}`
-		);
-
-		// Create developer and project objects
 		const developer: Developer = {
 			name: developerName,
 			email: options.developerEmail,
 			username: options.developerUsername,
+			aliases: options.developerAliases,
 		};
-
 		const project: Project = {
 			name: projectName,
 			slug: projectName.toLowerCase().replace(/\s+/g, "-"),
 		};
 
-		const backlogContribution: BacklogContribution = {
+		const tasks = csvRows.filter((row) =>
+			assigneeColumns.some((column) =>
+				parseAssignees(row[column] ?? "").some((who) => matchesDeveloper(who, developer))
+			)
+		);
+		console.log(`🎯 Found ${tasks.length} rows assigned to ${developerName}`);
+
+		const data: BacklogContribution = {
 			developer,
 			project,
-			tasks: developerRows,
-			metadata: {
-				totalRows: developerRows.length,
-				assigneeColumns,
-				allColumns: headers,
-			},
+			tasks,
+			metadata: { totalRows: tasks.length, assigneeColumns, allColumns: headers },
 		};
 
-		const processingTime = Date.now() - startTime;
+		if (options.saveToFile) {
+			const outputFile = join(
+				options.outputDir ?? CONFIG.PROCESSED_DATA_DIR,
+				`${developerName.toLowerCase().replace(/\s+/g, "-")}-${project.slug}-backlog-data.json`
+			);
+			await Bun.write(outputFile, JSON.stringify(data, null, 2));
+			console.log(`💾 Saved processed data to: ${outputFile}`);
+		}
 
 		return {
 			success: true,
-			data: backlogContribution,
-			errors,
-			warnings: [],
-			metadata: {
-				processingTime,
-				recordsProcessed: developerRows.length,
-				recordsSkipped: csvRows.length - developerRows.length,
-			},
-		};
-	} catch (error) {
-		return {
-			success: false,
-			errors: [
-				{
-					type: "processing",
-					message: `Failed to process backlog: ${
-						error instanceof Error ? error.message : "Unknown error"
-					}`,
-					severity: "critical",
-				},
-			],
+			data,
+			errors: [],
 			warnings: [],
 			metadata: {
 				processingTime: Date.now() - startTime,
-				recordsProcessed: 0,
-				recordsSkipped: 0,
+				recordsProcessed: tasks.length,
+				recordsSkipped: csvRows.length - tasks.length,
 			},
 		};
+	} catch (error) {
+		return failure(
+			`Failed to process backlog: ${error instanceof Error ? error.message : String(error)}`,
+			startTime
+		);
 	}
 }
 
 // ===== CLI Interface =====
+
+const USAGE = `Usage: bun run tools/processBacklog.ts <backlog-file.csv> <developer-name> <project-name> [options]
+
+Options:
+  --email <email>        Developer email for matching
+  --username <user>      Developer username for matching
+  --alias <alias>        Another spelling of the developer's name (repeatable)
+  --column <header>      The column that says who did the work (default: detect it)
+  --save                 Save the matched rows to .tmp/processed/ (JSON)
+
+Matching is exact per person in a cell (case, spaces and punctuation ignored).
+
+Example:
+  bun run tools/processBacklog.ts ~/Projects/brainspace/data/backlogs/<file>.csv "Jacob Williams" "Project" --save`;
+
 async function main() {
 	const args = process.argv.slice(2);
-
-	// Setup graceful exit handling
 	setupGracefulExit();
 
 	if (args.includes("--help") || args.includes("-h") || args[0] === "help") {
-		console.log("📊 Backlog Processing Tool");
-		console.log("");
-		console.log(
-			"Usage: bun run tools/processBacklog.ts <backlog-file.csv> <developer-name> <project-name> [options]"
-		);
-		console.log("");
-		console.log("Options:");
-		console.log("  --email <email>      Developer email for matching");
-		console.log("  --username <user>    Developer username for matching");
-		console.log("");
-		console.log("Description:");
-		console.log(
-			"  Processes CSV backlog files to extract developer-specific contributions"
-		);
-		console.log("");
-		console.log("Examples:");
-		console.log(
-			'  bun run tools/processBacklog.ts ~/Projects/brainspace/data/backlogs/biggby_backlog.csv "Jacob Williams" "Biggby"'
-		);
-		console.log(
-			'  bun run tools/processBacklog.ts data.csv "Developer" "Project" --email "dev@example.com"'
-		);
+		console.log(USAGE);
 		process.exit(0);
 	}
-
 	if (args.length < 3) {
-		console.error(
-			"Usage: bun run tools/processBacklog.ts <backlog-file.csv> <developer-name> <project-name> [options]"
-		);
-		console.error("");
-		console.error("Options:");
-		console.error("  --email <email>      Developer email for matching");
-		console.error("  --username <user>    Developer username for matching");
-		console.error("");
-		console.error("Example:");
-		console.error(
-			'  bun run tools/processBacklog.ts ~/Projects/brainspace/data/backlogs/biggby_backlog.csv "Jacob Williams" "Biggby"'
-		);
-		console.error(
-			'  bun run tools/processBacklog.ts backlog.csv "Jacob Williams" "Project" --email jacob@example.com'
-		);
+		console.error(USAGE);
 		process.exit(1);
 	}
 
 	const [filePath, developerName, projectName] = args;
-
-	// Parse options
 	const options: Parameters<typeof processBacklog>[3] = {};
-	for (let i = 3; i < args.length; i += 2) {
-		const flag = args[i];
-		const value = args[i + 1];
-
-		switch (flag) {
+	for (let i = 3; i < args.length; i++) {
+		switch (args[i]) {
 			case "--email":
-				options.developerEmail = value;
+				options.developerEmail = args[++i];
 				break;
 			case "--username":
-				options.developerUsername = value;
+				options.developerUsername = args[++i];
 				break;
+			case "--alias":
+				(options.developerAliases ??= []).push(args[++i]!);
+				break;
+			case "--column":
+				options.assigneeColumn = args[++i];
+				break;
+			case "--save":
+				options.saveToFile = true;
+				break;
+			default:
+				console.error(`Unknown option: ${args[i]}\n\n${USAGE}`);
+				process.exit(1);
 		}
 	}
 
-	try {
-		const result = await processBacklog(
-			filePath!,
-			developerName!,
-			projectName!,
-			options
-		);
-
-		if (result.success) {
-			const data = result.data!;
-			console.log("\n✅ Processing completed successfully!");
-			console.log(`📄 Total rows: ${data.metadata.totalRows}`);
-			console.log(
-				`🏷️ Available columns: ${data.metadata.allColumns.join(", ")}`
-			);
-			console.log(
-				`🎯 Assignee columns used: ${data.metadata.assigneeColumns.join(", ")}`
-			);
-		} else {
-			console.log("\n❌ Processing failed:");
-			result.errors.forEach((error) => console.error(`   ${error.message}`));
-		}
-	} catch (error) {
-		console.error("\n💥 Processing failed:", error);
+	const result = await processBacklog(filePath!, developerName!, projectName!, options);
+	if (!result.success) {
+		console.error("\n❌ Processing failed:");
+		result.errors.forEach((error) => console.error(`   ${error.message}`));
 		process.exit(1);
 	}
+	console.log(`\n✅ ${result.data!.metadata.totalRows} rows matched`);
 }
 
 if (import.meta.main) {

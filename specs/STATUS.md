@@ -16,7 +16,7 @@ designed but intentionally parked · `done` = shipped · `superseded` = replaced
 | [artifact-validation.md](./artifact-validation.md) | deferred | future | 2026-06-23 |
 | [resume-generator.md](./resume-generator.md) | deferred | future | 2026-06-23 |
 | [repo-flatten.md](./repo-flatten.md) | done | `repo-flatten` | 2026-06-23 |
-| [robustness-and-quality.md](./robustness-and-quality.md) | mostly done (tests deferred) | future | 2026-06-23 |
+| [robustness-and-quality.md](./robustness-and-quality.md) | done (tests added) | — | 2026-11-18 |
 | [model-sdk-modernization.md](./model-sdk-modernization.md) | obsolete | — | 2026-06-23 |
 | [linkedin-profile.md](./linkedin-profile.md) | superseded | `add-linkedin-project-generation` | 2026-06-23 |
 
@@ -44,8 +44,8 @@ Reference docs (preserved prompt IP, not roadmap items):
 3. ~~**experience-bank**~~ — bank built and populated (active; curation is ongoing/conversational).
 4. ~~**skills-migration**~~ — **done**: 3 skills built, AI-SDK layer + generators deleted, IP preserved.
 5. ~~**model-sdk-modernization**~~ — **obsolete**: no API path left to modernize.
-6. **robustness-and-quality** — remaining: tests, pin `@types/bun`, the `voiceCache` ESM fix, and the
-   no-API reliability bugs from 2026-06-23. (Validate stubs + stale AI deps already removed.)
+6. ~~**robustness-and-quality**~~ — **done**: `bun test` suite over fixtures added 2026-11-18;
+   `voiceCache` deleted as unused.
 7. **resume-generator** — a render target, once you want it.
 
 **Superseded:** `linkedin-profile.md` — the one-off artifact shipped, but profile-as-product is

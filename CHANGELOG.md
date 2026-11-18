@@ -8,6 +8,45 @@ versioning scheme is adopted.
 
 ## [Unreleased]
 
+### Fixed — parsers no longer credit teammates' work; index refuses a broken bank
+
+- `extractGitData` matched authors by substring both ways, so "Jacob", "Will" or "Jacob
+  Williamson" counted as Jacob, while `--email` was never compared to anything. Matching is now
+  exact on a compact form (case, spaces, punctuation ignored) or on the commit email, shared with
+  `processBacklog` through `lib/identity.ts`; the other authors are listed so a missed spelling can
+  be added with `--alias`. Why: a summary built from a teammate's commits is an invented fact.
+- `processBacklog` kept every row when it found no assignee column (on a real updates export, 80 of
+  147 rows were other people's), matched a short `--username` inside longer names, and its `--save`
+  did nothing. It now fails without an assignee column (`--column` names one), matches per person
+  in a cell, skips id columns, and `--save` writes `.tmp/processed/`.
+- `buildBankIndex` refuses (exit 1, index untouched) a duplicate id, a claim with no id or domain,
+  or a file with no `claims:` list, instead of writing an `### undefined` section. Output for a
+  valid bank is byte-identical (checked against the live bank and a fixture).
+- `BRAINSPACE_ROOT=""` resolved to the current directory and a quoted `~` was not expanded; both
+  now resolve correctly. Repo-local `.tmp/` paths are anchored to the repo, not the cwd.
+- `htmlToMarkdown` exits non-zero when a post fails to convert.
+
+### Changed — skills close confidentiality and caveat gaps
+
+- `tailored-render` reads `claims.yaml` as text so section-comment caveats bind the render, keeps
+  internal fields and people's names out, and re-checks the final draft for anything identifying.
+- `experience-bank`: `scope` lists all five values in use, `snapshot` is documented, domain strings
+  are reused from the bank, no people's names, and "trace to source" covers worklog-sourced claims.
+- `voice-signature` analyzes only Jacob's posts (the folder holds every author's).
+- `render-rules-reference`: tech tags come only from the claim's `tech`.
+
+### Added — `bun test` suite over fixtures
+
+- `test/` covers the parsers' attribution, the index renderer (golden output, internal fields
+  kept out, the sorter's line limit, refusals) and root resolution. Run against the old code, 16
+  of its 22 tests fail.
+
+### Removed — dead code
+
+- Unused types, the `@inquirer` prompt wrappers and both `@inquirer` dependencies,
+  `lib/voiceCache.ts` (no caller), an unused config key, and API-key placeholders in
+  `.envrc.sample` (now a `BRAINSPACE_ROOT` sample).
+
 ### Added — `job-scout` skill
 
 - Orchestrates a job-search sweep: Haiku scouts per company bucket (public ATS JSON APIs first),

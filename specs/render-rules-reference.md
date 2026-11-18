@@ -24,7 +24,8 @@ the phrasing rules a render applies when turning bank claims into a target docum
 
 - End every bullet with a parenthetical tech-stack tag of the concrete technologies from that claim,
   e.g. "(React Native, Expo, Stripe)".
-- Pull ONLY from the claim's `tech` tags / source — never invent a technology.
+- Pull ONLY from the claim's `tech` tags — never invent a technology, and never add one from the
+  summary that the claim doesn't carry (fix the claim instead).
 - 2-5 most recruiter-relevant terms; prefer named frameworks/languages/services over generic words.
 - The tag sits outside the one-sentence prose and doesn't count against brevity.
 

@@ -1,9 +1,9 @@
 # Spec: Robustness & Code Quality Cleanup
 
-- **Status:** mostly done — only a test suite remains (deferred; low ROI for a solo tool)
+- **Status:** done — test suite added 2026-11-18 (`bun test`, `test/`)
 - **Branch:** future
 - **Owner:** Jacob Williams
-- **Last updated:** 2026-06-23
+- **Last updated:** 2026-11-18
 
 > **2026-06-23:** the actionable items are done (dead config removed, `@types/bun` pinned, voiceCache
 > ESM fixed, rtk gotcha documented) or made obsolete by the skills migration (retry/timeouts,
@@ -60,9 +60,10 @@ concrete failures, all of which made the no-API path unusable until worked aroun
   to `AGENTS.md` — run scripts that take quoted args from a wrapper file (quotes preserved) rather
   than inline shell.
 
-## Remaining work (tests only)
+## Tests (added 2026-11-18)
 
-Add a test runner (Bun's built-in `bun test`) covering the deterministic survivors:
+`bun test` runs `test/*.test.ts` against small fixtures in `test/fixtures/` (never the live bank).
+`lib/voiceCache.ts` was deleted as unused instead of tested. The original plan: add a test runner (Bun's built-in `bun test`) covering the deterministic survivors:
 `tools/extractGitData.ts`, `tools/processBacklog.ts`, `lib/voiceCache.ts`, and
 `experience-bank/buildIndex.ts`. Skill behavior isn't unit-testable (the model-judgment validation
 lives in `artifact-validation.md`).

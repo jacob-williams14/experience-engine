@@ -1,21 +1,30 @@
 /**
- * Configuration constants. Only values actually used by the surviving code.
+ * Paths and limits used by the scripts.
  */
 
 import { homedir } from "os";
-import { join } from "path";
+import { isAbsolute, join, resolve } from "path";
+import { fileURLToPath } from "url";
 
 /**
- * Knowledge-base (brainspace) root — the durable source of truth this tooling reads from and writes
- * to. The repo itself owns no durable data (see the contract in
- * `brainspace/docs/knowledge-base.md`). Override the location with `BRAINSPACE_ROOT`;
- * defaults to `~/Projects/brainspace`.
+ * Resolves the knowledge-base (brainspace) root: the durable source of truth this tooling reads
+ * from and writes to. The repo itself owns no durable data (see the contract in
+ * `brainspace/docs/reference/knowledge-base.md`). `BRAINSPACE_ROOT` overrides the default of
+ * `~/Projects/brainspace`. An empty value counts as unset, and a leading `~` is expanded, so a
+ * quoted `"~/…"` or a blank variable can never point the scripts at the current directory.
  */
-export const BRAINSPACE_ROOT =
-	process.env.BRAINSPACE_ROOT ?? join(homedir(), "Projects", "brainspace");
+export function resolveBrainspaceRoot(value = process.env.BRAINSPACE_ROOT): string {
+	const raw = value?.trim();
+	if (!raw) return join(homedir(), "Projects", "brainspace");
+	if (raw === "~" || raw.startsWith("~/")) return join(homedir(), raw.slice(1));
+	return isAbsolute(raw) ? raw : resolve(raw);
+}
+
+export const BRAINSPACE_ROOT = resolveBrainspaceRoot();
 
 /**
- * Resolved KB zone paths. Reads come from `data/**` + the worklog; writes go to `artifacts/**`.
+ * Resolved KB zone paths. Reads come from `data/**` + the worklog; writes go to `artifacts/**`
+ * (and `data/voice-samples/`, which htmlToMarkdown fills).
  */
 export const KB = {
 	ROOT: BRAINSPACE_ROOT,
@@ -31,15 +40,14 @@ export const KB = {
 	BIO: join(BRAINSPACE_ROOT, "artifacts", "bio"),
 } as const;
 
-export const CONFIG = {
-	// Repo-local, re-derivable intermediates — NOT durable state (that lives in the KB).
-	// Raw blog-post download (getPosts.ts) that htmlToMarkdown.ts converts into KB.VOICE_SAMPLES.
-	POSTS_DIR: ".tmp/posts",
-	// Processed git-data --save output (tools/extractGitData.ts).
-	PROCESSED_DATA_DIR: ".tmp/processed",
-	MAX_COMMITS_TO_ANALYZE: 500,
-	COMMIT_MESSAGE_MAX_LENGTH: 200,
-} as const;
+// Repo-local, re-derivable intermediates — NOT durable state (that lives in the KB). Anchored to
+// the repo root, not the current directory, so a script run from elsewhere still writes here.
+const REPO_ROOT = fileURLToPath(new URL("..", import.meta.url));
 
-// Type for configuration
-export type ConfigType = typeof CONFIG;
+export const CONFIG = {
+	// Raw blog-post download (getPosts.ts) that htmlToMarkdown.ts converts into KB.VOICE_SAMPLES.
+	POSTS_DIR: join(REPO_ROOT, ".tmp", "posts"),
+	// Parsed output of the --save flag (tools/extractGitData.ts, tools/processBacklog.ts).
+	PROCESSED_DATA_DIR: join(REPO_ROOT, ".tmp", "processed"),
+	MAX_COMMITS_TO_ANALYZE: 500,
+} as const;

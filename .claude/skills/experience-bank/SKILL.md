@@ -49,7 +49,7 @@ Each claim in `claims.yaml`:
   domain: <public-safe domain string>   # USE THIS in renders, never the client name
   themes: [<one to three from the theme list below>]
   tech: [named technologies from the source only]   # usually [] for non-technical claims
-  scope: IC | owned-feature | co-tech-lead
+  scope: IC | owned-feature | co-tech-lead | tech-lead | cross-cutting   # cross-cutting = working style
   strength: featured | solid | filler   # proposed default; Jacob adjusts at render time
   hook: true | false                    # a "I need to talk to this person" problem
   keyword_rich: >-                       # recruiter-facing, anonymized
@@ -60,7 +60,21 @@ Each claim in `claims.yaml`:
   agent_assisted: true | false          # set true if it came from an AI-assisted session log
   verified: <YYYY-MM-DD>                # Jacob checked this wording against its source at a render — absent = unchecked
   correction: <one line>                # what Jacob corrected, e.g. "co-built with a teammate, not sole" — binding
+  snapshot: <YYYY-MM-DD>                # claim describes an engagement still under way, as of this date
 ```
+
+> The schema comment at the top of `claims.yaml` lists only the first three `scope` values and
+> no `snapshot`. Leave that header alone in an enrichment run: the PR sorter rejects any change to
+> the unindented header, so it is fixed only in a PR Jacob merges.
+
+**`snapshot`** marks claims about an engagement that is still running. The section comment above
+them says when to refresh them (when the summary is regenerated near the engagement's end).
+Renders and `jd-analyzer` say the work is ongoing; don't add `snapshot` to finished work.
+
+**Section comments are part of the bank.** The `# ── …` comment that opens a group of claims
+carries caveats a YAML parser drops ("co-built", "never 'tech lead'", "client-reported"). Read
+them before you extend a claim under them; they bind like a `correction`. Never write a client
+name into one: the sorter lets comments through, so nothing downstream would catch it.
 
 ### Themes
 
@@ -114,10 +128,17 @@ wins, and no later run may widen the claim back.
 
 - **Confidentiality:** never write a client or product name into the bank. Only "Atomic Object" may
   appear. Describe clients by DOMAIN (e.g. "a statewide court system", "a national coffee chain").
-  Existing domain strings: `retail / consumer mobile`, `state judicial / government finance`,
-  `global leadership-development / education`, `healthcare / clinical`.
-- **Trace to source:** every `tech` tag and any number/metric must come from the summary. Never
-  invent (this is the drift the old synthesizer caused — see specs/render-rules-reference.md).
+  Reuse a `domain` string already in `claims.yaml` when one fits; add a new one only for a new
+  client. The internal fields (`project`, `refs`, `source`, `meta.worklog_folded`) may carry
+  codenames; every other field and every comment may not. Paraphrase is the risk: a product's
+  name, a client's city, a named system, or a client-named repo in a `refs` entry identifies the
+  client as surely as its name.
+- **No people's names** other than Jacob's — not teammates, not client staff — in any field,
+  including `correction` ("co-built with a teammate", never the teammate's name). Session logs and
+  summaries name people; the bank doesn't.
+- **Trace to source:** every `tech` tag and any number/metric must come from the claim's source —
+  the project summary, or the worklog entry in `source`. Never invent (this is the drift the old
+  synthesizer caused — see specs/render-rules-reference.md).
 - **No duplicates:** before adding, scan existing claim ids/topics for the project so you extend
   rather than repeat.
 - **`themes` holds themes only** — never put a `scope` value (IC/owned-feature/co-tech-lead) in it.
