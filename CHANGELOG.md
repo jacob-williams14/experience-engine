@@ -43,6 +43,19 @@ versioning scheme is adopted.
 - `voice-signature` analyzes only Jacob's posts (the folder holds every author's).
 - `render-rules-reference`: tech tags come only from the claim's `tech`.
 
+### Added — CI
+
+- `.github/workflows/checks.yml` runs `bun test` and the type check on every PR and on pushes to
+  main. Bun comes from npm at a pinned version; the only action is GitHub's checkout, pinned to a
+  commit, so no third-party action runs.
+
+### Changed — project summaries may name clients
+
+- Summaries are internal inputs, like the worklog. AGENTS.md and the `project-summary` skill said
+  to anonymize them, but every existing summary names its client and teammates. The rule now
+  matches practice: anonymizing happens when claims are extracted into the bank (decided by
+  Jacob 2026-11-18).
+
 ### Added — `bun test` suite over fixtures
 
 - `test/` covers the parsers' attribution, the index renderer (golden output, internal fields
