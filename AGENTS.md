@@ -27,19 +27,10 @@ This repo is **pure processing**. All durable state lives in the knowledge base 
 re-derivable intermediates. The full contract is at
 `~/Projects/brainspace/docs/reference/knowledge-base.md`.
 
-```text
-READS   data/**, career/atomic/worklog/**, artifacts/** (incl. the resume), and the career/ and
-        foundation/ files a skill names in its Inputs (target profile, job search, about-jacob)
-WRITES  artifacts/** except artifacts/resume/ (hand-edited by Jacob — read, never written)
-        + career/postings/ and the Pipeline table in career/job-search.md
-        + data/voice-samples/ (htmlToMarkdown; re-derivable, gitignored in brainspace)
-REPO    holds no durable data — only voice-cache/ (cache, incl. style summaries) and .tmp/
-```
-
-Paths are relative to the brainspace root. Scripts resolve them through `lib/config.ts` (`KB.*`).
-Skills write them as `~/Projects/brainspace/…`: read that as `$BRAINSPACE_ROOT` when it is set.
-This block mirrors the contract in `knowledge-base.md`; change both together. Don't reintroduce
-repo-local `data/` or output dirs.
+In short: the tool reads `data/`, the worklog and the files a skill names; it writes
+`artifacts/` (never the hand-edited resume), job-scout's postings and Pipeline, and the
+re-derivable voice samples. The repo itself holds only `voice-cache/` and `.tmp/`. Scripts resolve
+paths through `lib/config.ts` (`KB.*`); don't reintroduce repo-local `data/` or output dirs.
 
 ## Skills are the primary interface
 

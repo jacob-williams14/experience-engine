@@ -52,7 +52,8 @@ For a deeper signature, analyze the posts **by year** before writing the summary
 preserved capability from the retired `analyzeStyleOverTime` tool. Group Jacob's `~/Projects/brainspace/data/voice-samples/` posts by
 year and, per year, capture: `structurePattern`, `toneDescription`, `commonThemes[]`, `perspective`,
 `style`, `devices[]`, `depth`, `audience`. Write the per-year array to
-`voice-cache/enriched-style-summaries-<author>-<timestamp>.json` (the existing files are the format exemplar),
+`voice-cache/enriched-style-summaries-<author>-<timestamp>.json` (the existing files are the
+format exemplar),
 then fold the evolution (what's consistent across years, what matured) into the voice signature's
 "Evolution Markers" section. Use this when Jacob wants the fuller treatment; the standard per-post
 analysis above is fine otherwise.
