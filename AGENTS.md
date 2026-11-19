@@ -29,8 +29,9 @@ re-derivable intermediates. The full contract is at
 
 In short: the tool reads `data/`, the worklog, `artifacts/` and the `career/` / `foundation/`
 files a skill names; it writes `artifacts/` (never the hand-edited resume), `career/postings/`
-(jd-analyzer, job-scout), the Pipeline table (job-scout) and the re-derivable voice samples. The repo itself holds only `voice-cache/` and `.tmp/`. Scripts resolve
-paths through `lib/config.ts` (`KB.*`); don't reintroduce repo-local `data/` or output dirs.
+(jd-analyzer, job-scout), the Pipeline table (job-scout) and the re-derivable voice samples.
+The repo itself holds only `voice-cache/` and `.tmp/`. Scripts resolve paths through
+`lib/config.ts` (`KB.*`); don't reintroduce repo-local `data/` or output dirs.
 
 ## Skills are the primary interface
 
