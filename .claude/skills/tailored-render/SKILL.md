@@ -26,9 +26,11 @@ render directly.
 
 ## Steps
 
-1. **Read** `~/Projects/brainspace/artifacts/contributions/claims.yaml`. (The browsable
-   `index.md` alongside it is a quick overview, but render from the YAML — it has the full text and
-   tags.)
+1. **Read** `~/Projects/brainspace/artifacts/contributions/claims.yaml` **as text**, not only
+   parsed: the section comments (`# ── …`) carry caveats a YAML parser drops ("co-built", "never
+   'tech lead'", "client-reported, cite as such"), and they bind every claim under them, as a
+   `correction` does. (The browsable `index.md` alongside it is a quick overview, but render from
+   the YAML — it has the full text, the tags and the caveats.)
 2. **Select** claims for the target:
    - LinkedIn Experience entry → ~4 themed claims, lead with `featured` and at least one `hook`.
    - LinkedIn About / Headline → identity + breadth; pull across domains, and lean on the
@@ -42,8 +44,10 @@ render directly.
    - Required tech-stack tag: end each bullet with a parenthetical of that claim's `tech`, e.g.
      "(React Native, Expo, Stripe)" — drawn ONLY from the claim, never invented.
    - Confidentiality: only "Atomic Object" named; clients by domain (the bank is already anonymized —
-     keep it that way).
-   - No invented metrics or tech. Use a claim's `plain_language` register when the target wants plain
+     keep it that way). No people's names other than Jacob's. Never let an internal field into the
+     text: `project` codenames, `refs`, `source` filenames, `correction` wording.
+   - No invented metrics or tech. A claim with `snapshot` is ongoing work: don't phrase it as
+     finished. Use a claim's `plain_language` register when the target wants plain
      English; `keyword_rich` when it wants recruiter keywords.
    - Apply Jacob's voice from `voice-cache/jacob-williams-voice.json`
      (read it) as an override so it sounds like him. It's a blog voice: apply it to long-form (a
@@ -51,6 +55,9 @@ render directly.
      wording instead. Either way, run `/no-ai-slop` in detect mode on every draft before showing
      it — the voice's tics ("Here's the thing", binary contrasts, punchy fragments) are exactly
      what it flags.
+   - **Last check, every draft:** re-read the document for anything that names or identifies a
+     client (a name, a product, a named system, a city, a codename) or a person. Rephrasing
+     (voice, `/no-ai-slop`, Jacob's steering) is where a name slips back in, so check after it.
 4. **Show the evidence** under the render, in chat only. Jacob does not review the bank claim by
    claim, and enrichment PRs can merge without him, so this is where a claim gets checked: when
    it is about to be used. For every claim the render draws on that has no `verified` date,

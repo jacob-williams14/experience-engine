@@ -1,0 +1,38 @@
+name: Checks
+
+# Bun installs from npm at a pinned version instead of a setup action; its install script runs, so
+# the pin is the control.
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+# A newer push to the same PR replaces its unfinished run.
+concurrency:
+  group: checks-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          persist-credentials: false
+
+      - name: Install Bun
+        run: npm install --global bun@1.4.4
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Type check
+        run: bun run type-check
+
+      - name: Tests
+        run: bun test

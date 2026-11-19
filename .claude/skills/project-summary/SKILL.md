@@ -24,12 +24,19 @@ Raw project data in `~/Projects/brainspace/data/`:
 - a CSV backlog (`.csv`) in `data/backlogs/`.
 
 For large or messy logs, structure them first with the deterministic parsers (optional — for normal
-files you can read the raw datasource directly):
+files you can read the raw datasource directly). `--save` writes the developer's commits or rows to
+`.tmp/processed/`; read that file:
 
 ```bash
-bun run extractGitData ~/Projects/brainspace/data/git-logs/<file>.txt "Jacob Williams" "<Project>"   # git log
-bun run processBacklog ~/Projects/brainspace/data/backlogs/<file>.csv "Jacob Williams" "<Project>"   # CSV backlog
+bun run extractGitData ~/Projects/brainspace/data/git-logs/<file>.txt "Jacob Williams" "<Project>" --save   # git log
+bun run processBacklog ~/Projects/brainspace/data/backlogs/<file>.csv "Jacob Williams" "<Project>" --save   # CSV backlog
 ```
+
+Matching is exact (case, spaces and punctuation ignored), so a teammate whose name contains
+Jacob's is never credited. The git parser lists the other authors: if one is Jacob under another
+spelling, re-run with `--alias "<spelling>"`. A backlog with no assignee-like column fails rather
+than crediting every row; name the column with `--column "<header>"`. Reading the raw file
+instead, apply the same care: only work the source attributes to Jacob.
 
 ## Generate
 
@@ -39,8 +46,9 @@ bun run processBacklog ~/Projects/brainspace/data/backlogs/<file>.csv "Jacob Wil
    required document structure). The existing
    `~/Projects/brainspace/artifacts/project-summaries/*-project-summary.md` files are the matching
    exemplars; new summaries must match their structure exactly.
-3. Confidentiality: describe the client by domain, not name; only "Atomic Object" appears. Extract the
-   real technology stack and details from the evidence — never invent metrics or tech.
+3. Summaries are inputs: they may name the client and teammates, and should say who built what
+   (AGENTS.md, Confidentiality). Extract the real technology stack and details from the evidence —
+   never invent metrics or tech.
 4. Write to `~/Projects/brainspace/artifacts/project-summaries/<project>-project-summary.md`.
 
 ## Next step

@@ -1,8 +1,8 @@
 # Reference: Project Summary Rules (preserved from `analyzeProject.ts`)
 
 Preserved IP from the retired `scripts/analyzeProject.ts`. This is the framework that produces the
-large, detailed `project-experience-summaries/*.md` artifacts. The `experience-bank` skill follows
-this when generating a summary for a new project (no API — Claude Code is the model). The deterministic
+large, detailed `artifacts/project-summaries/*.md` summaries in the knowledge base. The
+`project-summary` skill follows this when generating a summary for a new project (no API — Claude Code is the model). The deterministic
 parsers `tools/extractGitData.ts` and `tools/processBacklog.ts` still prepare the raw input.
 
 ## Input

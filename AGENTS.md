@@ -63,9 +63,12 @@ They chain `project-summary → experience-bank → tailored-render`, with `voic
 - **No API.** No API keys or AI-provider SDK. The former `local | openai | claude` mode system and the
   `lib/ai.ts` / `lib/claude.ts` / `lib/aiConfig.ts` layer were removed. Do not reintroduce them —
   generation is inline by the agent.
-- **Confidentiality.** Never write client or product names into committed artifacts. Only "Atomic
-  Object" may appear; describe clients by domain (e.g. "a statewide court system", "a national coffee
-  chain"). The bank is already anonymized — keep it that way; re-check on every render.
+- **Confidentiality — the one rule, by direction.** Inputs may name clients and people: the
+  worklog and project summaries (internal, the tool's raw material). Everything else the tooling
+  writes may not: the bank, renders, paste lists, postings, the Pipeline table, and any new output.
+  There only "Atomic Object" is named; clients are described by domain (e.g. "a statewide court
+  system", "a national coffee chain"). Anonymizing happens when text crosses from an input into an
+  output — re-check on every extraction and render.
 - **No invented facts.** Claims, tech tags, and metrics must trace to source material. (This is the
   drift that motivated the bank — see `specs/skills-migration.md`.)
 - **The bank is the source of truth.** Don't hand-edit `claims.yaml` for a one-off render — fix the
@@ -77,8 +80,9 @@ They chain `project-summary → experience-bank → tailored-render`, with `voic
 ```bash
 bun install
 bun run type-check        # tsc --noEmit
-bun run extractGitData    # parse git logs → structured data
-bun run processBacklog    # parse CSV backlogs → structured data
+bun test                  # tests over small fixtures in test/fixtures/ — never the live bank
+bun run extractGitData    # parse git logs → .tmp/processed/ with --save (exact author match)
+bun run processBacklog    # parse CSV backlogs → .tmp/processed/ with --save (fails without an assignee column)
 bun run getPosts          # download blog posts → .tmp/posts/ (intermediate)
 bun run htmlToMarkdown    # convert posts → brainspace/data/voice-samples/  (voice input)
 bun run buildBankIndex    # regenerate the bank index.md from claims.yaml (in artifacts/contributions/)
@@ -97,6 +101,7 @@ REPO (mechanism only)
   lib/ tools/        # support libs + deterministic parsers (paths via lib/config.ts → KB.*)
   getPosts.ts htmlToMarkdown.ts   # blog download + markdown conversion
   specs/             # roadmap (STATUS.md) + preserved prompt-IP reference docs
+  test/              # bun test suite + fixtures (made-up data only)
   .claude/skills/    # the primary interface
   voice-cache/       # cached voice signature (allowed repo-local cache)
   .tmp/              # re-derivable intermediates (raw posts, processed git data) — gitignored

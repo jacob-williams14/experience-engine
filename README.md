@@ -21,7 +21,7 @@ Runs on [Bun](https://bun.sh).
 
 State lives in the knowledge base at `~/Projects/brainspace/` (the repo is pure processing and owns
 no durable data — see [`AGENTS.md`](./AGENTS.md) and the contract in
-`~/Projects/brainspace/docs/knowledge-base.md`). Override the root with
+`~/Projects/brainspace/docs/reference/knowledge-base.md`). Override the root with
 `$BRAINSPACE_ROOT`.
 
 The work happens through **Claude Code skills** (in the repo-root `.claude/skills/`), not CLI
@@ -55,6 +55,7 @@ bun run getPosts          # download blog posts → .tmp/posts/ (intermediate)
 bun run htmlToMarkdown    # convert posts → brainspace/data/voice-samples/  (voice input)
 bun run buildBankIndex    # regenerate the bank index
 bun run type-check        # tsc --noEmit
+bun test                  # tests, over fixtures in test/fixtures/ (never the live bank)
 ```
 
 ## Layout
@@ -65,6 +66,7 @@ REPO (mechanism only)
   lib/ tools/        # support libs + deterministic parsers (paths via lib/config.ts → KB.*)
   getPosts.ts htmlToMarkdown.ts   # blog download + markdown conversion
   specs/             # roadmap + preserved prompt-IP reference docs (see specs/STATUS.md)
+  test/              # bun test suite + small fixtures
   .claude/skills/    # the skills (the primary interface)
   voice-cache/       # cached voice signature   ·   .tmp/  # gitignored intermediates
 
