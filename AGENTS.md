@@ -28,24 +28,18 @@ re-derivable intermediates. The full contract is at
 `~/Projects/brainspace/docs/reference/knowledge-base.md`.
 
 ```text
-READS   data/{git-logs,backlogs,voice-samples}/  +  career/atomic/worklog/   (the pipeline)
-        artifacts/contributions/claims.yaml        jd-analyzer, linkedin-review, renders
-        career/target-profile.md                   jd-analyzer, job-scout
-        career/job-search.md                       jd-analyzer, job-scout
-        career/postings/                           job-scout (skips roles already analyzed)
-        career/conferences/*/companies.md          job-scout (seed companies, if present)
-        foundation/about-jacob.md                  jd-analyzer, linkedin-review
-        artifacts/resume/  (hand-edited by Jacob; never written by the tooling)   linkedin-review
-WRITES  artifacts/{project-summaries,contributions,linkedin,bio}/
-        career/postings/                           jd-analyzer (when asked), job-scout
-        career/job-search.md Pipeline table        job-scout
-        data/voice-samples/                        htmlToMarkdown (re-derivable; gitignored there)
-REPO    holds no durable data — only voice-cache/ (cache) and .tmp/ (intermediates)
+READS   data/**, career/atomic/worklog/**, artifacts/** (incl. the resume), and the career/ and
+        foundation/ files a skill names in its Inputs (target profile, job search, about-jacob)
+WRITES  artifacts/** except artifacts/resume/ (hand-edited by Jacob — read, never written)
+        + career/postings/ and the Pipeline table in career/job-search.md
+        + data/voice-samples/ (htmlToMarkdown; re-derivable, gitignored in brainspace)
+REPO    holds no durable data — only voice-cache/ (cache, incl. style summaries) and .tmp/
 ```
 
-Paths are relative to the brainspace root. Scripts resolve them through `lib/config.ts` (`KB.*`);
-skills resolve the rest from `$BRAINSPACE_ROOT` (default `~/Projects/brainspace`), never a
-hardcoded path. Don't reintroduce repo-local `data/` or output dirs.
+Paths are relative to the brainspace root. Scripts resolve them through `lib/config.ts` (`KB.*`).
+Skills write them as `~/Projects/brainspace/…`: read that as `$BRAINSPACE_ROOT` when it is set.
+This block mirrors the contract in `knowledge-base.md`; change both together. Don't reintroduce
+repo-local `data/` or output dirs.
 
 ## Skills are the primary interface
 

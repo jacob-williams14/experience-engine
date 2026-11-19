@@ -10,10 +10,10 @@ versioning scheme is adopted.
 
 ### Changed — AGENTS.md read/write contract matches what the skills do
 
-- READS and WRITES now list each path with the skill that touches it, including the career and
-  foundation files `jd-analyzer`, `job-scout` and `linkedin-review` read, the hand-edited resume,
-  and the voice samples `htmlToMarkdown` writes. brainspace's `knowledge-base.md` gets the same
-  list in a companion PR.
+- READS and WRITES are stated by zone, so a new file needs no edit: the tool's own `artifacts/`,
+  the career and foundation files a skill names, the hand-edited resume (read, never written),
+  and the voice samples `htmlToMarkdown` writes. brainspace's `knowledge-base.md` is the single
+  source; AGENTS.md mirrors it. `voice-signature`'s style summaries move into `voice-cache/`.
 
 ### Fixed — parsers no longer credit teammates' work; index refuses a broken bank
 

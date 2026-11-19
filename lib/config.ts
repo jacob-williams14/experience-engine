@@ -23,8 +23,8 @@ export function resolveBrainspaceRoot(value = process.env.BRAINSPACE_ROOT): stri
 export const BRAINSPACE_ROOT = resolveBrainspaceRoot();
 
 /**
- * The KB paths the scripts use. The full read/write contract, including the paths only skills
- * touch, is in AGENTS.md.
+ * The KB paths the scripts use. The full read/write contract, including paths only skills touch,
+ * is brainspace's docs/reference/knowledge-base.md (mirrored in AGENTS.md).
  */
 export const KB = {
 	ROOT: BRAINSPACE_ROOT,
