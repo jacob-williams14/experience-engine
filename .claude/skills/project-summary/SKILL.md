@@ -46,10 +46,9 @@ instead, apply the same care: only work the source attributes to Jacob.
    required document structure). The existing
    `~/Projects/brainspace/artifacts/project-summaries/*-project-summary.md` files are the matching
    exemplars; new summaries must match their structure exactly.
-3. Summaries are internal inputs, like the worklog: they may name the client and teammates (and
-   naming who built what keeps attribution honest). Anonymizing happens later, when the
-   `experience-bank` skill extracts claims. Extract the real technology stack and details from the
-   evidence — never invent metrics or tech.
+3. Summaries are inputs: they may name the client and teammates, and should say who built what
+   (AGENTS.md, Confidentiality). Extract the real technology stack and details from the evidence —
+   never invent metrics or tech.
 4. Write to `~/Projects/brainspace/artifacts/project-summaries/<project>-project-summary.md`.
 
 ## Next step

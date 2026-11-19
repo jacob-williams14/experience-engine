@@ -1,9 +1,7 @@
 name: Checks
 
-# Runs the tests and the type check on every PR and on pushes to main. Read-only token, no
-# secrets. The only action is GitHub's own checkout, pinned to a commit. Bun comes from npm at a
-# pinned version instead of a setup action; that package's install script still runs here, so
-# the pin, not this file, is what limits it.
+# Bun installs from npm at a pinned version instead of a setup action; its install script runs, so
+# the pin is the control.
 
 on:
   pull_request:
@@ -12,6 +10,11 @@ on:
 
 permissions:
   contents: read
+
+# A newer push to the same PR replaces its unfinished run.
+concurrency:
+  group: checks-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   checks:

@@ -63,12 +63,12 @@ They chain `project-summary → experience-bank → tailored-render`, with `voic
 - **No API.** No API keys or AI-provider SDK. The former `local | openai | claude` mode system and the
   `lib/ai.ts` / `lib/claude.ts` / `lib/aiConfig.ts` layer were removed. Do not reintroduce them —
   generation is inline by the agent.
-- **Confidentiality.** Never write client or product names into anything this tooling writes —
-  the bank, renders, paste lists, `career/postings/`, the Pipeline table — except project
-  summaries (below). Only "Atomic Object" may appear; describe clients by domain (e.g. "a statewide court system", "a national coffee
-  chain"). The bank is already anonymized — keep it that way; re-check on every render. Project
-  summaries are internal inputs, like the worklog: they may name clients and teammates, and
-  anonymizing happens when a claim is extracted into the bank.
+- **Confidentiality — the one rule, by direction.** Inputs may name clients and people: the
+  worklog and project summaries (internal, the tool's raw material). Everything else the tooling
+  writes may not: the bank, renders, paste lists, postings, the Pipeline table, and any new output.
+  There only "Atomic Object" is named; clients are described by domain (e.g. "a statewide court
+  system", "a national coffee chain"). Anonymizing happens when text crosses from an input into an
+  output — re-check on every extraction and render.
 - **No invented facts.** Claims, tech tags, and metrics must trace to source material. (This is the
   drift that motivated the bank — see `specs/skills-migration.md`.)
 - **The bank is the source of truth.** Don't hand-edit `claims.yaml` for a one-off render — fix the

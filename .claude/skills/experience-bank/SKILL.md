@@ -157,7 +157,7 @@ below.
 3. Extract genuinely distinct accomplishments as claim blocks (schema above), anonymized. Claims
    pulled from a project summary are `type: technical`. Set `refs` to the ticket / PR ids the
    summary cites for that work. Summaries are **not** anonymized — they name the client and
-   teammates — so everything you lift from one passes the confidentiality rules below.
+   teammates — so everything you lift from one passes the confidentiality rules above.
 4. Append them under the right domain section of `claims.yaml`.
 5. Rebuild the index: `bun run buildBankIndex`.
 
