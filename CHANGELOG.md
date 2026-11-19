@@ -10,10 +10,10 @@ versioning scheme is adopted.
 
 ### Changed — AGENTS.md read/write contract matches what the skills do
 
-- AGENTS.md links brainspace's `knowledge-base.md` as the one contract and summarizes it in a
-  paragraph instead of copying it; the summary now covers the `career/` and `foundation/` files
-  skills read, both writers of `career/postings/`, the hand-edited resume (never written) and the voice samples. Scope meanings live
-  only in the `claims.yaml` header. `voice-signature`'s style summaries move into `voice-cache/`.
+- AGENTS.md links brainspace's `knowledge-base.md` as the only read/write contract instead of
+  copying it, keeping just the repo-side rules (never write the hand-edited resume). Scope
+  meanings live only in the `claims.yaml` header. `voice-signature`'s style summaries move into
+  `voice-cache/`.
 
 ### Fixed — parsers no longer credit teammates' work; index refuses a broken bank
 
