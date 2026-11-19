@@ -70,8 +70,8 @@ REPO (mechanism only)
   .claude/skills/    # the skills (the primary interface)
   voice-cache/       # cached voice signature   ·   .tmp/  # gitignored intermediates
 
-KNOWLEDGE BASE (~/Projects/brainspace — durable state)
-  data/{git-logs,backlogs,voice-samples}/                     # inputs
+KNOWLEDGE BASE (~/Projects/brainspace — durable state; full read/write contract in AGENTS.md)
+  data/{git-logs,backlogs,voice-samples}/                     # inputs (voice-samples re-derivable)
   artifacts/{project-summaries,contributions,linkedin,bio}/   # outputs (incl. the bank)
 ```
 

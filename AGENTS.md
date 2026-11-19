@@ -28,16 +28,24 @@ re-derivable intermediates. The full contract is at
 `~/Projects/brainspace/docs/reference/knowledge-base.md`.
 
 ```text
-READS   brainspace/data/{git-logs,backlogs,voice-samples}/   +  career/atomic/worklog/
-        + its own artifacts/ (bank, summaries, resume) and, for jd-analyzer / job-scout /
-          linkedin-review: career/{target-profile,job-search}.md, foundation/about-jacob.md
-WRITES  brainspace/artifacts/{project-summaries,contributions,linkedin,bio}/
-        + career/postings/ and career/job-search.md Pipeline (job-scout)
-        + data/voice-samples/ (htmlToMarkdown; re-derivable, gitignored in brainspace)
+READS   data/{git-logs,backlogs,voice-samples}/  +  career/atomic/worklog/   (the pipeline)
+        artifacts/contributions/claims.yaml        jd-analyzer, linkedin-review, renders
+        career/target-profile.md                   jd-analyzer, job-scout
+        career/job-search.md                       jd-analyzer, job-scout
+        career/postings/                           job-scout (skips roles already analyzed)
+        career/conferences/*/companies.md          job-scout (seed companies, if present)
+        foundation/about-jacob.md                  jd-analyzer, linkedin-review
+        artifacts/resume/  (hand-edited by Jacob; never written by the tooling)   linkedin-review
+WRITES  artifacts/{project-summaries,contributions,linkedin,bio}/
+        career/postings/                           jd-analyzer (when asked), job-scout
+        career/job-search.md Pipeline table        job-scout
+        data/voice-samples/                        htmlToMarkdown (re-derivable; gitignored there)
 REPO    holds no durable data — only voice-cache/ (cache) and .tmp/ (intermediates)
 ```
 
-Paths resolve through `lib/config.ts` (`KB.*`). Don't reintroduce repo-local `data/` or output dirs.
+Paths are relative to the brainspace root. Scripts resolve them through `lib/config.ts` (`KB.*`);
+skills resolve the rest from `$BRAINSPACE_ROOT` (default `~/Projects/brainspace`), never a
+hardcoded path. Don't reintroduce repo-local `data/` or output dirs.
 
 ## Skills are the primary interface
 
