@@ -29,8 +29,11 @@ re-derivable intermediates. The full contract is at
 
 ```text
 READS   brainspace/data/{git-logs,backlogs,voice-samples}/   +  career/atomic/worklog/
+        + its own artifacts/ (bank, summaries, resume) and, for jd-analyzer / job-scout /
+          linkedin-review: career/{target-profile,job-search}.md, foundation/about-jacob.md
 WRITES  brainspace/artifacts/{project-summaries,contributions,linkedin,bio}/
         + career/postings/ and career/job-search.md Pipeline (job-scout)
+        + data/voice-samples/ (htmlToMarkdown; re-derivable, gitignored in brainspace)
 REPO    holds no durable data — only voice-cache/ (cache) and .tmp/ (intermediates)
 ```
 

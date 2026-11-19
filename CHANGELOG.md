@@ -8,6 +8,11 @@ versioning scheme is adopted.
 
 ## [Unreleased]
 
+### Changed — AGENTS.md read/write contract matches what the skills do
+
+- READS adds what `jd-analyzer`, `job-scout` and `linkedin-review` read; WRITES adds the voice
+  samples `htmlToMarkdown` writes. Kept in sync with brainspace's `knowledge-base.md`.
+
 ### Fixed — parsers no longer credit teammates' work; index refuses a broken bank
 
 - `extractGitData` matched authors by substring both ways, so "Jacob", "Will" or "Jacob
