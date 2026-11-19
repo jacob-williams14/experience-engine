@@ -23,8 +23,8 @@ export function resolveBrainspaceRoot(value = process.env.BRAINSPACE_ROOT): stri
 export const BRAINSPACE_ROOT = resolveBrainspaceRoot();
 
 /**
- * Resolved KB zone paths. Reads come from `data/**` + the worklog; writes go to `artifacts/**`
- * (and `data/voice-samples/`, which htmlToMarkdown fills).
+ * The KB paths the scripts use. The full read/write contract, including paths only skills touch,
+ * is brainspace's docs/reference/knowledge-base.md.
  */
 export const KB = {
 	ROOT: BRAINSPACE_ROOT,

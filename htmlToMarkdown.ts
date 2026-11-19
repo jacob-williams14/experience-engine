@@ -5,7 +5,7 @@ import { setupGracefulExit } from "./lib/cliUtils.js";
 import { CONFIG, KB } from "./lib/config.js";
 
 // Raw posts are a repo-local intermediate (re-fetchable via getPosts); the converted markdown is the
-// durable voice input and lives in the KB at data/voice-samples/.
+// voice input, in the KB at data/voice-samples/ (re-derivable; gitignored there).
 const POSTS_DIR = CONFIG.POSTS_DIR;
 const VOICE_SAMPLES_DIR = KB.VOICE_SAMPLES;
 

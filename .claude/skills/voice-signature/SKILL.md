@@ -14,7 +14,7 @@ is cached at `voice-cache/jacob-williams-voice.json`.
 
 > **Paths.** Voice-sample inputs live in the knowledge base at
 > `~/Projects/brainspace/data/voice-samples/` (root override: `$BRAINSPACE_ROOT`). The voice cache
-> and the `enriched-style-summaries-*.json` intermediates stay repo-local.
+> and the `enriched-style-summaries-*.json` intermediates stay repo-local, in `voice-cache/`.
 
 ## No API
 
@@ -52,7 +52,8 @@ For a deeper signature, analyze the posts **by year** before writing the summary
 preserved capability from the retired `analyzeStyleOverTime` tool. Group Jacob's `~/Projects/brainspace/data/voice-samples/` posts by
 year and, per year, capture: `structurePattern`, `toneDescription`, `commonThemes[]`, `perspective`,
 `style`, `devices[]`, `depth`, `audience`. Write the per-year array to
-`enriched-style-summaries-<author>-<timestamp>.json` (the existing files are the format exemplar),
+`voice-cache/enriched-style-summaries-<author>-<timestamp>.json` (the existing files are the
+format exemplar),
 then fold the evolution (what's consistent across years, what matured) into the voice signature's
 "Evolution Markers" section. Use this when Jacob wants the fuller treatment; the standard per-post
 analysis above is fine otherwise.

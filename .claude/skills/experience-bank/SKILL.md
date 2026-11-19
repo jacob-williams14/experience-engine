@@ -49,7 +49,7 @@ Each claim in `claims.yaml`:
   domain: <public-safe domain string>   # USE THIS in renders, never the client name
   themes: [<one to three from the theme list below>]
   tech: [named technologies from the source only]   # usually [] for non-technical claims
-  scope: IC | owned-feature | co-tech-lead | tech-lead | cross-cutting   # cross-cutting = working style
+  scope: IC | owned-feature | co-tech-lead | tech-lead | cross-cutting   # meanings: claims.yaml header
   strength: featured | solid | filler   # proposed default; Jacob adjusts at render time
   hook: true | false                    # a "I need to talk to this person" problem
   keyword_rich: >-                       # recruiter-facing, anonymized
@@ -63,9 +63,9 @@ Each claim in `claims.yaml`:
   snapshot: <YYYY-MM-DD>                # claim describes an engagement still under way, as of this date
 ```
 
-> The schema comment at the top of `claims.yaml` lists only the first three `scope` values and
-> no `snapshot`. Leave that header alone in an enrichment run: the PR sorter rejects any change to
-> the unindented header, so it is fixed only in a PR Jacob merges.
+> The header comment at the top of `claims.yaml` defines each field and scope value. Leave it
+> alone in an enrichment run: the PR sorter rejects any change to the unindented header, so it
+> changes only in a PR Jacob merges.
 
 **`snapshot`** marks claims about an engagement that is still running. The section comment above
 them says when to refresh them (when the summary is regenerated near the engagement's end).

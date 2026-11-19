@@ -8,6 +8,13 @@ versioning scheme is adopted.
 
 ## [Unreleased]
 
+### Changed — AGENTS.md read/write contract matches what the skills do
+
+- AGENTS.md links brainspace's `knowledge-base.md` as the only read/write contract instead of
+  copying it, keeping just the repo-side rules (never write the hand-edited resume). Scope
+  meanings live only in the `claims.yaml` header. `voice-signature`'s style summaries move into
+  `voice-cache/`.
+
 ### Fixed — parsers no longer credit teammates' work; index refuses a broken bank
 
 - `extractGitData` matched authors by substring both ways, so "Jacob", "Will" or "Jacob

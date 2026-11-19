@@ -73,6 +73,8 @@ REPO (mechanism only)
 KNOWLEDGE BASE (~/Projects/brainspace — durable state)
   data/{git-logs,backlogs,voice-samples}/                     # inputs
   artifacts/{project-summaries,contributions,linkedin,bio}/   # outputs (incl. the bank)
+  career/  foundation/                                        # worklog, job search, profile
+  (full read/write contract: brainspace docs/reference/knowledge-base.md)
 ```
 
 ## No API
