@@ -114,6 +114,7 @@ Then commit the KB changes in brainspace with a Conventional Commit, per its con
 - **Stale aggregator copies.** Mirrors outlive the posting; prefer the ATS date and verify live.
 - **Conflicting comp / level across mirrors.** Record the range and say sources vary; don't pick one.
 - **Don't let scouts read the bank.** They pre-screen from the inline profile summary only.
-- **Confidentiality.** Never write client names into KB outputs — only "Atomic Object" may appear;
-  describe clients by domain.
+- **Confidentiality.** Never write client names into the postings, the Pipeline table or anything
+  else this skill writes — only "Atomic Object" may appear; describe clients by domain. (Project
+  summaries are the one KB output allowed to name clients; this skill writes none.)
 - **No invented facts.** Postings are quoted verbatim; analyses cite claim ids.

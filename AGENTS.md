@@ -63,8 +63,9 @@ They chain `project-summary → experience-bank → tailored-render`, with `voic
 - **No API.** No API keys or AI-provider SDK. The former `local | openai | claude` mode system and the
   `lib/ai.ts` / `lib/claude.ts` / `lib/aiConfig.ts` layer were removed. Do not reintroduce them —
   generation is inline by the agent.
-- **Confidentiality.** Never write client or product names into the bank or a render. Only "Atomic
-  Object" may appear; describe clients by domain (e.g. "a statewide court system", "a national coffee
+- **Confidentiality.** Never write client or product names into anything this tooling writes —
+  the bank, renders, paste lists, `career/postings/`, the Pipeline table — except project
+  summaries (below). Only "Atomic Object" may appear; describe clients by domain (e.g. "a statewide court system", "a national coffee
   chain"). The bank is already anonymized — keep it that way; re-check on every render. Project
   summaries are internal inputs, like the worklog: they may name clients and teammates, and
   anonymizing happens when a claim is extracted into the bank.

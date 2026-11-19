@@ -29,7 +29,8 @@ Mechanical, fast, no model needed — belongs with the test suite in
 
 - `claims.yaml` schema validity (required fields, enum values for `scope`/`strength`, `themes`
   contains only themes not scopes).
-- Confidentiality scan: no client/product names in claim/summary prose (only "Atomic Object").
+- Confidentiality scan: no client/product names in claim or render prose (only "Atomic Object").
+  Project summaries are exempt: they are internal inputs and may name clients (decided 2026-11-18).
 - Summary structure check: matches the required headings/order in
   [project-summary-rules-reference.md](./project-summary-rules-reference.md).
 - Render checks: tech-stack tag present per bullet; one-sentence brevity.

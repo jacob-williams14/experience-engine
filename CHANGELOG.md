@@ -46,8 +46,8 @@ versioning scheme is adopted.
 ### Added — CI
 
 - `.github/workflows/checks.yml` runs `bun test` and the type check on every PR and on pushes to
-  main. Bun comes from npm at a pinned version; the only action is GitHub's checkout, pinned to a
-  commit, so no third-party action runs.
+  main. The only action is GitHub's checkout, pinned to a commit; Bun comes from npm at a pinned
+  version (its install script runs, so the pin is the control).
 
 ### Changed — project summaries may name clients
 
